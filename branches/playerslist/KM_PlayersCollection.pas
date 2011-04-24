@@ -1,0 +1,422 @@
+unit KM_PlayersCollection;
+{$I KaM_Remake.inc}
+interface
+uses
+  Classes, KromUtils, Math, SysUtils,
+  KM_Units, KM_Units_Warrior, KM_Houses, KM_CommonTypes, KM_Defaults, KM_Player, KM_PlayerAI, KM_Utils;
+
+
+type
+  TKMPlayersCollection = class
+    private
+      fCount:byte;
+      procedure SetCount(aCount:byte);
+    public
+      Player:array[1..MAX_PLAYERS] of TKMPlayerAssets;
+      PlayerAI:array[1..MAX_PLAYERS] of TKMPlayerAI;
+      PlayerAnimals: TKMPlayerAnimals;
+      Selected: TObject;
+    public
+      constructor Create(aPlayerCount:integer);
+      destructor Destroy; override;
+
+      property Count:byte read fCount write SetCount;
+      procedure RemovePlayer(aIndex:integer);
+      procedure MovePlayer(aFrom,aTo:integer);
+      procedure AfterMissionInit(aFlattenRoads:boolean);
+      function HousesHitTest(X,Y:Integer):TKMHouse;
+      function UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+      function GetHouseByID(aID: Integer): TKMHouse;
+      function GetUnitByID(aID: Integer): TKMUnit;
+      function HitTest(X,Y:Integer):boolean;
+      function GetUnitCount:integer;
+      function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+      function CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+      procedure CleanUpUnitPointer(var aUnit: TKMUnit); overload;
+      procedure CleanUpUnitPointer(var aUnit: TKMUnitWarrior); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouse); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouseInn); overload;
+      procedure CleanUpHousePointer(var aHouse: TKMHouseSchool); overload;
+      function RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+      function RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+
+      procedure Save(SaveStream:TKMemoryStream);
+      procedure Load(LoadStream:TKMemoryStream);
+      procedure SyncLoad;
+      procedure IncAnimStep;
+      procedure UpdateState(Tick:cardinal);
+      procedure Paint;
+    end;
+
+var
+  fPlayers: TKMPlayersCollection;
+  MyPlayer: TKMPlayerAssets; //shortcut to access players player
+
+  
+implementation
+uses KM_Terrain, KM_Game;
+
+
+{TKMAllPlayers}
+constructor TKMPlayersCollection.Create(aPlayerCount:integer);
+begin
+  Inherited Create;
+  SetCount(aPlayerCount);
+  PlayerAnimals := TKMPlayerAnimals.Create;
+end;
+
+
+destructor TKMPlayersCollection.Destroy;
+var i:integer;
+begin
+  for i:=1 to MAX_PLAYERS do begin //Free all just in case
+    FreeThenNil(Player[i]);
+    FreeThenNil(PlayerAI[i]);
+  end;
+  FreeThenNil(PlayerAnimals);
+
+  MyPlayer := nil;
+  Selected := nil;
+  Inherited;
+end;
+
+
+procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
+var i:integer;
+begin
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Player[i].AfterMissionInit(aFlattenRoads);
+end;
+
+
+procedure TKMPlayersCollection.SetCount(aCount:byte);
+var i:integer;
+begin
+  Assert(aCount <= MAX_PLAYERS, 'Setting unsupported PlayersCount: ' + inttostr(aCount));
+
+  fCount := aCount;
+  for i:=1 to fCount do begin
+    if Player[i]   = nil then Player[i]   := TKMPlayerAssets.Create(TPlayerID(i));
+    if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+  end;
+  for i:=fCount+1 to MAX_PLAYERS do begin
+    FreeThenNil(Player[i]);
+    FreeThenNil(PlayerAI[i]);
+  end;
+end;
+
+
+//Remove the player from the map completely
+procedure TKMPlayersCollection.RemovePlayer(aIndex:integer);
+var i:integer;
+begin
+  FreeThenNil(Player[aIndex]);
+  FreeThenNil(PlayerAI[aIndex]);
+
+  for i:=1 to fCount do
+    if Player[i]<>nil then
+      Player[i].Goals.RemoveReference(TPlayerID(aIndex));
+end;
+
+
+//todo: it will be right to remove empty players before save (called my SaveDAT)
+procedure TKMPlayersCollection.MovePlayer(aFrom,aTo:integer);
+begin
+  //Update IDs, Alliances, Goals
+
+  //Remove references from Terrain
+
+  //Do not Trim empty players (MapEd UI won't like it)
+end;
+
+
+function TKMPlayersCollection.HousesHitTest(X, Y: Integer): TKMHouse;
+var i:integer;
+begin
+  Result:=nil;
+  for i:=1 to fCount do begin
+    if Player[i]<>nil then
+    Result := Player[i].HousesHitTest(X,Y);
+    if Result<>nil then exit; //Assuming that there can't be 2 houses on one tile
+  end;
+end;
+
+
+//Floating-point hit test version, required for Projectiles
+//Return unit within range of 1 from aLoc
+function TKMPlayersCollection.UnitsHitTestF(aLoc: TKMPointF): TKMUnit;
+var i,X,Y:integer; U:TKMUnit;
+begin
+  Result := nil;
+
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
+  for X:=trunc(aLoc.X) to ceil(aLoc.X) do begin
+    U := Player[i].UnitsHitTest(X,Y);
+    if U<>nil then
+      if (Result=nil) or (GetLength(U.PositionF,aLoc)<GetLength(Result.PositionF,aLoc)) then
+        Result := U;
+  end;
+
+  if Result = nil then
+  for Y:=trunc(aLoc.Y) to ceil(aLoc.Y) do //test four related tiles around
+  for X:=trunc(aLoc.X) to ceil(aLoc.X) do
+    Result := PlayerAnimals.UnitsHitTest(X,Y);
+end;
+    
+
+function TKMPlayersCollection.GetHouseByID(aID: Integer): TKMHouse;
+var i:integer;
+begin
+  Result := nil;
+  if aID = 0 then exit;
+
+  for i:=1 to fCount do
+  if Player[i] <> nil then
+  begin
+    Result := Player[i].Houses.GetHouseByID(aID);
+    if Result<>nil then Break; //else keep on testing
+  end;
+end;
+
+
+function TKMPlayersCollection.GetUnitByID(aID: Integer): TKMUnit;
+var i:integer;
+begin
+  Result := nil;
+  if aID = 0 then exit;
+
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+  begin
+    Result := Player[i].Units.GetUnitByID(aID);
+    if Result<>nil then Break; //else keep on testing
+  end;
+  if Result = nil then Result := PlayerAnimals.Units.GetUnitByID(aID);
+end;
+
+
+{ HitTest for houses/units altogether
+  Houses have priority over units, so you can't select an occupant.
+  (however, this is only true if the house is built)
+  Player should not be able to select dying units either }
+function TKMPlayersCollection.HitTest(X,Y: Integer):boolean;
+var H:TKMHouse; U:TKMUnit;
+begin
+  H := MyPlayer.HousesHitTest(X,Y);
+  if (H<>nil) and (H.BuildingState in [hbs_Stone,hbs_Done]) then
+    fPlayers.Selected := H
+  else begin
+    U := MyPlayer.UnitsHitTest(X,Y);
+    if (U<>nil) and (not U.IsDeadOrDying) then
+      fPlayers.Selected := U
+    else
+      fPlayers.Selected := H;
+  end;
+
+  Result := fPlayers.Selected <> nil;
+end;
+
+
+//Get total unit count for statistics display
+function TKMPlayersCollection.GetUnitCount:integer;
+var i:integer;
+begin
+  Result:=0;
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    inc(Result,Player[i].Units.Count);
+end;
+
+
+{Should return closest position where unit can be placed}
+function TKMPlayersCollection.FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType):TKMPoint;
+var
+  i:integer;
+  P:TKMPointI;
+  T:TKMPoint;
+  aPass:TPassability; //temp for required passability
+begin
+  Result := KMPoint(0,0); //if function fails to find valid position
+
+  if aUnitType in [ut_Wolf..ut_Duck] then
+    aPass := AnimalTerrain[byte(aUnitType)]
+  else
+    aPass := CanWalk;
+
+  for i:=0 to 255 do begin
+    P := GetPositionFromIndex(KMPoint(PosX,PosY), i);
+    if fTerrain.TileInMapCoords(P.X,P.Y) then begin
+      T := KMPoint(P);
+      if fTerrain.CheckPassability(T, aPass) and not fTerrain.HasUnit(T) then begin
+        Result := T; //Assign if all test are passed
+        exit;
+      end;
+    end;
+  end;
+end;
+
+
+{ Check how Player1 feels towards Player2. Note: this is position dependant,
+e.g. Play1 may be allied with Play2, but Play2 may be enemy to Play1}
+function TKMPlayersCollection.CheckAlliance(aPlay1,aPlay2:TPlayerID):TAllianceType;
+begin
+  Assert(InRange(byte(aPlay1),1,MAX_PLAYERS+1) and InRange(byte(aPlay2),1,MAX_PLAYERS+1)); //Max_players + Animals
+
+  if (aPlay1 = aPlay2) or (aPlay1 = play_animals) or (aPlay2 = play_animals) then
+    Result := at_Ally
+  else
+    Result := Player[byte(aPlay1)].Alliances[byte(aPlay2)];
+end;
+
+
+procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnit);
+begin
+  if (aUnit <> nil) and not fGame.IsExiting then
+    aUnit.ReleaseUnitPointer;
+  aUnit := nil;
+end;
+
+procedure TKMPlayersCollection.CleanUpUnitPointer(var aUnit: TKMUnitWarrior);
+begin
+  CleanUpUnitPointer(TKMUnit(aUnit));
+end;
+
+
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouse);
+begin
+  if (aHouse <> nil) and not fGame.IsExiting then
+    aHouse.ReleaseHousePointer;
+  aHouse := nil;
+end;
+
+
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseInn);
+begin
+  CleanUpHousePointer(TKMHouse(aHouse));
+end;
+
+
+procedure TKMPlayersCollection.CleanUpHousePointer(var aHouse: TKMHouseSchool);
+begin
+  CleanUpHousePointer(TKMHouse(aHouse));
+end;
+
+
+function TKMPlayersCollection.RemAnyHouse(Position: TKMPoint; DoSilent:boolean; Simulated:boolean=false; IsEditor:boolean=false):boolean;
+var i:integer;
+begin
+  Result := false;
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Result := Result or Player[i].RemHouse(Position, DoSilent, Simulated, IsEditor);
+end;
+
+
+function TKMPlayersCollection.RemAnyUnit(Position: TKMPoint; Simulated:boolean=false):boolean;
+var i:integer;
+begin
+  Result := false;
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Result := Result or Player[i].RemUnit(Position, Simulated);
+end;
+
+
+procedure TKMPlayersCollection.Save(SaveStream:TKMemoryStream);
+var i:word;
+begin
+  SaveStream.Write('Players');
+  SaveStream.Write(fCount);
+  for i:=1 to fCount do
+  begin
+    SaveStream.Write(Player[i]<>nil);
+    if Player[i]<>nil then begin
+      Player[i].Save(SaveStream);
+      PlayerAI[i].Save(SaveStream); //Saves AI stuff
+    end;
+  end;
+  PlayerAnimals.Save(SaveStream);
+  SaveStream.Write(MyPlayer.PlayerID, SizeOf(MyPlayer.PlayerID));
+end;
+
+
+procedure TKMPlayersCollection.Load(LoadStream:TKMemoryStream);
+var i:word; s:string; P:TPlayerID; PlayerExists:boolean;
+begin
+  LoadStream.Read(s);
+  Assert(s = 'Players', 'Players not found');
+  LoadStream.Read(fCount);
+  fLog.AssertToLog(fCount <= MAX_PLAYERS,'Player count in savegame exceeds MAX_PLAYERS allowed by Remake');
+  Selected := nil;
+
+  for i:=1 to fCount do
+  begin
+    LoadStream.Read(PlayerExists);
+    if PlayerExists then
+    begin
+      if Player[i]   = nil then   Player[i] := TKMPlayerAssets.Create(TPlayerID(i));
+      if PlayerAI[i] = nil then PlayerAI[i] := TKMPlayerAI.Create(Player[i]);
+      Player[i].Load(LoadStream);
+      PlayerAI[i].Load(LoadStream);
+    end;
+  end;
+  PlayerAnimals.Load(LoadStream);
+
+  LoadStream.Read(P, SizeOf(P));
+  MyPlayer := fPlayers.Player[integer(P)];
+end;
+
+
+procedure TKMPlayersCollection.SyncLoad;
+var i:byte;
+begin
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+  begin
+    Player[i].SyncLoad;
+    PlayerAI[i].SyncLoad;
+  end;
+  PlayerAnimals.SyncLoad;
+end;
+
+
+procedure TKMPlayersCollection.IncAnimStep;
+var i:byte;
+begin
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Player[i].IncAnimStep;
+end;
+
+
+procedure TKMPlayersCollection.UpdateState(Tick:cardinal);
+var i:byte;
+begin
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Player[i].UpdateState;
+
+  PlayerAnimals.UpdateState;
+
+  //This is not ajoined with previous loop since it can result in StopGame which flushes all data
+  for i:=1 to fCount do
+  if PlayerAI[i]<>nil then
+    if (Tick+i) mod 20 = 0 then //Do only one player per Tick
+      PlayerAI[i].UpdateState;
+end;
+
+
+procedure TKMPlayersCollection.Paint;
+var i:integer;
+begin
+  for i:=1 to fCount do
+  if Player[i]<>nil then
+    Player[i].Paint;
+  PlayerAnimals.Paint;
+end;
+
+
+end.
