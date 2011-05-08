@@ -9,7 +9,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream {$ENDIF};
+  {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
 
 
 type
@@ -607,16 +607,18 @@ end;
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
 procedure TResource.LoadRX7(RX:integer);
-{$IFDEF WDC}
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
+  {$IFDEF WDC}
   po:TPNGObject;
   {$ENDIF}
+  {$IFDEF Unix}
+  po:TBGRABitmap;
+  {$ENDIF}
 begin
-  {$IFDEF WDC}
   if not DirectoryExists(ExeDir + 'Sprites\') then exit;
 
   FileList := TStringList.Create;
@@ -633,7 +635,7 @@ begin
 
   //#-####.png - default texture
   //#-####a.png - alternative texture
-  
+
   for i:=0 to FileList.Count-1 do begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
@@ -642,7 +644,12 @@ begin
         RXData[RX].HasMask[i] := true //todo: [Krom] Support alternative textures
       else
         RXData[RX].HasMask[i] := false;
+      {$IFDEF WDC}
       po := TPNGObject.Create;
+      {$ENDIF}
+      {$IFDEF FPC}
+      po := TBGRABitmap.Create;
+      {$ENDIF}
       po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
 
       RXData[RX].Size[ID].X := po.Width;
@@ -650,7 +657,7 @@ begin
 
       setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
       setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
-
+      {$IFDEF WDC}
       case po.TransparencyMode of //There are ways to process PNG transparency
         ptmNone:
           for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
@@ -668,7 +675,7 @@ begin
           end;
         else Assert(false, 'Unknown PNG transparency mode')
       end;
-
+      {$ENDIF}
       //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
       //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
@@ -691,9 +698,7 @@ begin
       po.Free;
     end;
   end;
-
   FileList.Free;
-  {$ENDIF}
 end;
 
 
