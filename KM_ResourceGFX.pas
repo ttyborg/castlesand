@@ -132,7 +132,12 @@ begin
 
   for i:=4 to 6 do
   begin
+    {$IFDEF MSWindows}
     LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
+    {$ENDIF}
+    {$IFDEF Unix}
+    LoadRX(ExeDir+'data/gfx/res/'+RXData[i].Title+'.rx',i);
+    {$ENDIF}
     LoadRX7(i); //Load RX data overrides
 
     if i=4 then MakeCursors(4);
@@ -168,16 +173,29 @@ begin
   fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
+  {$IFDEF MSWindows}
   LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
   LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
   LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh;
   LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
+  {$ENDIF}
+  {$IFDEF Unix}
+  LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat'); StepRefresh;
+  LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat'); StepRefresh;
+  LoadHouseDAT(ExeDir+'data/defines/houses.dat');    StepRefresh;
+  LoadUnitDAT(ExeDir+'data/defines/unit.dat');       StepRefresh;
+  {$ENDIF}
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
+      {$IFDEF MSWindows}
       fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
+      {$ENDIF}
+      {$IFDEF Unix}
+      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data/gfx/res/'+RXData[i].Title+'.rx',i));
+      {$ENDIF}
       LoadRX7(i); //Updated sprites
       MakeGFX(i);
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will
@@ -1057,13 +1075,22 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     UsePal:TKMPal;
 begin
+  {$IFDEF MSWindows}
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
+  {$ENDIF}
+  {$IFDEF Unix}
+  CreateDir(ExeDir+'Export/');
+  CreateDir(ExeDir+'Export/'+RXData[RXid].Title+'.rx/');
+  {$ENDIF}
   MyBitMap := TBitMap.Create;
   MyBitMap.PixelFormat := pf24bit;
-
+  {$IFDEF MSWindows}
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
-
+  {$ENDIF}
+  {$IFDEF Unix}
+  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[RXid].Title+'.rx',RXid);
+  {$ENDIF}
   for id:=1 to RXData[RXid].Qty do begin
 
     sx := RXData[RXid].Size[id].X;
@@ -1081,8 +1108,12 @@ begin
       t := RXData[RXid].Data[id,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
     end;
+    {$IFDEF MSWindows}
     if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
-
+    {$ENDIF}
+    {$IFDEF Unix}
+    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export/'+RXData[RXid].Title+'.rx/'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+    {$ENDIF}
     setlength(RXData[RXid].Data[id],0);
   end;
 
@@ -1096,21 +1127,38 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     Used:array of integer;
 begin
+  {$IFDEF MSWindows}
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\UnitAnim\');
+  {$ENDIF}
+  {$IFDEF Unix}
+  CreateDir(ExeDir+'Export/');
+  CreateDir(ExeDir+'Export/UnitAnim/');
+  {$ENDIF}
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-
+  {$IFDEF MSWindows}
   fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
+  {$ENDIF}
+  {$IFDEF Unix}
+  fResource.LoadUnitDAT(ExeDir+'data/defines/unit.dat');
+  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[3].Title+'.rx',3);
+  {$ENDIF}
 
   ci:=0;
   for iUnit:=byte(ut_Militia) to byte(ut_Militia) do begin
     for iAct:=1 to 14 do begin
       for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
+          {$IFDEF MSWindows}
           CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\');
           CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\');
+          {$ENDIF}
+          {$IFDEF Unix}
+          CreateDir(ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/');
+          CreateDir(ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/'+UnitAct[iAct]+'/');
+          {$ENDIF}
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
             ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
@@ -1124,13 +1172,21 @@ begin
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
+            {$IFDEF MSWindows}
             ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
+            {$ENDIF}
+            {$IFDEF Unix}
+            ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/'+UnitAct[iAct]+'/'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
+            {$ENDIF}
         end;
       end;
     end;
   end;
-
+  {$IFDEF MSWindows}
   CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
+  {$ENDIF}{$IFDEF Unix}
+  CreateDir(ExeDir+'Export/UnitAnim/_TheRest');
+  {$ENDIF}
   setlength(Used,length(RXData[3].Size));
   for iUnit:=1 to 41 do
   for iAct:=1 to 14 do
@@ -1157,7 +1213,11 @@ begin
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(
+      {$IFDEF MSWindows}
       ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
+      {$ENDIF}{$IFDEF Unix}
+      ExeDir+'Export/UnitAnim/_TheRest/'+'_'+int2fix(ci,4)+'.bmp');
+      {$ENDIF}
   end;
 
   MyBitMap.Free;
@@ -1171,20 +1231,33 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     s:string;
 begin
+  {$IFDEF MSWindows}
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\HouseAnim\');
+  {$ENDIF}{$IFDEF Unix}
+  CreateDir(ExeDir+'Export/');
+  CreateDir(ExeDir+'Export/HouseAnim/');
+  {$ENDIF}
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-
+  {$IFDEF MSWindows}
   fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
-
+  {$ENDIF}{$IFDEF Unix}
+  fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
+  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[2].Title+'.rx',2);
+  {$ENDIF}
   ci:=0;
   for ID:=byte(ht_WatchTower) to byte(ht_WatchTower) do begin
     for Ac:=1 to 5 do begin //Work1..Work5
       for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
+        {$IFDEF MSWindows}
         CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\');
         CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
+        {$ENDIF}{$IFDEF Unix}
+        CreateDir(ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/');
+        CreateDir(ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/Work'+IntToStr(Ac)+'/');
+        {$ENDIF}
         if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
         ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
 
@@ -1198,7 +1271,11 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
+        {$IFDEF MSWindows}
         ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
+        {$ENDIF}{$IFDEF Unix}
+        ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/Work'+IntToStr(Ac)+'/_'+int2fix(k,2)+'.bmp');
+        {$ENDIF}
       end;
     end;
   end;
@@ -1207,11 +1284,19 @@ begin
   for Q:=1 to 2 do begin
     if Q=1 then s:='_Swine';
     if Q=2 then s:='_Stables';
+    {$IFDEF MSWindows}
     CreateDir(ExeDir+'Export\HouseAnim\'+s+'\');
+    {$ENDIF}{$IFDEF Unix}
+    CreateDir(ExeDir+'Export/HouseAnim/'+s+'/');
+    {$ENDIF}
     for ID:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
         for k:=1 to HouseDATs[Q,ID,Ac].Count do begin
+          {$IFDEF MSWindows}
           CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\');
+          {$ENDIF}{$IFDEF Unix}
+          CreateDir(ExeDir+'Export/HouseAnim/'+s+'/'+int2fix(ID,2)+'/');
+          {$ENDIF}
           if HouseDATs[Q,ID,Ac].Step[k]+1<>0 then
           ci:=HouseDATs[Q,ID,Ac].Step[k]+1;
 
@@ -1224,7 +1309,11 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
+          {$IFDEF MSWindows}
           if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          {$ENDIF}{$IFDEF Unix}
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export/HouseAnim/'+s+'/'+int2fix(ID,2)+'/_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
+          {$ENDIF}
         end;
       end;
     end;
@@ -1240,14 +1329,22 @@ var MyBitMap:TBitMap;
     ID,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
 begin
+  {$IFDEF MSWindows}
   CreateDir(ExeDir+'Export\');
   CreateDir(ExeDir+'Export\TreeAnim\');
+  {$ENDIF}{$IFDEF Unix}
+  CreateDir(ExeDir+'Export/');
+  CreateDir(ExeDir+'Export/TreeAnim/');
+  {$ENDIF}
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-
+  {$IFDEF MSWindows}
   fResource.LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat');
   fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
-
+  {$ENDIF}{$IFDEF Unix}
+  fResource.LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat');
+  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[1].Title+'.rx',1);
+  {$ENDIF}
   ci:=0;
   for ID:=1 to MapElemQty do begin
     for k:=1 to MapElem[ID].Count do begin
