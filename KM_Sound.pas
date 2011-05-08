@@ -234,8 +234,13 @@ var
   i,Tmp:integer;
 begin
   if not fIsSoundInitialized then exit;
+  {$IFDEF MSWindows}
   if not CheckFileExists(ExeDir+'data\sfx\sounds.dat') then exit;
   AssignFile(f, ExeDir+'data\sfx\sounds.dat');
+  {$ENDIF}{$IFDEF Unix}
+  if not CheckFileExists(ExeDir+'Data/sfx/sounds.dat') then exit;
+  AssignFile(f, ExeDir+'Data/sfx/sounds.dat');
+  {$ENDIF}
   FileMode := 0;
   Reset(f,1);
   FileMode := 2;
@@ -396,7 +401,11 @@ begin
   if not (aUnitType in [ut_Militia .. ut_Barbarian]) then
     Result := ''
   else
+    {$IFDEF MSWindows}
     Result := ExeDir + 'data\Sfx\Speech.'+aLocale+'\' + WarriorSFXFolder[byte(aUnitType)] + '\' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+    {$ENDIF}{$IFDEF Unix}
+    Result := ExeDir + 'Data/sfx/speech.'+aLocale+'/' + WarriorSFXFolder[byte(aUnitType)] + '/' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
+    {$ENDIF}
 end;
 
 
