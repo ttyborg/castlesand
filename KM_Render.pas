@@ -13,10 +13,10 @@ uses
   KM_TGATexture, KM_Defaults, KM_Utils, KM_CommonTypes;
 
 {$IFDEF Unix}
-type HDC = integer;
+//type HDC = integer;
 type HGLRC = integer;
 type HWND = integer;
-type FW_BOLD = integer;
+//type FW_BOLD = integer;
 {$ENDIF}
 
 type
@@ -118,7 +118,6 @@ uses KM_Unit1, KM_Terrain, KM_Viewport, KM_PlayersCollection, KM_Game, KM_Sound,
 constructor TRender.Create(RenderFrame:HWND; aVSync:boolean);
 begin
   Inherited Create;
-  {$IFDEF MSWindows}
   SetRenderFrame(RenderFrame, h_DC, h_RC);
   SetRenderDefaults;
   glDisable(GL_LIGHTING); //We don't need it
@@ -132,10 +131,6 @@ begin
   BuildFont(h_DC, 16, FW_BOLD);
 
   setlength(RenderList,512);
-  {$ENDIF}
-  {$IFDEF Unix}
-    MessageBox(Form1.Handle,'Trender.Create not working', 'Error', MB_OK);
-  {$ENDIF}
 end;
 
 
