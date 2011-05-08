@@ -676,6 +676,11 @@ begin
         else Assert(false, 'Unknown PNG transparency mode')
       end;
       {$ENDIF}
+      {$IFDEF FPC}
+      //just try ptmNone:
+      for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
+           RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
+      {$ENDIF}
       //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
       //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
