@@ -9,7 +9,7 @@ uses
   {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, {xlib, x,} {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, xlib, x, xutil, {$ENDIF}
   dglOpenGL, KromUtils;
 
 type
@@ -44,11 +44,11 @@ procedure TFormLoading.FormCreate(Sender: TObject);
 var
   InputParam:string;
   {$IFDEF Unix}
-  {winattr: XWindowAttributes;
-  vitemp: xlib.XVisualInfo;
+  winattr: TXWindowAttributes;
+  vitemp: TXVisualInfo;
   nret: Integer;
   glwin: Cardinal;
-  vi: PXvisualInfo; }
+  vi: PXvisualInfo;
   {$ENDIF}
 begin
   //MessageBox(Form1.Handle,'TFormLoading...', 'Error', MB_OK);
@@ -64,8 +64,8 @@ begin
   InitOpenGL;
   h_DC := GetDC(Form1.Panel1.Handle);
   if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
-  if not SetDCPixelFormat(h_DC) then exit;
   {$IFDEF MSWindows}
+  if not SetDCPixelFormat(h_DC) then exit;
   h_RC := wglCreateContext(h_DC);
   if h_RC=0 then begin MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR); exit; end;
   if not wglMakeCurrent(h_DC, h_RC) then begin
@@ -74,6 +74,8 @@ begin
   end;
   {$ENDIF}
   {$IFDEF Unix}
+  vi := XGetVisualInfo(Application.Display, VisualIDMask, @vitemp, @nret);
+  h_RC := glXCreateContext(Application.Display, vi, nil, True);
   { here example I foud still no idea how to add it properlyd:
   // Just in case it didn't happen already.
   if not InitOpenGL then RaiseLastOSError;
@@ -90,7 +92,7 @@ begin
   if RenderingContext = GLX_BAD_CONTEXT then
     raise Exception.Create('bad context');
   }
-  MessageBox(Form1.Handle,'wglMakeCurrent and wglCreateContext not ported', 'Error', MB_OK);
+  MessageBox(Form1.Handle,'wglMakeCurrent not ported', 'Error', MB_OK);
   {$ENDIF}
   ReadExtensions;
   ReadImplementationProperties;
