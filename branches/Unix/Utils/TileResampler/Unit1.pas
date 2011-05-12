@@ -123,7 +123,6 @@ var
   c:char;
 begin
   if not RunOpenDialog(OpenDialog1, '', '', 'Any file|*.*') then exit;
-//  {$IFDEF WDC}
   InputStream := TFileStream.Create(OpenDialog1.FileName, fmOpenRead);
   InputStream.Position := 0;
   InputStream.Read(c, 1);
