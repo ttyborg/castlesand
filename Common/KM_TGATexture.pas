@@ -83,15 +83,15 @@ end;
 
 
 procedure FlipImageVertical(W,H,BPP:word; Image:pointer);
-var ii,kk:cardinal;
+var ii,kk:int64;
   Front: ^Byte;
   Back: ^Byte;
   Temp: Byte;
 begin
 for kk:=0 to (H div 2)-1 do
 for ii:=0 to W*BPP-1 do begin
-          Front := Pointer(cardinal(Image)+kk*W*BPP+ii);
-          Back := Pointer(cardinal(Image)+(H-kk-1)*W*BPP+ii);
+          Front := Pointer(int64(Image)+kk*W*BPP+ii);
+          Back := Pointer(int64(Image)+(H-kk-1)*W*BPP+ii);
           Temp := Front^;
           Front^ := Back^;
           Back^ := Temp;
@@ -253,8 +253,8 @@ begin
   begin
     for i:=0 to Width*Height-1 do
     begin
-      Front := Pointer(cardinal(Image) + i*3);
-      Back := Pointer(cardinal(Image) + i*3 + 2);
+      Front := Pointer(int64(Image) + i*3);
+      Back := Pointer(int64(Image) + i*3 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;
@@ -265,8 +265,8 @@ begin
   begin
     for i:=0 to Width*Height-1 do
     begin
-      Front := Pointer(cardinal(Image) + i*4);
-      Back := Pointer(cardinal(Image) + i*4 + 2);
+      Front := Pointer(int64(Image) + i*4);
+      Back := Pointer(int64(Image) + i*4 + 2);
       Temp := Front^;
       Front^ := Back^;
       Back^ := Temp;
@@ -279,4 +279,4 @@ begin
 end;
 
 end.
-
+
