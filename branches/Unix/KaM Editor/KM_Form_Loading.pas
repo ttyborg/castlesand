@@ -8,7 +8,7 @@ uses
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLIntf, LCLType, xlib, x, xutil, {$ENDIF}
+  {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   dglOpenGL, KromUtils;
 
 type
@@ -40,17 +40,8 @@ uses KM_Unit1, KM_ReadGFX1, KM_Form_NewMap, KM_LoadDAT;
 
 
 procedure TFormLoading.FormCreate(Sender: TObject);
-var
-  InputParam:string;
-  {$IFDEF Unix}
-  winattr: TXWindowAttributes;
-  vitemp: TXVisualInfo;
-  nret: Integer;
-  glwin: Cardinal;
-  vi: PXvisualInfo;
-  {$ENDIF}
+var InputParam:string;
 begin
-  //MessageBox(Form1.Handle,'TFormLoading...', 'Error', MB_OK);
   Form1.Hide;
   ExeDir := ExtractFilePath(Application.ExeName);
 
