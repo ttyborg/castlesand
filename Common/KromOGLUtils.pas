@@ -4,14 +4,12 @@ unit KromOGLUtils;
 {$IFDEF VER220} {$DEFINE WDC} {$ENDIF}  // Delphi XE
 interface
 uses
-  {$IFDEF WDC} OpenGL, {$ENDIF}  dglOpenGL,
+  dglOpenGL,
   {$IFDEF FPC} GL, LCLIntf, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
-  {$IFDEF Unix} LCLType, glx, {$ENDIF}
-  sysutils, Forms, KromUtils;
+  {$IFDEF Unix} LCLType, glx, x, xlib, xutil, {$ENDIF}
+  SysUtils, Forms, KromUtils;
 
-type KCode = (kNil=0,kPoint=1,kSpline=2,kSplineAnchor=3,kSplineAnchorLength=4,
-kPoly=5,kSurface=6,kObject=7,kButton=8);  //1..31 are ok
 {$IFDEF Unix}
 type HGLRC = integer;
 type PFD_DRAW_TO_WINDOW = integer;
@@ -21,121 +19,37 @@ type PFD_TYPE_RGBA = integer;
 type PFD_MAIN_PLANE = integer;
 {$ENDIF}
 
-KAlign = (kaLeft, kaCenter, kaRight);
+type
+    KAlign = (kaLeft, kaCenter, kaRight);
 
-TColor4 = cardinal;
+    TColor4 = cardinal;
 
-procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
-procedure SetRenderDefaults();
-function SetDCPixelFormat(h_DC:HDC):boolean;
-procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
+    procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+    procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
+
+    procedure SetRenderDefaults;
+    procedure CheckGLSLError(FormHandle:hWND; Handle: GLhandleARB; Param: GLenum; ShowWarnings:boolean; Text:string);
     procedure BuildFont(h_DC:HDC; FontSize:integer; FontWeight:word=FW_NORMAL);
-procedure glPrint(text: string);
-    function ReadClick(X, Y: word): Vector3f;
-procedure glkScale(x:single);
-procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
-procedure glkRect(Ax,Ay,Bx,By:single);
-procedure glkMoveAALines(DoShift:boolean);
-procedure SetupVSync(aVSync:boolean); //@Vitautas: See my comment below
-procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
-procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
-
-const
-MatModeDefaultV:string=
-'varying vec3 kBlend;'+#10+#13+
-'void main(void)'+#10+#13+
-'{ '+#10+#13+
-'kBlend = gl_SecondaryColor.rgb;'+#10+#13+
-'gl_Position = ftransform();'+#10+#13+
-'}';
-
-MatModeDefaultF:string=
-'varying vec3 kBlend;'+#10+#13+
-'void main(void)'+#10+#13+
-'{ '+#10+#13+
-'vec3 kColor = smoothstep(0.4375,.5625,kBlend.rgb);'+#10+#13+
-'gl_FragColor = vec4(kColor.rgb,1);'+#10+#13+
-'}';
+    procedure glPrint(text: string);
+    procedure glkScale(x:single);
+    procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
+    procedure glkRect(Ax,Ay,Bx,By:single);
+    procedure glkMoveAALines(DoShift:boolean);
+    procedure SetupVSync(aVSync:boolean);
 
 
 implementation
 
-
-procedure SetRenderFrame(const RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
-begin
-  InitOpenGL;
-  h_DC := GetDC(RenderFrame);
-  if h_DC=0 then
-  begin
-    MessageBox(HWND(nil), 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  if not SetDCPixelFormat(h_DC) then
-    exit;
-  {$IFDEF MSWindows}
-  h_RC := wglCreateContext(h_DC);
-  {$ENDIF}
-  {$IFDEF Unix}
-  //h_RC := glxCreateContext(h_DC);
-  {$ENDIF}
-  if h_RC=0 then
-  begin
-    MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  {$IFDEF MSWindows}
-  if not wglMakeCurrent(h_DC, h_RC) then
-  {$ENDIF}
-  {$IFDEF Unix}
-  //if not glxMakeCurrent(h_DC, h_RC) then
-  {$ENDIF}
-  begin
-    MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  ReadExtensions;
-  ReadImplementationProperties;
-end;
-
-
-procedure SetRenderDefaults();
-begin
-  glClearColor(0, 0, 0, 0); 	   //Background
-  glClear (GL_COLOR_BUFFER_BIT);
-  glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
-  glPolygonMode(GL_FRONT,GL_FILL);
-  glEnable(GL_NORMALIZE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-  glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
-  glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
-end;
-
-
-function SetDCPixelFormat(h_DC:HDC):boolean;
-{$IFDEF MSWindows}
-//this function looks like not for Linux at all
-//@Vitautas: Perhaps, I don't know for sure. I hope you will find an analog in Unix :)
+function SetDCPixelFormat(h_DC:HDC; PixelFormat:Integer):boolean;
 var
   nPixelFormat: Integer;
   PixelDepth:integer;
+  {$IFDEF MSWINDOWS}
   pfd: TPixelFormatDescriptor;
-
-  {$IFDEF Unix}
-//@Vitautas: All these fields are memmbers of record pfd:
-{pfd: record 
-  nSize, 
-  nVersion... 
-end;}
-  nSize, nVersion, dwFlags, iPixelType, cColorBits, cRedBits,
-  cRedShift, cGreenBits, cGreenShift, cBlueBits, cBlueShift,
-  cAlphaBits, cAlphaShift, cAccumBits, cAccumRedBits, cAccumGreenBits,
-  cAccumBlueBits, cAccumAlphaBits, cDepthBits, cStencilBits, cAuxBuffers,
-  iLayerType, bReserved, dwLayerMask, dwVisibleMask, dwDamageMask: integer;
   {$ENDIF}
 begin
-PixelDepth:=32;
+  PixelDepth := 32; //32bpp is common
+  {$IFDEF MSWINDOWS}
   with pfd do begin
     nSize           := SizeOf(TPIXELFORMATDESCRIPTOR); // Size Of This Pixel Format Descriptor
     nVersion        := 1;                    // The version of this data structure
@@ -164,36 +78,202 @@ PixelDepth:=32;
     bReserved       := 0;                    // Number of overlay and underlay planes
     dwLayerMask     := 0;                    // Ignored
     dwVisibleMask   := 0;                    // Transparent color of underlay plane
-    dwDamageMask    := 0;                     // Ignored
+    dwDamageMask    := 0;                    // Ignored
   end;
-  {$IFDEF MSWindows}
-  nPixelFormat:=ChoosePixelFormat(h_DC, @pfd);
-  {$ENDIF}
-  {$IFDEF Unix}
-  //nPixelFormat:=glXChooseVisual(h_DC, @pfd);
-  {$ENDIF}
 
-  if nPixelFormat=0 then begin
-  MessageBox(0, 'Unable to find a suitable pixel format', 'Error', MB_OK or MB_ICONERROR);
-    Result:=false;
+  if PixelFormat = 0 then
+    nPixelFormat := ChoosePixelFormat(h_DC, @pfd)
+  else
+    nPixelFormat := PixelFormat;
+
+  if nPixelFormat = 0 then begin
+    MessageBox(0, 'Unable to find a suitable pixel format', 'Error', MB_OK or MB_ICONERROR);
+    Result := false;
     exit;
   end;
+
+  //Even with known pixel format we still need to supply some PFD structure
   if not SetPixelFormat(h_DC, nPixelFormat, @pfd) then begin
-  MessageBox(0, 'Unable to set the pixel format', 'Error', MB_OK or MB_ICONERROR);
-    Result:=false;
+    MessageBox(0, 'Unable to set the pixel format', 'Error', MB_OK or MB_ICONERROR);
+    Result := false;
     exit;
   end;
-{$ENDIF}
-{$IFDEF Unix}
-//TODO some example maybe here
-//http://zengl.googlecode.com/svn-history/r723/trunk/src/zgl_opengl.pas
-//now just create stub:
+
+  Result := true;
+  {$ENDIF}
+  //glXChooseVisual() should be on Uni insted of ChoosePixelFormatx
+end;
+
+
+function GetMultisamplePixelFormat(h_dc: HDC; AntiAliasing:byte): integer;
+var
+  pixelFormat: integer;
+  ValidFormat: boolean;
+  NumFormats: GLUint;
+  iAttributes: array of GLint;
 begin
-  MessageBox(0, 'SetDCPixelFormat failed', 'Error', MB_OK or MB_ICONERROR);
-    Result:=false;
+  Result := 0;
+  {$IFDEF MSWINDOWS}
+  if not WGL_ARB_multisample or not Assigned(wglChoosePixelFormatARB) then
+    Exit;
+ {$ENDIF}
+  SetLength(iAttributes,21);
+  iAttributes[0] := WGL_DRAW_TO_WINDOW_ARB;
+  iAttributes[1] := 1;
+  iAttributes[2] := WGL_SUPPORT_OPENGL_ARB;
+  iAttributes[3] := 1;
+  iAttributes[4] := WGL_ACCELERATION_ARB;
+  iAttributes[5] := WGL_FULL_ACCELERATION_ARB;
+  iAttributes[6] := WGL_COLOR_BITS_ARB;
+  iAttributes[7] := 24;
+  iAttributes[8] := WGL_ALPHA_BITS_ARB;
+  iAttributes[9] := 8;
+  iAttributes[10] := WGL_DEPTH_BITS_ARB;
+  iAttributes[11] := 16;
+  iAttributes[12] := WGL_STENCIL_BITS_ARB;
+  iAttributes[13] := 0;
+  iAttributes[14] := WGL_DOUBLE_BUFFER_ARB;
+  iAttributes[15] := 1;
+  iAttributes[16] := WGL_SAMPLE_BUFFERS_ARB;
+  iAttributes[17] := 1;
+  iAttributes[18] := WGL_SAMPLES_ARB;
+  iAttributes[19] := AntiAliasing;
+  iAttributes[20] := 0;
+
+  //Try to find mode with slightly worse AA before giving up
+  repeat
+    iAttributes[19] := AntiAliasing;
+    {$IFDEF MSWINDOWS}
+    ValidFormat := wglChoosePixelFormatARB(h_dc, @iattributes[0], nil, 1, @pixelFormat, @NumFormats);
+    {$ENDIF}
+    if ValidFormat and (NumFormats >= 1) then
+    begin
+      Result := pixelFormat;
+      exit;
+    end;
+    AntiAliasing := AntiAliasing div 2;
+  until(AntiAliasing < 2);
+end;
+
+
+procedure SetContexts(RenderFrame:HWND; PixelFormat:integer; out h_DC: HDC; out h_RC: HGLRC);
+{$IFDEF MSWINDOWS}
+begin
+  h_DC := GetDC(RenderFrame);
+
+  if h_DC = 0 then
+  begin
+    MessageBox(HWND(nil), 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR);
     exit;
-{$ENDIF}
-Result:=true;
+  end;
+
+  if not SetDCPixelFormat(h_DC, PixelFormat) then
+    exit;
+
+  h_RC := wglCreateContext(h_DC);
+  if h_RC = 0 then
+  begin
+    MessageBox(HWND(nil), 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+
+  if not wglMakeCurrent(h_DC, h_RC) then
+
+  begin
+    MessageBox(HWND(nil), 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
+    exit;
+  end;
+   {$ENDIF}{$IFDEF Unix}
+  //function from glsxene just need connect it well:
+  //function TGLGLXContext.CreateTempWnd: TWindow;
+const
+  Attribute: array[0..8] of Integer = (
+    GLX_RGBA, GL_TRUE,
+    GLX_RED_SIZE, 1,
+    GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1,
+    0);
+var
+  vi: PXvisualInfo;
+  //hmm, more var..
+  Result: QWord;
+  FCurScreen: Integer;
+  FDisplay: PDisplay;
+  FRC: GLXContext;
+begin
+  //some more...:
+  if not InitOpenGL then
+    RaiseLastOSError;
+  FDisplay := XOpenDisplay(nil);
+  FCurScreen := XDefaultScreen(FDisplay);
+  // Lets create temporary window with glcontext
+  Result := XCreateSimpleWindow(FDisplay, XRootWindow(FDisplay, FCurScreen),
+    0, 0, 1, 1, 0, // need to define some realties dimensions,
+    // otherwise the context will not work
+    XBlackPixel(FDisplay, FCurScreen),
+    XWhitePixel(FDisplay, FCurScreen));
+  // XMapWindow(FDisplay, win); // For the test, to see micro window
+  XFlush(FDisplay); // Makes XServer execute commands
+  vi := glXChooseVisual(FDisplay, FCurScreen, Attribute);
+  if vi <> nil then
+    FRC := glXCreateContext(FDisplay, vi, nil, true);
+  if FRC <> nil then
+    glXMakeCurrent(FDisplay, Result, FRC);
+  if vi <> nil then
+    Xfree(vi);
+//end;
+ {$ENDIF}
+end;
+
+
+procedure SetRenderFrame(RenderFrame:HWND; out h_DC: HDC; out h_RC: HGLRC);
+begin
+  InitOpenGL;
+  SetContexts(RenderFrame, 0, h_DC, h_RC);
+  ReadExtensions;
+  ReadImplementationProperties;
+end;
+
+
+{The key problem is this: the function we use to get WGL extensions is, itself, an OpenGL extension.
+Thus like any OpenGL function, it requires an OpenGL context to call it. So in order to get the
+functions we need to create a context, we have to... create a context.
+
+Fortunately, this context does not need to be our final context. All we need to do is create a dummy
+context to get function pointers, then use those functions directly. Unfortunately, Windows does not
+allow recreation of a rendering context within a single HWND. We must destroy previous HWND context
+and create final HWND context after we are finished with the dummy context.}
+procedure SetRenderFrameAA(DummyFrame,RenderFrame:HWND; AntiAliasing:byte; out h_DC: HDC; out h_RC: HGLRC);
+var PixelFormat:integer;
+begin
+  InitOpenGL;
+  SetContexts(DummyFrame, 0, h_DC, h_RC);
+  ReadExtensions;
+  ReadImplementationProperties;
+
+  PixelFormat := GetMultisamplePixelFormat(h_DC, AntiAliasing);
+  {$IFDEF MSWINDOWS}
+  wglMakeCurrent(h_DC, 0);
+  wglDeleteContext(h_RC);
+  {$ENDIF}
+  SetContexts(RenderFrame, PixelFormat, h_DC, h_RC);
+  ReadExtensions;
+  ReadImplementationProperties;
+end;
+
+
+procedure SetRenderDefaults;
+begin
+  glClearColor(0, 0, 0, 0); 	   //Background
+  glClear (GL_COLOR_BUFFER_BIT);
+  glShadeModel(GL_SMOOTH);                 //Enables Smooth Color Shading
+  glPolygonMode(GL_FRONT,GL_FILL);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); //Set alpha mode
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  glEnable(GL_COLOR_MATERIAL);                 //Enable Materials
+  glEnable(GL_TEXTURE_2D);                     // Enable Texture Mapping
 end;
 
 
@@ -244,53 +324,12 @@ begin
   glPopAttrib;
 end;
 
-function ReadClick(X, Y: word): Vector3f;
-var viewport:TVector4i;
-    projection:TMatrix4d;
-    modelview:TMatrix4d;
-    vx,vy:integer;
-    vz:single; //required to match GL_FLOAT - single
-    wx,wy,wz:GLdouble;
-begin
-  glGetIntegerv(GL_VIEWPORT,@viewport);
-  glGetDoublev(GL_PROJECTION_MATRIX,@projection);
-  glGetDoublev(GL_MODELVIEW_MATRIX,@modelview);
-
-  vx := x;
-  vy := y;
-
-  glReadPixels(vx, vy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, @vz);
-
-  if vz=1 then begin
-  Result.x:=0;
-  Result.y:=0;
-  Result.z:=0;
-  end else begin
-  //This function uses OpenGL parameters, not dglOpenGL
-  gluUnProject(vx, vy, vz, modelview, projection, viewport, @wx, @wy, @wz);
-  Result.x:=wx;
-  Result.y:=wy;
-  Result.z:=wz;
-  end;
-end;
-
-procedure kSetColorCode(TypeOfValue:KCode;IndexNum:integer);
-begin
-glColor4ub(IndexNum mod 256,
-          (IndexNum mod 65536) div 256,    // 1,2,4(524288) 8,16,32,64,128 //0..31
-          (IndexNum mod 524288) div 65536+byte(TypeOfValue)*8,255);
-end;
-
-procedure kGetColorCode(RGBColor:Pointer;var TypeOfValue:KCode;var IndexNum:integer);
-begin
-IndexNum:=pword(cardinal(RGBColor))^+((pbyte(cardinal(RGBColor)+2)^)mod 8)*65536;
-TypeOfValue:=KCode((pbyte(cardinal(RGBColor)+2)^)div 8);
-end;
 
 procedure glkScale(x:single);
 begin
   glScalef(x,x,x);
 end;
+
 
 procedure glkQuad(Ax,Ay,Bx,By,Cx,Cy,Dx,Dy:single);
 begin
@@ -300,6 +339,7 @@ begin
   glvertex2f(Dx,Dy);
 end;
 
+
 {Same as glkQuad, but requires on TopLeft and BottomRight coords}
 procedure glkRect(Ax,Ay,Bx,By:single);
 begin
@@ -308,6 +348,7 @@ begin
   glvertex2f(Bx,By);
   glvertex2f(Ax,By);
 end;
+
 
 {Lines are drawn between pixels, thus when AA turned on they get blurred.
 We can negate this by using 0.5 offset
@@ -325,10 +366,10 @@ end;
 //@Vitautas: This function is used to enable/disable V-Sync
 procedure SetupVSync(aVSync:boolean);
 begin
-{$IFDEF MSWindows}
+  {$IFDEF MSWindows}
   if WGL_EXT_swap_control then
-    wglSwapIntervalEXT(byte(aVSync)); //1 or 0
-{$ENDIF}
+    wglSwapIntervalEXT(byte(aVSync));
+  {$ENDIF}
 end;
 
 

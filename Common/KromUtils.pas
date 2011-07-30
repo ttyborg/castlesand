@@ -5,29 +5,17 @@ unit KromUtils;
 {$IFDEF FPC} {$Mode Delphi} {$ENDIF}
 interface
 uses
-  Controls, Dialogs, ExtCtrls, Forms, Math, SysUtils, Classes
+  Controls, Dialogs, ExtCtrls, Forms, SysUtils, Classes
   {$IFDEF MSWindows} ,Windows, MMSystem, ShellApi {$ENDIF}
   {$IFDEF FPC} ,UTF8Process, LazHelpHTML {$ENDIF}
   {$IFDEF Unix} ,LCLIntf, LCLType {$ENDIF}
   ;
 
 type
-  PSingleArray = ^TSingleArray;
-  TSingleArray = array[1..1024000] of Single;
-  PStringArray = ^TStringArray;
   TStringArray = array of String;
-  Vector4f = record X,Y,Z,W:single; end;
-  Vector3i = record X,Y,Z:integer; end;
-  Vector3f = record X,Y,Z:single; end;
-  Vector2f = record U,V:single; end;
-  PVector3f = ^Vector3f;
 
-  FWord = word; //Floating-point with 1 decimal place 0..6553.5  Int/10=FWord
 
-  TKMouseButton = (kmb_None, kmb_Left, kmb_Right, kmb_Middle);
-
-function TimeGet: LongWord;
-function ElapsedTime(i1: pcardinal): string;
+function TimeGet: Cardinal;
 function ExtractOpenedFileName(in_s: string):string;
 function GetFileExt (const FileName: string): string;
 function AssureFileExt(FileName,Ext:string): string;
@@ -39,14 +27,10 @@ procedure FreeThenNil(var Obj);
 
 function ReverseString(s1:string):string;
 
-function hextoint(st: char): integer;
 function int2fix(Number,Len:integer):string;
 function float2fix(Number:single; Digits:integer):string;
 function int2time(Time:integer):string;
 procedure Color2RGB(Col:integer; out R,G,B:byte);
-
-function Vectorize(A,B:single):Vector2f; overload;
-function Vectorize(A,B,C:single):Vector3f; overload;
 
 function Min(const A,B,C: integer):integer; overload;
 function Min(const A,B,C: single):single; overload;
@@ -56,7 +40,6 @@ function Max(const A,B,C: single):single; overload;
 
   function GetLengthSQR(ix,iy,iz:integer): integer; //Length without SQRT
   function GetLength(ix,iy,iz:single): single; overload;
-  function GetLength(ix:Vector3f): single; overload;
   function GetLength(ix,iy:single): single; overload;
 
   function Mix(x1,x2,MixValue:single):single; overload;
@@ -68,16 +51,14 @@ function  decs(AText:string; Len,RunAsFunction:integer):string; overload;
 function RemoveQuotes(Input:string):string;
 procedure SwapStr(var A,B:string);
 procedure SwapInt(var A,B:byte); overload;
+procedure SwapInt(var A,B:shortint); overload;
 procedure SwapInt(var A,B:word); overload;
 procedure SwapInt(var A,B:integer); overload;
 procedure SwapInt(var A,B:cardinal); overload;
 procedure SwapFloat(var A,B:single);
 function Equals(A,B:single; const Epsilon:single=0.001):boolean;
 
-function Abs2X(AbsoluteValue,SizeX:integer):integer;
-function Abs2Z(AbsoluteValue,SizeX:integer):integer;
-
-function MakePOT(num:integer):integer;
+function MakePOT(num:integer): integer;
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal; overload;
 function Adler32CRC(const aPath:string):cardinal; overload;
 function RandomS(Range_Both_Directions:integer):integer; overload;
@@ -95,21 +76,9 @@ procedure OpenMySite(ToolName:string; Address:string='http://krom.reveur.de');
 const
   eol:string=#13+#10; //EndOfLine
 
+
 implementation
 
-function Vectorize(A,B:single):Vector2f; overload;
-begin
-Result.U:=A;
-Result.V:=B;
-end;
-
-
-function Vectorize(A,B,C:single):Vector3f; overload;
-begin
-Result.X:=A;
-Result.Y:=B;
-Result.Z:=C;
-end;
 
 function Min(const A,B,C: integer): integer; overload;
 begin if A < B then if A < C then Result := A else Result := C
@@ -132,34 +101,8 @@ begin if A > B then if A > C then Result := A else Result := C
 end;
 
 
-//Linux wants this instead of timegettime, it should work on Windows too
-//@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
-//           Just take a look at "Now" function and take SystemTime from it
-function TimeGet:cardinal;
-begin
-  {$IFDEF MSWindows}
-  Result := TimeGetTime; //Return milliseconds with ~1ms precision
-  {$ENDIF}
-  {$IFDEF Unix}
-  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
-  {$ENDIF}
-end;
 
-
-function ElapsedTime(i1:pcardinal): string;
-begin
-result:=' '+inttostr(GetTickCount-i1^)+'ms'; //get time passed
-i1^:=GetTickCount;                           //assign new value to source
-end;
-
-
-function hextoint(st: char): integer;
-begin st:=uppercase(st)[1];
-if (ord(st)>=48)and(ord(st)<=57) then hextoint:=ord(st)-48 else
-if (ord(st)>=65)and(ord(st)<=70) then hextoint:=ord(st)-55 else
-hextoint:=0;
-end;
-
+//I re add this it is required by KM_Editor.
 function ExtractOpenedFileName(in_s: string):string;
 var k:word; out_s:string; QMarks:boolean;
 begin
@@ -194,6 +137,19 @@ if (length(in_s)>k) then begin
 end else out_s:='';
 
 Result:=out_s;
+end;
+//Linux wants this instead of timegettime, it should work on Windows too
+//@Vytautas: WTF? ))))) You did it way too overcomplicated ))) No offense :)
+//           Just take a look at "Now" function and take SystemTime from it
+//@Lewin: I don't think this is a high priority, but if you happen to know the easy way - please write it here. To be deleted..
+function TimeGet: Cardinal;
+begin
+  {$IFDEF MSWindows}
+  Result := TimeGetTime; //Return milliseconds with ~1ms precision
+  {$ENDIF}
+  {$IFDEF Unix}
+  Result := cardinal(Trunc(Now * 24 * 60 * 60 * 1000));
+  {$ENDIF}
 end;
 
 
@@ -251,7 +207,7 @@ begin
   Result := FileExists(FileName);
 
   if not IsSilent and not Result then
-    Application.MessageBox(PAnsiChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
+    Application.MessageBox(PChar('Unable to locate file:'+eol+'"'+FileName+'"'), 'Error', MB_OK); //Should be topmost
 end;
 
 
@@ -308,7 +264,7 @@ end;
 
 
 //Return closest bigger PowerOfTwo number
-function MakePOT(num:integer):integer;
+function MakePOT(num:integer): integer;
 begin
   num := num - 1;
   num := num OR (num SHR 1);
@@ -316,7 +272,7 @@ begin
   num := num OR (num SHR 4);
   num := num OR (num SHR 8);
   num := num OR (num SHR 16); //32bit needs no more
-  Result := num+1;
+  Result := num + 1;
 end;
 
 
@@ -331,10 +287,6 @@ begin
   Result:=sqrt(sqr(ix)+sqr(iy)+sqr(iz));
 end;
 
-function GetLength(ix:Vector3f): single; overload;
-begin
-  Result:=sqrt(sqr(ix.x)+sqr(ix.y)+sqr(ix.z));
-end;
 
 function GetLength(ix,iy:single): single; overload;
 begin
@@ -344,12 +296,12 @@ end;
 
 function Mix(x1,x2,MixValue:single):single; overload;
 begin
-Result:=x1*MixValue+x2*(1-MixValue);
+  Result := x1*MixValue + x2*(1-MixValue);
 end;
 
 function Mix(x1,x2:integer; MixValue:single):integer; overload;
 begin
-Result:=round(x1*MixValue+x2*(1-MixValue));
+  Result := round(x1*MixValue + x2*(1-MixValue));
 end;
 
 
@@ -406,6 +358,12 @@ begin
   s:=A; A:=B; B:=s;
 end;
 
+procedure SwapInt(var A,B:shortint);
+var s:shortint;
+begin
+  s:=A; A:=B; B:=s;
+end;
+
 
 procedure SwapInt(var A,B:word);
 var s:word;
@@ -438,18 +396,6 @@ begin
 end;
 
 
-function Abs2X(AbsoluteValue,SizeX:integer):integer;
-begin
-  Result:=((AbsoluteValue-1) mod SizeX+1); //X
-end;
-
-
-function Abs2Z(AbsoluteValue,SizeX:integer):integer;
-begin
-  Result:=((AbsoluteValue-1) div SizeX+1); //Z
-end;
-
-
 function Adler32CRC(TextPointer:Pointer; TextLength:cardinal):cardinal;
 var i,A,B:cardinal;
 begin
@@ -479,7 +425,7 @@ begin
     A := 1;
     B := 0; //A is initialized to 1, B to 0
     //We need to MOD B within cos it may overflow in files larger than 65kb, A overflows with files larger than 16mb
-    for i:=0 to S.Size do begin
+    for i:=0 to S.Size-1 do begin
       inc(A,pbyte(cardinal(S.Memory)+i)^);
       B := (B + A) mod 65521; //65521 (the largest prime number smaller than 2^16)
     end;
@@ -509,10 +455,10 @@ end;
 //and some of player input needs Random too, but it should not affect AI
 function PseudoRandom(aMax:cardinal):cardinal;
 begin
-  if aMax <=0 then
+  if aMax = 0 then
     Result := 0
   else
-    Result := GetTickCount mod aMax;
+    Result := TimeGet mod aMax;
 end;
 
 
@@ -524,6 +470,7 @@ begin
   Result:=Sender.Execute; //Returns "false" if user pressed "Cancel"
   //Result:=Result and FileExists(Sender.FileName); //Already should be enabled in OpenDialog options
 end;
+
 
 function RunSaveDialog(Sender:TSaveDialog; FileName, FilePath, Filter:string; const FileExt:string = ''):boolean;
 begin
@@ -556,7 +503,7 @@ begin
 end;
 
 
-function BrowseURL(const URL: string) : boolean;
+function BrowseURL(const URL: string): boolean;
 {$IFDEF FPC}
 var
   v: THTMLBrowserHelpViewer;
@@ -567,7 +514,7 @@ var
 begin
   {$IFDEF WDC}
   Result := true;
-  ShellExecute(Application.Handle, 'open', PAnsiChar(URL),nil,nil, SW_SHOWNORMAL);
+  ShellExecute(Application.Handle, 'open', PChar(URL),nil,nil, SW_SHOWNORMAL);
   {$ENDIF}
 
   {$IFDEF FPC}

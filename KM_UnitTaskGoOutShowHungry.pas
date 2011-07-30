@@ -1,13 +1,13 @@
 unit KM_UnitTaskGoOutShowHungry;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
 
   type
     TTaskGoOutShowHungry = class(TUnitTask)
     public
       constructor Create(aUnit:TKMUnit);
-      function Execute():TTaskResult; override;
+      function Execute:TTaskResult; override;
     end;
 
 
@@ -23,10 +23,11 @@ begin
 end;
 
 
-function TTaskGoOutShowHungry.Execute():TTaskResult;
+function TTaskGoOutShowHungry.Execute:TTaskResult;
 begin
   Result := TaskContinues;
-  if fUnit.GetHome.IsDestroyed then begin
+  if fUnit.GetHome.IsDestroyed then
+  begin
     Result := TaskDone;
     exit;
   end;
@@ -45,7 +46,7 @@ begin
     3: SetActionWalkToSpot(KMPointY1(fUnit.GetHome.GetEntrance));
     4: SetActionGoIn(ua_Walk,gd_GoInside,fUnit.GetHome);
     5: begin
-         SetActionStay(20+Random(10),ua_Walk);
+         SetActionStay(20+KaMRandom(10),ua_Walk);
          GetHome.SetState(hst_Idle);
        end;
     else begin

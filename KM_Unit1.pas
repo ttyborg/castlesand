@@ -7,12 +7,12 @@ uses
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
   ExtCtrls, ComCtrls, Menus, Buttons,
   Math, SysUtils, KromUtils,
-  {$IFDEF WDC} OpenGL, MPlayer, {$ENDIF}
+  {$IFDEF WDC} MPlayer, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   dglOpenGL,
   KM_Render, KM_ResourceGFX, KM_Defaults, KM_Form_Loading,
-  KM_Game, KM_PlayersCollection, 
-  KM_TextLibrary, KM_Sound;
+  KM_Game, KM_PlayersCollection,
+  KM_TextLibrary, KM_Sound, KM_Utils, KM_Points;
 
 type
   TForm1 = class(TForm)
@@ -59,7 +59,8 @@ type
     TB_Angle: TTrackBar;
     Label3: TLabel;
     {$IFDEF WDC} MediaPlayer1: TMediaPlayer; {$ENDIF}
-    ExportMainMenu1: TMenuItem; 
+    ExportMainMenu1: TMenuItem;
+    Button_CalcArmy: TButton;
     procedure Export_TreeAnim1Click(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure TB_Angle_Change(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure ExportMainMenu1Click(Sender: TObject);
     procedure FormCanResize(Sender: TObject; var NewWidth, NewHeight: Integer; var Resize: Boolean);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure Button_CalcArmyClick(Sender: TObject);
   published
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender:TObject);
@@ -103,6 +105,7 @@ type
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure SetScreenResolution(Width, Height, RefreshRate: word);
     procedure ResetResolution;
+    function GetScreenBounds: TRect;
   private
     procedure OnIdle(Sender: TObject; var Done: Boolean);
     {$IFDEF MSWindows}
@@ -124,7 +127,7 @@ implementation
   {$R *.dfm}
 {$ENDIF}
 
-uses KM_Settings, KM_CommonTypes, KM_GameInputProcess, KM_InterfaceMainMenu;
+uses KM_Settings, KM_GameInputProcess, KM_InterfaceMainMenu, KM_Log;
 
 
 procedure TForm1.OnIdle(Sender: TObject; var Done: Boolean);
@@ -164,6 +167,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
   TempSettings:TGlobalSettings;
 begin
+  SetKaMSeed(4);
   if Sender<>nil then exit;
 
   FormLoading.Label5.Caption := GAME_VERSION;
@@ -195,7 +199,7 @@ begin
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if not GL_VERSION_1_4 then
   begin
-    Application.MessageBox(PChar(fTextLibrary.GetRemakeString(53)),
+    Application.MessageBox(PChar(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]),
         'Warning', MB_OK or MB_ICONWARNING);
   end;
 
@@ -221,7 +225,7 @@ end;
 procedure TForm1.FormResize(Sender:TObject);
 begin
   if fGame<>nil then //Occurs on exit
-    fGame.ResizeGameArea(Panel5.Width, Panel5.Height);
+    fGame.Resize(Panel5.Width, Panel5.Height);
   if fLog<>nil then
     fLog.AppendLog('FormResize - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
   ApplyCursorRestriction;
@@ -350,6 +354,8 @@ begin
     Label2.Caption := PassabilityStr[TPassability(Debug_PassabilityTrack.Position)]
   else
     Label2.Caption := '';
+  if fGame<> nil then
+    fGame.FormPassability := Debug_PassabilityTrack.Position;
 end;
 
 
@@ -377,27 +383,45 @@ procedure TForm1.Export_DeliverLists1Click(Sender: TObject);
 var i:integer;
 begin
   if fPlayers=nil then exit;
-  for i:=1 to fPlayers.Count do
-    fPlayers.Player[i].DeliverList.SaveToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
+  for i:=0 to fPlayers.Count-1 do
+    fPlayers[i].DeliverList.SaveToFile(ExeDir+'Player_'+inttostr(i)+'_Deliver_List.txt');
 end;
 
 
 procedure TForm1.RGPlayerClick(Sender: TObject);
 begin
-  if (fPlayers<>nil) and (fPlayers.Player[RGPlayer.ItemIndex+1]<>nil) then
-    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex+1);
+  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
+  if (fPlayers<>nil) and (RGPlayer.ItemIndex < fPlayers.Count) then
+    fGame.fGameInputProcess.CmdTemp(gic_TempChangeMyPlayer, RGPlayer.ItemIndex);
 end;
 
 
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
+  if (fGame.GameState in [gsNoGame, gsEditor]) or fGame.MultiplayerMode then exit;
   if CheckBox2.Checked then fGame.SetGameSpeed(120) else fGame.SetGameSpeed(1);
-end;      
+end;
 
 
 procedure TForm1.Button_StopClick(Sender: TObject);
 begin
   fGame.GameStop(gr_Cancel);
+end;
+
+
+procedure TForm1.Button_CalcArmyClick(Sender: TObject);
+var
+  Point : TKMPoint;
+begin // For test Army evaluation
+  fGame.GameStart('', 'TestCalcArmy');
+  {Point.X := 10; Point.Y := 10;
+  MyPlayer.AddGroup(ut_Bowman, Point, dir_E, 3, 50);}
+  Point.X := 12; Point.Y := 31;
+  MyPlayer.AddGroup(ut_Militia, Point, dir_E, 2, 20);
+  Point.X := 30; Point.Y := 31;
+  fPlayers[1].AddGroup(ut_AxeFighter, Point, dir_W, 2, 10);
+  {Point.X := 32; Point.Y := 10;
+  fPlayers[1].AddGroup(ut_Bowman, Point, dir_W, 1, 1);}
 end;
 
 
@@ -443,7 +467,7 @@ begin
   Panel5.Width  := Form1.ClientWidth;
 
   if fGame<>nil then //Could happen on game start when Form gets resized and fGame is nil
-    fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+    fGame.Resize(Panel5.Width,Panel5.Height);
 end;
 
 
@@ -476,9 +500,18 @@ begin
 
   //It's required to re-init whole OpenGL related things when RC gets toggled fullscreen
   FreeThenNil(fGame); //Saves all settings into ini file in midst
-  fGame := TKMGame.Create(ExeDir,Panel5.Handle,Panel5.Width,Panel5.Height,aVSync {$IFDEF WDC}, MediaPlayer1 {$ENDIF});
+  fGame := TKMGame.Create(
+                          ExeDir,
+                          Panel5.Handle,
+                          Panel5.Width,
+                          Panel5.Height,
+                          aVSync,
+                          FormLoading.LoadingStep,
+                          FormLoading.LoadingText
+                          {$IFDEF WDC},MediaPlayer1 {$ENDIF}
+                          );
 
-  fGame.ResizeGameArea(Panel5.Width,Panel5.Height);
+  fGame.Resize(Panel5.Width, Panel5.Height);
   fLog.AppendLog('ToggleFullscreen - '+inttostr(Panel5.Top)+':'+inttostr(Panel5.Height));
 
   if aReturnToOptions then fGame.fMainMenuInterface.ShowScreen(msOptions); //Return to the options screen
@@ -509,6 +542,56 @@ end;
 procedure TForm1.ResetResolution;
 begin
   {$IFDEF MSWindows}ChangeDisplaySettings(DEVMODE(nil^),0);{$ENDIF}
+end;
+
+
+function TForm1.GetScreenBounds: TRect;
+var i: integer;
+    FirstTime: boolean;
+begin
+  Result := Rect(-1,-1,-1,-1);
+  FirstTime := true;
+  //Maximized is a special case, it can only be on one monitor. This is required because when maximized form.left = -9 (on Windows 7 anyway)
+  if WindowState = wsMaximized then
+  begin
+    for i:=0 to Screen.MonitorCount-1 do
+      //Find the monitor with the left closest to the left of the form
+      if (i = 0) or
+         ((abs(Form1.Left - Screen.Monitors[i].Left) <= abs(Form1.Left - Result.Left)) and
+          (abs(Form1.Top  - Screen.Monitors[i].Top ) <= abs(Form1.Top  - Result.Top))) then
+      begin
+        Result.Left  := Screen.Monitors[i].Left;
+        Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+        Result.Top   := Screen.Monitors[i].Top;
+        Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+      end;
+  end
+  else
+    for i:=0 to Screen.MonitorCount-1 do
+      //See if our form is within the boundaries of this monitor (i.e. when it is not outside the boundaries)
+      if not ((Form1.Left               >= Screen.Monitors[i].Width + Screen.Monitors[i].Left) or
+              (Form1.Width + Form1.Left <= Screen.Monitors[i].Left) or
+              (Form1.Top                >= Screen.Monitors[i].Height + Screen.Monitors[i].Top) or
+              (Form1.Height + Form1.Top <= Screen.Monitors[i].Top)) then
+      begin
+        if FirstTime then
+        begin
+          //First time we have to initialise the result
+          FirstTime := false;
+          Result.Left  := Screen.Monitors[i].Left;
+          Result.Right := Screen.Monitors[i].Width+Screen.Monitors[i].Left;
+          Result.Top   := Screen.Monitors[i].Top;
+          Result.Bottom:= Screen.Monitors[i].Height+Screen.Monitors[i].Top;
+        end
+        else
+        begin
+          //After the first time we compare it with the previous result and take the largest possible area
+          Result.Left  := Math.Min(Result.Left,  Screen.Monitors[i].Left);
+          Result.Right := Math.Max(Result.Right, Screen.Monitors[i].Width+Screen.Monitors[i].Left);
+          Result.Top   := Math.Min(Result.Top,   Screen.Monitors[i].Top);
+          Result.Bottom:= Math.Max(Result.Bottom,Screen.Monitors[i].Height+Screen.Monitors[i].Top);
+        end;
+      end;
 end;
 
 

@@ -1,7 +1,7 @@
 unit KM_UnitTaskGoEat;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KM_Houses, SysUtils, KM_Points;
 
 
 {Throw a rock}
@@ -22,7 +22,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Utils;
+uses KM_PlayersCollection;
 
 
 { TTaskGoEat }
@@ -79,9 +79,9 @@ begin
   case fPhase of
    0: begin
         Thought := th_Eat;
-        if GetHome<>nil then GetHome.SetState(hst_Empty);
-        if not Visible then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
-                              SetActionLockedStay(0,ua_Walk); //Walk outside the house
+        if (GetHome<>nil) and not GetHome.IsDestroyed then GetHome.SetState(hst_Empty);
+        if (not Visible) and not GetHome.IsDestroyed then SetActionGoIn(ua_Walk,gd_GoOutside,fUnit.GetHome) else
+                                                          SetActionLockedStay(0,ua_Walk); //Walk outside the house
       end;
    1: SetActionWalkToSpot(KMPointY1(fInn.GetEntrance));
    2: begin
@@ -141,7 +141,7 @@ begin
   if fInn <> nil then
     SaveStream.Write(fInn.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(PlaceID);
 end;
 

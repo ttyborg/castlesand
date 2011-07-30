@@ -1,11 +1,11 @@
 unit KM_UnitActionStay;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math;
+uses Classes, KM_Defaults, KromUtils, KM_CommonTypes, KM_Units, SysUtils, Math, KM_Points;
 
 {Stay in place for set time}
 type
-TUnitActionStay = class(TUnitAction)
+  TUnitActionStay = class(TUnitAction)
   private
     StayStill:boolean;
     TimeToStay:integer;
@@ -14,6 +14,7 @@ TUnitActionStay = class(TUnitAction)
   public
     constructor Create(aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
     constructor Load(LoadStream:TKMemoryStream); override;
+    function GetExplanation: string; override;
     function HowLongLeftToStay:integer;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
@@ -21,7 +22,7 @@ TUnitActionStay = class(TUnitAction)
 
 
 implementation
-uses KM_PlayersCollection, KM_Terrain, KM_Sound;
+uses KM_PlayersCollection, KM_Sound;
 
 
 { TUnitActionStay }
@@ -45,6 +46,12 @@ begin
 end;
 
 
+function TUnitActionStay.GetExplanation: string;
+begin
+  Result := 'Staying';
+end;
+
+
 //If someone whats to know how much time unit has to stay
 function TUnitActionStay.HowLongLeftToStay:integer;
 begin
@@ -55,7 +62,7 @@ end;
 procedure TUnitActionStay.MakeSound(KMUnit: TKMUnit; Cycle,Step:byte);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
 
   case KMUnit.UnitType of //Various UnitTypes and ActionTypes
     ut_Worker: case GetActionType of

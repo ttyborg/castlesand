@@ -1,32 +1,34 @@
 unit KM_NetPlayersList;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
-  KM_CommonTypes, KM_Defaults,
-  KM_Player;
+uses Classes, KromUtils, StrUtils, Math, SysUtils,
+  KM_CommonTypes, KM_Defaults, KM_Player, KM_Utils;
 
+const
+  PING_COUNT = 20; //Number of pings to store and take the maximum over for latency calculation (pings are measured once per second)
 
 type
   TKMPlayerInfo = class
   private
-    fAddress:string;
     fNikname:string;
-    fTimeTick:cardinal;
+    fIndexOnServer:integer;
+    fPings: array[0..PING_COUNT-1] of word; //Ring buffer
+    fPingPos:byte;
   public
     PlayerType:TPlayerType; //Human, Computer
-    FlagColorID:integer; //Flag color, 0 means random
-    StartLocID:integer; //Start location, 0 means random
+    FlagColorID:integer;    //Flag color, 0 means random
+    StartLocation:integer;  //Start location, 0 means random
+    Team:integer;
+    PlayerIndex:TKMPlayer;
     ReadyToStart:boolean;
     ReadyToPlay:boolean;
-    Alive:boolean; //Player is still connected and not defeated
-
-    PingSent:cardinal; //Time of last "ping" message
-    Ping:word; //Last known ping
-  public
+    Alive:boolean;          //Player is still connected and not defeated
+    procedure SetPing(aPing:word);
+    function GetInstantPing:word;
+    function GetMaxPing:word;
     function IsHuman:boolean;
-    property Address:string read fAddress;
     property Nikname:string read fNikname;
-    property TimeTick:cardinal read fTimeTick write fTimeTick;
+    property IndexOnServer:integer read fIndexOnServer;
   end;
 
   //Handles everything related to players list,
@@ -36,26 +38,38 @@ type
     fCount:integer;
     fPlayers:array [1..MAX_PLAYERS] of TKMPlayerInfo;
     function GetPlayer(Index:integer):TKMPlayerInfo;
+    procedure AllocateLocations(aMaxLoc:byte);
+    procedure AllocateColors;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
     property Count:integer read fCount;
 
-    procedure AddPlayer(aAddr,aNik:string; aTick:cardinal);
-    procedure RemPlayer(aIndex:integer);
+    procedure AddPlayer(aNik:string; aIndexOnServer:integer);
+    procedure AddAIPlayer;
+    procedure KillPlayer(aIndexOnServer:integer);
+    procedure RemPlayer(aIndexOnServer:integer);
+    procedure RemAIPlayer(ID:integer);
+    procedure UpdateAIPlayerNames;
     property Player[Index:integer]:TKMPlayerInfo read GetPlayer; default;
 
     //Getters
-    function NiknameIndex(aNik:string):integer;
-    function CheckCanJoin(aAddr, aNik:string):string;
+    function ServerToLocal(aIndexOnServer:integer):integer;
+    function NiknameToLocal(aNikname:string):integer;
+    function StartingLocToLocal(aLoc:integer):integer;
+    function PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
+    function CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
     function LocAvailable(aIndex:integer):boolean;
     function ColorAvailable(aIndex:integer):boolean;
     function AllReady:boolean;
     function AllReadyToPlay:boolean;
+    function GetMaxHighestRoundTripLatency:word;
+    procedure GetNotReadyToPlayPlayers(aPlayerList:TStringList);
+    function GetAICount:integer;
 
     procedure ResetLocAndReady;
-    function DropMissing(aTick:cardinal):string;
+    procedure SetAIReady;
     procedure DefineSetup(aMaxLoc:byte);
 
     //Import/Export
@@ -67,6 +81,28 @@ implementation
 
 
 { TKMPlayerInfo }
+procedure TKMPlayerInfo.SetPing(aPing:word);
+begin
+  fPingPos := (fPingPos+1) mod PING_COUNT;
+  fPings[fPingPos] := aPing;
+end;
+
+
+function TKMPlayerInfo.GetInstantPing:word;
+begin
+  Result := fPings[fPingPos];
+end;
+
+
+function TKMPlayerInfo.GetMaxPing:word;
+var i: integer;
+begin
+  Result := 0;
+  for i:= 0 to PING_COUNT-1 do
+    Result := Math.max(Result,fPings[i]);
+end;
+
+
 function TKMPlayerInfo.IsHuman:boolean;
 begin
   Result := PlayerType = pt_Human;
@@ -77,6 +113,7 @@ end;
 constructor TKMPlayersList.Create;
 var i:integer;
 begin
+  Inherited;
   for i:=1 to MAX_PLAYERS do
     fPlayers[i] := TKMPlayerInfo.Create;
 end;
@@ -103,52 +140,244 @@ begin
 end;
 
 
-procedure TKMPlayersList.AddPlayer(aAddr,aNik:string; aTick:cardinal);
+procedure TKMPlayersList.AllocateLocations(aMaxLoc:byte);
+var
+  i,k,LocCount:integer;
+  UsedLoc:array of boolean;
+  AvailableLoc:array[1..MAX_PLAYERS] of byte;
 begin
-  inc(fCount);
-  fPlayers[fCount].fAddress := aAddr;
-  fPlayers[fCount].fNikname := aNik;
-  fPlayers[fCount].PlayerType := pt_Human;
-  fPlayers[fCount].FlagColorID := 0;
-  fPlayers[fCount].StartLocID := 0;
-  fPlayers[fCount].ReadyToStart := false;
-  fPlayers[fCount].ReadyToPlay := false;
-  fPlayers[fCount].Alive := true;
-  fPlayers[fCount].TimeTick := aTick;
+  //All wrong start locations will be reset to "undefined"
+  for i:=1 to fCount do
+    if not Math.InRange(fPlayers[i].StartLocation, 0, aMaxLoc) then fPlayers[i].StartLocation := 0;
+
+  SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
+  for i:=1 to aMaxLoc do UsedLoc[i] := false;
+
+  //Remember all used locations and drop duplicates
+  for i:=1 to fCount do
+    if UsedLoc[fPlayers[i].StartLocation] then
+      fPlayers[i].StartLocation := 0
+    else
+      UsedLoc[fPlayers[i].StartLocation] := true;
+
+  //Collect available locations in a list
+  LocCount := 0;
+  for i:=1 to aMaxLoc do
+  if not UsedLoc[i] then begin
+    inc(LocCount);
+    AvailableLoc[LocCount] := i;
+  end;
+
+  //Randomize
+  for i:=1 to LocCount do
+    SwapInt(AvailableLoc[i], AvailableLoc[KaMRandom(LocCount)+1]);
+
+  //Allocate available starting locations
+  k := 0;
+  for i:=1 to fCount do
+  if fPlayers[i].StartLocation = 0 then begin
+    inc(k);
+    if k<=LocCount then
+      fPlayers[i].StartLocation := AvailableLoc[k];
+  end;
+
+  //Check for odd players
+  for i:=1 to fCount do
+    Assert(fPlayers[i].StartLocation <> 0, 'Everyone should have a starting location!');
 end;
 
 
-procedure TKMPlayersList.RemPlayer(aIndex:integer);
-var i:integer;
+procedure TKMPlayersList.AllocateColors;
+var
+  i,k,ColorCount:integer;
+  UsedColor:array[0..MP_COLOR_COUNT] of boolean; //0 means Random
+  AvailableColor:array[1..MP_COLOR_COUNT] of byte;
 begin
-  Assert(InRange(aIndex, 1, fCount), 'Can not remove player');
-  fPlayers[aIndex].Free;
-  for i:=aIndex to fCount-1 do
+  //All wrong colors will be reset to random
+  for i:=1 to fCount do
+    if not Math.InRange(fPlayers[i].FlagColorID, 0, MP_COLOR_COUNT) then
+      fPlayers[i].FlagColorID := 0;
+
+  FillChar(UsedColor, SizeOf(UsedColor), #0);
+
+  //Remember all used colors and drop duplicates
+  for i:=1 to fCount do
+    if UsedColor[fPlayers[i].FlagColorID] then
+      fPlayers[i].FlagColorID := 0
+    else
+      UsedColor[fPlayers[i].FlagColorID] := true;
+
+  //Collect available colors
+  ColorCount := 0;
+  for i:=1 to MP_COLOR_COUNT do
+  if not UsedColor[i] then begin
+    inc(ColorCount);
+    AvailableColor[ColorCount] := i;
+  end;
+
+  //Randomize
+  for i:=1 to ColorCount do
+    SwapInt(AvailableColor[i], AvailableColor[KaMRandom(ColorCount)+1]);
+
+  //Allocate available colors
+  k := 0;
+  for i:=1 to fCount do
+  if fPlayers[i].FlagColorID = 0 then
+  begin
+    inc(k);
+    if k<=ColorCount then
+      fPlayers[i].FlagColorID := AvailableColor[k];
+  end;
+
+  //Check for odd players
+  for i:=1 to fCount do
+    Assert(fPlayers[i].FlagColorID <> 0, 'Everyone should have a color!');
+end;
+
+
+procedure TKMPlayersList.AddPlayer(aNik:string; aIndexOnServer:integer);
+begin
+  inc(fCount);
+  fPlayers[fCount].fNikname := aNik;
+  fPlayers[fCount].fIndexOnServer := aIndexOnServer;
+  fPlayers[fCount].PlayerType := pt_Human;
+  fPlayers[fCount].PlayerIndex := nil;
+  fPlayers[fCount].Team := 0;
+  fPlayers[fCount].FlagColorID := 0;
+  fPlayers[fCount].StartLocation := 0;
+  fPlayers[fCount].ReadyToStart := false;
+  fPlayers[fCount].ReadyToPlay := false;
+  fPlayers[fCount].Alive := true;
+end;
+
+
+procedure TKMPlayersList.AddAIPlayer;
+begin
+  inc(fCount);
+  fPlayers[fCount].fNikname := 'AI Player';
+  fPlayers[fCount].fIndexOnServer := -1;
+  fPlayers[fCount].PlayerType := pt_Computer;
+  fPlayers[fCount].PlayerIndex := nil;
+  fPlayers[fCount].Team := 0;
+  fPlayers[fCount].FlagColorID := 0;
+  fPlayers[fCount].StartLocation := 0;
+  fPlayers[fCount].ReadyToStart := true;
+  fPlayers[fCount].ReadyToPlay := true;
+  fPlayers[fCount].Alive := true;
+  UpdateAIPlayerNames;
+end;
+
+
+//Set player to no longer be alive, but do not remove them from the game
+procedure TKMPlayersList.KillPlayer(aIndexOnServer:integer);
+var ID:integer;
+begin
+  ID := ServerToLocal(aIndexOnServer);
+  Assert(ID <> -1, 'Cannot kill player');
+  fPlayers[ID].Alive := false;
+end;
+
+
+procedure TKMPlayersList.RemPlayer(aIndexOnServer:integer);
+var ID,i:integer;
+begin
+  ID := ServerToLocal(aIndexOnServer);
+  Assert(ID <> -1, 'Cannot remove player');
+  fPlayers[ID].Free;
+  for i:=ID to fCount-1 do
     fPlayers[i] := fPlayers[i+1]; //Shift only pointers
 
-  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but now used
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
   dec(fCount);
 end;
 
 
-function TKMPlayersList.NiknameIndex(aNik:string):integer;
+procedure TKMPlayersList.RemAIPlayer(ID:integer);
+var i:integer;
+begin
+  fPlayers[ID].Free;
+  for i:=ID to fCount-1 do
+    fPlayers[i] := fPlayers[i+1]; //Shift only pointers
+
+  fPlayers[fCount] := TKMPlayerInfo.Create; //Empty players are created but not used
+  dec(fCount);
+  UpdateAIPlayerNames;
+end;
+
+
+procedure TKMPlayersList.UpdateAIPlayerNames;
+var i, AICount:integer;
+begin
+  AICount := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
+    begin
+      inc(AICount);
+      fPlayers[i].fNikname := 'AI Player '+IntToStr(AICount);
+    end;
+end;
+
+
+function TKMPlayersList.ServerToLocal(aIndexOnServer:integer):integer;
 var i:integer;
 begin
   Result := -1;
   for i:=1 to fCount do
-    if fPlayers[i].fNikname = aNik then
+    if fPlayers[i].fIndexOnServer = aIndexOnServer then
+    begin
+      Result := i;
+      Exit;
+    end;
+end;
+
+
+//Networking needs to convert Nikname to local index in players list
+function TKMPlayersList.NiknameToLocal(aNikname:string):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if fPlayers[i].fNikname = aNikname then
+      Result := i;
+end;
+
+
+function TKMPlayersList.StartingLocToLocal(aLoc:integer):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if fPlayers[i].StartLocation = aLoc then
+      Result := i;
+end;
+
+
+function TKMPlayersList.PlayerIndexToLocal(aIndex:TPlayerIndex):integer;
+var i:integer;
+begin
+  Result := -1;
+  for i:=1 to fCount do
+    if (fPlayers[i].PlayerIndex <> nil) and (fPlayers[i].PlayerIndex.PlayerIndex = aIndex) then
       Result := i;
 end;
 
 
 //See if player can join our game
-function TKMPlayersList.CheckCanJoin(aAddr, aNik:string):string;
+function TKMPlayersList.CheckCanJoin(aNik:string; aIndexOnServer:integer):string;
 begin
   if fCount >= MAX_PLAYERS then
-    Result := 'No more players can join the game'
+    Result := 'Server is full. No more players can join the game'
   else
-  if NiknameIndex(aNik) <> -1 then
-    Result := 'Player with this nik already joined the game';
+  if ServerToLocal(aIndexOnServer) <> -1 then
+    Result := 'Player with said index already joined the game'
+  else
+  if NiknameToLocal(aNik) <> -1 then
+    Result := 'Player with the same name already joined the game'
+  else  
+  if LeftStr(aNik,length('Player AI')) = 'Player AI' then
+    Result := 'Cannot have the same name as AI players'
+  else
+    Result := '';
 end;
 
 
@@ -159,7 +388,7 @@ begin
   if aIndex=0 then exit;
 
   for i:=1 to fCount do
-    Result := Result and not (fPlayers[i].StartLocID = aIndex);
+    Result := Result and not (fPlayers[i].StartLocation = aIndex);
 end;
 
 
@@ -192,26 +421,62 @@ begin
 end;
 
 
+function TKMPlayersList.GetMaxHighestRoundTripLatency:word;
+var i:integer; Highest, Highest2: word;
+begin
+  Highest := 0;
+  Highest2 := 0;
+  for i:=1 to fCount do
+  begin
+    if fPlayers[i].GetMaxPing > Highest then
+      Highest := fPlayers[i].GetMaxPing
+    else
+      if fPlayers[i].GetMaxPing > Highest2 then
+        Highest2 := fPlayers[i].GetMaxPing;
+  end;
+  Result := min(Highest + Highest2, High(Word));
+end;
+
+
+procedure TKMPlayersList.GetNotReadyToPlayPlayers(aPlayerList:TStringList);
+var i:integer;
+begin
+  for i:=1 to fCount do
+    if (not fPlayers[i].ReadyToPlay) and (fPlayers[i].PlayerType <> pt_Computer) then
+      aPlayerList.Add(fPlayers[i].Nikname);
+end;
+
+
+function TKMPlayersList.GetAICount:integer;
+var i:integer;
+begin
+  Result := 0;
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
+      inc(Result);
+end;
+
+
 procedure TKMPlayersList.ResetLocAndReady;
 var i:integer;
 begin
   for i:=1 to fCount do
   begin
-    fPlayers[i].StartLocID := 0;
-    fPlayers[i].ReadyToStart := false;
+    fPlayers[i].StartLocation := 0;
+    if fPlayers[i].PlayerType <> pt_Computer then //AI players are always ready
+      fPlayers[i].ReadyToStart := false;
   end;
 end;
 
 
-function TKMPlayersList.DropMissing(aTick:cardinal):string;
+procedure TKMPlayersList.SetAIReady;
 var i:integer;
 begin
-  Result := '';
-  for i:=fCount downto 2 do //Don't check Host
-    if aTick > fPlayers[i].fTimeTick then
+  for i:=1 to fCount do
+    if fPlayers[i].PlayerType = pt_Computer then
     begin
-      Result := Result + fPlayers[i].fNikname;
-      RemPlayer(i);
+      fPlayers[i].ReadyToStart := true;
+      fPlayers[i].ReadyToPlay := true;
     end;
 end;
 
@@ -219,90 +484,11 @@ end;
 //Convert undefined/random start locations to fixed and assign random colors
 //Remove odd players
 procedure TKMPlayersList.DefineSetup(aMaxLoc:byte);
-var
-  i,k,LocCount,ColorCount:integer;
-  UsedLoc, UsedColor:array of boolean;
-  AvailableLoc, AvailableColor:array[1..MAX_PLAYERS] of byte;
 begin
   Assert(fCount <= aMaxLoc, 'Players count exceeds map limit');
 
-  //All wrong start locations will be reset to "undefined"
-  for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].StartLocID,0,aMaxLoc) then fPlayers[i].StartLocID := 0;
-
-  SetLength(UsedLoc, aMaxLoc+1); //01..aMaxLoc, all false
-  for i:=1 to aMaxLoc do UsedLoc[i] := false;
-
-  //Remember all used locations and drop duplicates
-  for i:=1 to fCount do
-    if UsedLoc[fPlayers[i].StartLocID] then
-      fPlayers[i].StartLocID := 0
-    else
-      UsedLoc[fPlayers[i].StartLocID] := true;
-
-  //Collect available locations
-  LocCount := 0;
-  for i:=1 to aMaxLoc do
-  if not UsedLoc[i] then begin
-    inc(LocCount);
-    AvailableLoc[LocCount] := i;
-  end;
-
-  //Randomize
-  for i:=1 to LocCount do
-    SwapInt(AvailableLoc[i], AvailableLoc[random(LocCount)+1]);
-
-  //Allocate available starting locations
-  k := 0;
-  for i:=1 to fCount do
-  if fPlayers[i].StartLocID = 0 then begin
-    inc(k);
-    if k<=LocCount then
-      fPlayers[i].StartLocID := AvailableLoc[k];
-  end;
-
-  //Check for odd players
-  for i:=1 to fCount do
-    Assert(fPlayers[i].StartLocID <> 0, 'Everyone should have a starting location!');
-
-  //All wrong colors will be reset to random
-  for i:=1 to fCount do
-    if not Math.InRange(fPlayers[i].FlagColorID,0,MP_COLOR_COUNT) then fPlayers[i].FlagColorID := 0;
-
-  SetLength(UsedColor, MP_COLOR_COUNT+1); //01..MP_COLOR_COUNT, all false
-  for i:=1 to MP_COLOR_COUNT do UsedColor[i] := false;
-
-  //Remember all used colors and drop duplicates
-  for i:=1 to fCount do
-    if UsedColor[fPlayers[i].FlagColorID] then
-      fPlayers[i].FlagColorID := 0
-    else
-      UsedColor[fPlayers[i].FlagColorID] := true;
-
-  //Collect available colors
-  ColorCount := 0;
-  for i:=1 to MP_COLOR_COUNT do
-  if not UsedColor[i] then begin
-    inc(ColorCount);
-    AvailableColor[ColorCount] := i;
-  end;
-
-  //Randomize
-  for i:=1 to ColorCount do
-    SwapInt(AvailableColor[i], AvailableColor[random(ColorCount)+1]);
-
-  //Allocate available colors
-  k := 0;
-  for i:=1 to fCount do
-  if fPlayers[i].FlagColorID = 0 then begin
-    inc(k);
-    if k<=ColorCount then
-      fPlayers[i].FlagColorID := AvailableColor[k];
-  end;
-
-  //Check for odd players
-  for i:=1 to fCount do
-    Assert(fPlayers[i].FlagColorID <> 0, 'Everyone should have a color!');
+  AllocateLocations(aMaxLoc);
+  AllocateColors;
 end;
 
 
@@ -317,12 +503,14 @@ begin
   M.Write(fCount);
   for i:=1 to fCount do
   begin
-    M.Write(fPlayers[i].fAddress);
     M.Write(fPlayers[i].fNikname);
+    M.Write(fPlayers[i].fIndexOnServer);
     M.Write(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
     M.Write(fPlayers[i].FlagColorID);
-    M.Write(fPlayers[i].StartLocID);
+    M.Write(fPlayers[i].StartLocation);
+    M.Write(fPlayers[i].Team);
     M.Write(fPlayers[i].ReadyToStart);
+    M.Write(fPlayers[i].ReadyToPlay);
     M.Write(fPlayers[i].Alive);
   end;
 
@@ -340,12 +528,14 @@ begin
     M.Read(fCount);
     for i:=1 to fCount do
     begin
-      M.Read(fPlayers[i].fAddress);
       M.Read(fPlayers[i].fNikname);
+      M.Read(fPlayers[i].fIndexOnServer);
       M.Read(fPlayers[i].PlayerType, SizeOf(fPlayers[i].PlayerType));
       M.Read(fPlayers[i].FlagColorID);
-      M.Read(fPlayers[i].StartLocID);
+      M.Read(fPlayers[i].StartLocation);
+      M.Read(fPlayers[i].Team);
       M.Read(fPlayers[i].ReadyToStart);
+      M.Read(fPlayers[i].ReadyToPlay);
       M.Read(fPlayers[i].Alive);
     end;
   finally

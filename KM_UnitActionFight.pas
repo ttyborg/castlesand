@@ -1,7 +1,7 @@
 unit KM_UnitActionFight;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Utils, KromUtils, Math, SysUtils, KM_Units, KM_Points;
 
 {Fight until we die or the opponent dies}
 type
@@ -14,6 +14,7 @@ TUnitActionFight = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aOpponent, aUnit:TKMUnit);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     procedure SyncLoad; override;
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
@@ -38,7 +39,7 @@ begin
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(aUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
   fVertexOccupied := KMPoint(0,0);
-  if KMStepIsDiag(aUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(aUnit).GetFightMaxRange < 2) then
+  if KMStepIsDiag(aUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(aUnit).IsRanged then
     IncVertex(aUnit.GetPosition, fOpponent.GetPosition);
 end;
 
@@ -68,6 +69,12 @@ begin
 end;
 
 
+function TUnitActionFight.GetExplanation: string;
+begin
+  Result := 'Fighting';
+end;
+
+
 procedure TUnitActionFight.IncVertex(aFrom, aTo: TKMPoint);
 begin
   //Tell fTerrain that this vertex is being used so no other unit walks over the top of us
@@ -91,7 +98,7 @@ end;
 procedure TUnitActionFight.MakeSound(KMUnit: TKMUnit; IsHit:boolean);
 begin
   //Do not play sounds if unit is invisible to MyPlayer
-  if fTerrain.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y, MyPlayer.PlayerID) < 255 then exit;
+  if MyPlayer.FogOfWar.CheckTileRevelation(KMUnit.GetPosition.X, KMUnit.GetPosition.Y) < 255 then exit;
   
   case KMUnit.UnitType of
     ut_Arbaletman: fSoundLib.Play(sfx_CrossbowDraw,KMUnit.GetPosition); //Aiming
@@ -131,7 +138,7 @@ begin
     else
     begin
       //Tell commanders to reposition after a fight, if we don't have other plans (order)
-      if (TKMUnitWarrior(KMUnit).fCommander = nil) and (not TKMUnitWarrior(KMUnit).ArmyIsBusy) and
+      if TKMUnitWarrior(KMUnit).IsCommander and not TKMUnitWarrior(KMUnit).ArmyInFight and
          (TKMUnitWarrior(KMUnit).GetOrder = wo_None) and (KMUnit.GetUnitTask = nil) then
         TKMUnitWarrior(KMUnit).OrderWalk(KMUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
@@ -150,13 +157,13 @@ begin
   if not KMSamePoint(KMGetDiagVertex(KMUnit.GetPosition, fOpponent.GetPosition), fVertexOccupied) then
   begin
     DecVertex;
-    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
+    if KMStepIsDiag(KMUnit.GetPosition, fOpponent.GetPosition) and not TKMUnitWarrior(KMUnit).IsRanged then
       if fTerrain.VertexUsageCompatible(KMUnit.GetPosition, fOpponent.GetPosition) then
         IncVertex(KMUnit.GetPosition, fOpponent.GetPosition)
       else
       begin
         //This vertex is being used so we can't fight
-        Result := actDone;
+        Result := ActDone;
         exit;
       end;
   end;
@@ -164,20 +171,22 @@ begin
 
   if Step = 1 then
   begin
-    //Tell our opponent we are attacking them
-    fPlayers.PlayerAI[byte(fOpponent.GetOwner)].UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+    //Tell the Opponent we are attacking him
+    fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(KMUnit));
+
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
-    if (fOpponent is TKMUnitWarrior) and (TKMUnitWarrior(KMUnit).GetFightMaxRange < 2) then
-      fPlayers.PlayerAI[byte(KMUnit.GetOwner)].RetaliateAgainstThreat(TKMUnitWarrior(fOpponent));
+    if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(KMUnit).IsRanged then
+      fPlayers.Player[KMUnit.GetOwner].AI.UnitAttackNotification(KMUnit, TKMUnitWarrior(fOpponent));
   end;
 
-  if TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2 then begin
+  if TKMUnitWarrior(KMUnit).IsRanged then 
+  begin
     if Step = FIRING_DELAY then
     begin
       if AimingDelay=-1 then //Initialize
       begin
         MakeSound(KMUnit, false); //IsHit means IsShoot for bowmen (false means aiming)
-        AimingDelay := AIMING_DELAY_MIN+Random(AIMING_DELAY_ADD);
+        AimingDelay := AIMING_DELAY_MIN+KaMRandom(AIMING_DELAY_ADD);
       end;
 
       if AimingDelay>0 then begin
@@ -186,8 +195,8 @@ begin
       end;
 
       case KMUnit.UnitType of
-        ut_Arbaletman: fGame.Projectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Bolt, KMUnit.GetOwner, true);
-        ut_Bowman:     fGame.Projectiles.AddItem(KMUnit.PositionF, fOpponent.PositionF, pt_Arrow, KMUnit.GetOwner, true);
+        ut_Arbaletman: fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Bolt, KMUnit.GetOwner);
+        ut_Bowman:     fGame.Projectiles.AimTarget(KMUnit.PositionF, fOpponent, pt_Arrow, KMUnit.GetOwner);
         else Assert(false, 'Unknown shooter');
       end;
 
@@ -201,17 +210,28 @@ begin
       ut := byte(KMUnit.UnitType);
       ot := byte(fOpponent.UnitType);
       Damage := UnitStat[ut].Attack; //Base damage
-      if InRange(ot, low(UnitGroups), high(UnitGroups)) then
-        Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
-      Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
-      Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
+      Damage := Round(Damage*KaMRandom(101)/100);
+      IsHit := (Damage >= UnitStat[ut].Attack*0.15); // IsHit = true if Damage >= 15% of Base damage
+      if not(IsHit) then Damage := 0
+      else begin // if IsHit
+        if InRange(ot, low(UnitGroups), high(UnitGroups)) then
+          Damage := Damage + UnitStat[ut].AttackHorseBonus * byte(UnitGroups[ot] = gt_Mounted); //Add Anti-horse bonus
+        Damage := Damage * (GetDirModifier(KMUnit.Direction,fOpponent.Direction)+1); //Direction modifier
+        // Now, defence modifier in HitPointsDecrease
+        //Damage := Damage div max(UnitStat[ot].Defence,1); //Not needed, but animals have 0 defence
+      end;
 
-      IsHit := (Damage >= Random(101)); //0..100
+      //IsHit := (Damage >= KaMRandom(101)); //0..100
 
       if IsHit then
+        if fOpponent.HitPointsDecrease(Damage,false) then
+          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
+            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
+
+      {if IsHit then
         if fOpponent.HitPointsDecrease(1) then
-          if (fPlayers <> nil) and (fPlayers.Player[byte(KMUnit.GetOwner)] <> nil) then
-            fPlayers.Player[byte(KMUnit.GetOwner)].Stats.UnitKilled(fOpponent.UnitType);
+          if (fPlayers <> nil) and (fPlayers.Player[KMUnit.GetOwner] <> nil) then
+            fPlayers.Player[KMUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);}
 
       MakeSound(KMUnit, IsHit); //2 sounds for hit and for miss
     end;
@@ -219,7 +239,7 @@ begin
 
   //Aiming Archers may miss few ticks, so don't put anything critical below!
 
-  StepDone := (KMUnit.AnimStep mod Cycle = 0) or (TKMUnitWarrior(KMUnit).GetFightMaxRange >= 2); //Archers may abandon at any time as they need to walk off imediantly
+  StepDone := (KMUnit.AnimStep mod Cycle = 0) or TKMUnitWarrior(KMUnit).IsRanged; //Archers may abandon at any time as they need to walk off imediantly
   inc(KMUnit.AnimStep);
 end;
 
@@ -230,7 +250,7 @@ begin
   if fOpponent <> nil then
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(AimingDelay);
   SaveStream.Write(fVertexOccupied);
 end;

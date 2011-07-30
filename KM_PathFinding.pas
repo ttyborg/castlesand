@@ -1,7 +1,7 @@
 unit KM_PathFinding;
 {$I KaM_Remake.inc}
 interface            
-uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_Utils, KM_CommonTypes, KM_Houses;
+uses SysUtils, Math, KromUtils, KM_Defaults, KM_Terrain, KM_CommonTypes, KM_Houses, KM_Points;
 
 type TDestinationPoint = (dp_Location, dp_Passability, dp_House);
 
@@ -41,6 +41,7 @@ type
   public
     constructor Create(aLocA, aLocB:TKMPoint; aPass:TPassability; aDistance:single; aTargetHouse:TKMHouse; aIsInteractionAvoid:boolean=false); overload;
     constructor Create(aLocA:TKMPoint; aTargetWalkConnect:TWalkConnect; aTargetNetwork:byte; fPass:TPassability; aLocB:TKMPoint); overload;
+    function GetRouteLength:integer;
     procedure ReturnRoute(var NodeList:TKMPointList);
     property RouteSuccessfullyBuilt:boolean read fRouteSuccessfullyBuilt;
   end;
@@ -195,7 +196,20 @@ begin
          (MinCost.Cost=65535)); // There's no more open cells available
 
   Result := IsDestinationReached;
-  //fLog.AssertToLog(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+  //Assert(MinCost.Cost<>65535, 'FloodFill test failed and there''s no possible route A-B');
+end;
+
+
+function TPathFinding.GetRouteLength:integer;
+var k:integer;
+begin
+  Result:=0;
+  if not fRouteSuccessfullyBuilt then exit;
+  k:=MinCost.ID;
+  repeat
+    inc(Result);
+    k:=OList[k].Parent;
+  until(k=0);
 end;
 
 
@@ -211,11 +225,7 @@ begin
   end;
 
   //Calculate NodeCount
-  k:=MinCost.ID; NodesCount:=0;
-  repeat
-    inc(NodesCount);
-    k:=OList[k].Parent;
-  until(k=0);
+  NodesCount := GetRouteLength;
 
   {if NodeCount > length(Nodes) then begin
     NodeCount:=0; //Something went wrong

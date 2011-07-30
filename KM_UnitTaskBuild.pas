@@ -1,7 +1,7 @@
 unit KM_UnitTaskBuild;
 {$I KaM_Remake.inc}
 interface
-uses KromUtils, SysUtils, KM_CommonTypes, KM_Houses, KM_Units;
+uses SysUtils, KM_CommonTypes, KM_Houses, KM_Units, KM_Points;
 
 {Perform building}
 type
@@ -109,7 +109,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain;
+uses KM_Defaults, KM_Utils, KM_DeliverQueue, KM_PlayersCollection, KM_Terrain, KM_ResourceGFX;
 
 
 { TTaskBuildRoad }
@@ -136,8 +136,8 @@ end;
 
 destructor TTaskBuildRoad.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
-  if DemandSet  then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -157,7 +157,7 @@ begin
          Thought := th_None;
          fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
          MarkupSet := true;
-         fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+         fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
          BuildID := 0;
          SetActionLockedStay(11,ua_Work1,false);
        end;
@@ -169,7 +169,7 @@ begin
     3: begin
          fTerrain.IncDigState(fLoc);
          SetActionLockedStay(11,ua_Work1,false);
-         fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
+         fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil, fUnit, rt_Stone, 1, dt_Once, di_High);
          DemandSet := true;
        end;
     4: begin //This step is repeated until Serf brings us some stone
@@ -238,8 +238,8 @@ end;
 
 destructor TTaskBuildWine.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
-  if DemandSet  then fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if DemandSet  then fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -258,7 +258,7 @@ begin
         Thought := th_None;
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0; //it can't be cancelled now
         MarkupSet := true;
         SetActionLockedStay(12*4,ua_Work1,false);
@@ -270,7 +270,7 @@ begin
    3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(24,ua_Work1,false);
-        fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil,fUnit,rt_Wood, 1, dt_Once, di_High);
         DemandSet := true;
       end;
    4: begin
@@ -332,7 +332,7 @@ end;
 
 destructor TTaskBuildField.Destroy;
 begin
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+  if BuildID<>0 then fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
   if MarkupSet  then fTerrain.RemMarkup(fLoc);
   Inherited;
 end;
@@ -350,7 +350,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         MarkupSet := true;
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -404,11 +404,11 @@ end;
 
 destructor TTaskBuildWall.Destroy;
 begin
-  fPlayers.Player[byte(fUnit.GetOwner)].DeliverList.RemoveDemand(fUnit);
+  fPlayers.Player[fUnit.GetOwner].DeliverList.RemoveDemand(fUnit);
   if fPhase > 1 then
     fTerrain.RemMarkup(fLoc)
   else
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
+    fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenRoad(BuildID); //Allow other workers to take this task
   Inherited;
 end;
 
@@ -426,7 +426,7 @@ begin
     1: begin
         fTerrain.SetMarkup(fLoc,mu_UnderConstruction);
         fTerrain.ResetDigState(fLoc); //Remove any dig over that might have been there (e.g. destroyed house)
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
+        fPlayers.Player[GetOwner].BuildList.CloseRoad(BuildID); //Close the job now because it can no longer be cancelled
         BuildID := 0;
         SetActionLockedStay(0,ua_Walk);
        end;
@@ -437,7 +437,7 @@ begin
     3: begin
         fTerrain.IncDigState(fLoc);
         SetActionLockedStay(22,ua_Work1,false);
-        fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(nil, fUnit, rt_Wood, 1, dt_Once, di_High);
       end;
     4: begin
         SetActionLockedStay(30,ua_Work1);
@@ -492,8 +492,10 @@ begin
   BuildID   := aID;
   HouseSet  := false;
   Step      := 0;
+
+  //Fill Cells left->right, top->bottom. Worker will start flattening from the end (reversed)
   for i := 1 to 4 do for k := 1 to 4 do
-  if HousePlanYX[byte(fHouse.GetHouseType),i,k] <> 0 then begin
+  if fHouse.HouseArea[i,k] <> 0 then begin
     inc(Step);
     Cells[Step] := KMPoint(fHouse.GetPosition.X + k - 3,fHouse.GetPosition.Y + i - 4);
   end;
@@ -524,10 +526,11 @@ end;
 destructor TTaskBuildHouseArea.Destroy;
 begin
   //Allow other workers to take this task
-  if BuildID<>0 then fPlayers.Player[byte(fUnit.GetOwner)].BuildList.ReOpenHousePlan(BuildID);
+  if BuildID<>0 then
+    fPlayers.Player[fUnit.GetOwner].BuildList.ReOpenHousePlan(BuildID);
 
   if HouseSet and (fHouse<>nil) then
-    fPlayers.Player[byte(fUnit.GetOwner)].RemHouse(fHouse.GetPosition,true);
+    fPlayers.Player[fUnit.GetOwner].RemHouse(fHouse.GetPosition,true);
 
   fPlayers.CleanUpHousePointer(fHouse);
   Inherited;
@@ -536,6 +539,7 @@ end;
 
 {Prepare building site - flatten terrain}
 function TTaskBuildHouseArea.Execute:TTaskResult;
+var OutOfWay: TKMPoint;
 begin
   Result := TaskContinues;
 
@@ -553,7 +557,7 @@ begin
         Thought := th_Build;
       end;
   1:  begin
-        fPlayers.Player[byte(GetOwner)].BuildList.CloseHousePlan(BuildID);
+        fPlayers.Player[GetOwner].BuildList.CloseHousePlan(BuildID);
         BuildID := 0;
         fTerrain.SetHouse(fHouse.GetPosition, fHouse.GetHouseType, hs_Fence, GetOwner);
         HouseSet := true;
@@ -589,12 +593,13 @@ begin
       end;
   7:  begin
         fHouse.BuildingState := hbs_Wood;
-        fPlayers.Player[byte(GetOwner)].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
-        with HouseDAT[byte(fHouse.GetHouseType)] do begin
-          fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, WoodCost, dt_Once, di_High);
-          fPlayers.Player[byte(GetOwner)].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, StoneCost, dt_Once, di_High);
-        end;
-        SetActionStay(1,ua_Walk);
+        fPlayers.Player[GetOwner].BuildList.AddNewHouse(fHouse); //Add the house to JobList, so then all workers could take it
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Wood, fResource.HouseDat[fHouse.GetHouseType].WoodCost, dt_Once, di_High);
+        fPlayers.Player[GetOwner].DeliverList.AddNewDemand(fHouse, nil, rt_Stone, fResource.HouseDat[fHouse.GetHouseType].StoneCost, dt_Once, di_High);
+        //Walk away from building site, before we get trapped when house becomes stoned
+        OutOfWay := fTerrain.GetOutOfTheWay(GetPosition, GetPosition, CanWalk);
+        if KMSamePoint(OutOfWay,KMPoint(0,0)) then OutOfWay := KMPointY1(fHouse.GetEntrance); //Don't get stuck in corners
+        SetActionWalkToSpot(OutOfWay, 0, ua_Walk);
         HouseSet := false;
       end;
   else Result := TaskDone;
@@ -611,7 +616,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(HouseSet);
   SaveStream.Write(Step);
@@ -652,8 +657,7 @@ end;
 
 destructor TTaskBuildHouse.Destroy;
 begin
-  if fHouse.IsComplete and (BuildID<>0) then //Allow others to finish incomplete house
-    fPlayers.Player[byte(fUnit.GetOwner)].BuildList.CloseHouse(BuildID);
+  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHousePointer(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -686,7 +690,7 @@ function TTaskBuildHouse.Execute:TTaskResult;
             Spots[MyCount] := i;
           end;
     if MyCount > 0 then
-      Result := Spots[Random(MyCount)+1]
+      Result := Spots[KaMRandom(MyCount)+1]
     else Result := 0;
   end;
 begin
@@ -723,8 +727,7 @@ begin
            inc(fPhase2);
          end;
       4: begin
-           fPlayers.Player[byte(GetOwner)].BuildList.CloseHouse(BuildID);
-           BuildID := 0;
+           fPlayers.Player[GetOwner].BuildList.RemoveHouse(BuildID); //Pointer usage is not freed until destroy
            SetActionStay(1,ua_Walk);
            Thought := th_None;
          end;
@@ -748,7 +751,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);
@@ -788,6 +791,7 @@ end;
 
 destructor TTaskBuildHouseRepair.Destroy;
 begin
+  fPlayers.Player[fUnit.GetOwner].BuildList.RemoveHouseRepairPointer(BuildID);
   fPlayers.CleanUpHousePointer(fHouse);
   FreeAndNil(Cells);
   Inherited;
@@ -815,7 +819,7 @@ begin
       //Pick random location and go there
       0: begin
            Thought := th_Build;
-           CurLoc := Random(Cells.Count)+1;
+           CurLoc := KaMRandom(Cells.Count)+1;
            SetActionWalkToSpot(Cells.List[CurLoc].Loc);
          end;
       1: begin
@@ -837,9 +841,7 @@ begin
          end;
       4: begin
            Thought := th_None;
-           fPlayers.Player[byte(GetOwner)].BuildList.CloseHouseRepair(BuildID);
-           BuildID := 0;
-           fHouse.RepairID := 0;
+           fPlayers.Player[GetOwner].BuildList.RemoveHouseRepair(BuildID);
            SetActionStay(1,ua_Walk);
          end;
       else Result := TaskDone;
@@ -859,7 +861,7 @@ begin
   if fHouse <> nil then
     SaveStream.Write(fHouse.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(BuildID);
   SaveStream.Write(CurLoc);
   Cells.Save(SaveStream);

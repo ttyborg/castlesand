@@ -28,6 +28,7 @@ type
     procedure StartListening(aPort:string);
     procedure StopListening;
     procedure SendData(aHandle:integer; aData:pointer; aLength:cardinal);
+    procedure Kick(aHandle:integer);
     property OnError:TGetStrProc write fOnError;
     property OnClientConnect:THandleEvent write fOnClientConnect;
     property OnClientDisconnect:THandleEvent write fOnClientDisconnect;
@@ -38,11 +39,14 @@ type
 implementation
 
 
+//Tagging starts with some number away from -2 -1 0 used as sender/recipient constants
+//and off from usual players indexes 1..8, so we could not confuse them by mistake
 constructor TKMNetServerOverbyte.Create;
+const TAG = 14;
 var wsaData: TWSAData;
 begin
   Inherited Create;
-  fLastTag := 0;
+  fLastTag := TAG;
   if WSAStartup($101, wsaData) <> 0 then
     fOnError('Error in Network');
 end;
@@ -57,6 +61,7 @@ end;
 
 procedure TKMNetServerOverbyte.StartListening(aPort:string);
 begin
+  FreeAndNil(fSocketServer);
   fSocketServer := TWSocketServer.Create(nil);
   fSocketServer.Proto  := 'tcp';
   fSocketServer.Addr   := '0.0.0.0'; //Listen to whole range
@@ -81,7 +86,7 @@ procedure TKMNetServerOverbyte.ClientConnect(Sender: TObject; Client: TWSocketCl
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('ClientConnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 
@@ -98,8 +103,8 @@ procedure TKMNetServerOverbyte.ClientDisconnect(Sender: TObject; Client: TWSocke
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
-    exit;
+    fOnError('ClientDisconnect. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
+    //Do not exit because the client has still disconnected
   end;
 
   fOnClientDisconnect(Client.Tag);
@@ -108,18 +113,24 @@ end;
 
 //We recieved data from someone
 procedure TKMNetServerOverbyte.DataAvailable(Sender: TObject; Error: Word);
-const BufferSize = 10240; //10kb
-var P:pointer; L:cardinal;
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
   if Error <> 0 then
   begin
-    fOnError('ClientConnect. Error #' + IntToStr(Error));
+    fOnError('DataAvailable. Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
     exit;
   end;
 
-  GetMem(P, BufferSize);
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnDataAvailable(TWSocket(Sender).Tag, P, L);
+
   FreeMem(P);
 end;
 
@@ -130,7 +141,22 @@ var i:integer;
 begin
   for i:=0 to fSocketServer.ClientCount-1 do
     if fSocketServer.Client[i].Tag = aHandle then
-      fSocketServer.Client[i].Send(aData, aLength);
+    begin
+      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        fSocketServer.Client[i].Send(aData, aLength);
+    end;
+end;
+
+
+procedure TKMNetServerOverbyte.Kick(aHandle:integer);
+var i:integer;
+begin
+  for i:=0 to fSocketServer.ClientCount-1 do
+    if fSocketServer.Client[i].Tag = aHandle then
+    begin
+      if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
+        fSocketServer.Client[i].Close;
+    end;
 end;
 
 

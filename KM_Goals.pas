@@ -1,7 +1,7 @@
 unit KM_Goals;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils,
+uses Classes, SysUtils,
   KM_CommonTypes, KM_Defaults;
 
 
@@ -13,7 +13,7 @@ type
     GoalTime: cardinal; //Only used with ga_Time. Amount of time (in game ticks) that must pass before this goal is complete
     MessageToShow: integer; //Message to be shown when the goal is completed
     MessageHasShown: boolean; //Whether we have shown this message yet
-    Player: TPlayerID; //Player whose buildings or troops must be destroyed
+    PlayerIndex: shortint; //Player whose buildings or troops must be destroyed
   end;
   //Because the goal system is hard to understand, here are some examples:
   {Destroy troops of player 2 in order to win
@@ -52,24 +52,24 @@ type
 
 type
   TKMGoals = class
-    private
-      fCount:integer;
-      fGoals:array of TKMGoal;
-      function GetGoal(Index:integer):TKMGoal;
-    public
-      constructor Create;
-      destructor Destroy; override;
+  private
+    fCount:integer;
+    fGoals:array of TKMGoal;
+    function GetGoal(Index:integer):TKMGoal;
+  public
+    constructor Create;
+    destructor Destroy; override;
 
-      property Count:integer read fCount;
-      property Item[Index:integer]:TKMGoal read GetGoal; default;
-      procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
-      procedure RemGoal(aIndex:integer);
-      procedure RemoveReference(aPlayerID:TPlayerID);
-      procedure SetMessageHasShown(aIndex:integer);
+    property Count:integer read fCount;
+    property Item[Index:integer]:TKMGoal read GetGoal; default;
+    procedure AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
+    procedure RemGoal(aIndex:integer);
+    procedure RemoveReference(aPlayerIndex:TPlayerIndex);
+    procedure SetMessageHasShown(aIndex:integer);
 
-      procedure Save(SaveStream:TKMemoryStream);
-      procedure Load(LoadStream:TKMemoryStream);
-    end;
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
+  end;
 
 implementation
 
@@ -95,22 +95,22 @@ begin
 end;
 
 
-procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayer: TPlayerID);
+procedure TKMGoals.AddGoal(aGoalType: TGoalType; aGoalCondition: TGoalCondition; aGoalStatus: TGoalStatus; aGoalTime: cardinal; aMessageToShow: integer; aPlayerIndex: shortint);
 begin
-  setlength(fGoals,fCount+1);
+  SetLength(fGoals,fCount+1);
   fGoals[fCount].GoalType         := aGoalType;
   fGoals[fCount].GoalCondition    := aGoalCondition;
   fGoals[fCount].GoalStatus       := aGoalStatus;
   fGoals[fCount].GoalTime         := aGoalTime;
   fGoals[fCount].MessageToShow    := aMessageToShow;
-  fGoals[fCount].Player           := aPlayer;
+  fGoals[fCount].PlayerIndex      := aPlayerIndex;
   fGoals[fCount].MessageHasShown  := false;
   inc(fCount);
 end;
 
 
 procedure TKMGoals.RemGoal(aIndex:integer);
-var i:cardinal;
+var i:integer; //Must be an integer so it doesn't crash when fCount=1
 begin
   for i := aIndex to fCount-2 do
     fGoals[i] := fGoals[i+1]; //shift remaining items
@@ -121,11 +121,14 @@ end;
 
 //We don't want anyones goal to use deleted player
 //Used when we delete certain player from the network game right after init
-procedure TKMGoals.RemoveReference(aPlayerID:TPlayerID);
+procedure TKMGoals.RemoveReference(aPlayerIndex:TPlayerIndex);
 var i:integer;
 begin
   for i:=fCount-1 downto 0 do
-    if fGoals[i].Player = aPlayerID then
+    if fGoals[i].PlayerIndex > aPlayerIndex then
+      fGoals[i].PlayerIndex := pred(fGoals[i].PlayerIndex)
+    else
+    if fGoals[i].PlayerIndex = aPlayerIndex then
       RemGoal(i);
 end;
 
@@ -149,7 +152,7 @@ procedure TKMGoals.Load(LoadStream:TKMemoryStream);
 var i:integer;
 begin
   LoadStream.Read(fCount);
-  setlength(fGoals, fCount);
+  SetLength(fGoals, fCount);
   for i:=0 to fCount-1 do
     LoadStream.Read(fGoals[i], SizeOf(fGoals[i]));
 end;

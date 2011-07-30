@@ -3,13 +3,11 @@ unit Unit1;
 {$IFDEF FPC}
   {$Mode Delphi} {$H+}
 {$ENDIF}
-
 interface
-
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Menus
-  {$IFDEF FPC}, LResources, Spin{$ENDIF};
+  Classes, SysUtils, Forms, Controls, Dialogs, StdCtrls,
+  Menus, Spin
+  {$IFDEF FPC}, LResources{$ENDIF};
 
 
 const
@@ -24,9 +22,6 @@ const
 
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
     Button1: TButton;
     Defence: TLabel;
@@ -57,15 +52,18 @@ type
     x7: TSpinEdit;
     Sight: TSpinEdit;
     x9: TSpinEdit;
-    procedure init(Sender: TObject);
     procedure ChangeSpinEdits(Sender: TObject);
     procedure open_file(Sender: TObject);
     procedure saveDAT(Sender: TObject);
     procedure showDAT(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   end;
+
+  TAppState = ( asWait=0, asView=1 );
 
 var
   Form1: TForm1;
+  AppState : TAppState;
 
   UnitStat:array[1..41]of record
     HitPoints,Attack,AttackHorseBonus,x4,Defence,Speed,label5,Sight:smallint;
@@ -95,11 +93,17 @@ implementation
 {$IFDEF WDC}
   {$R *.dfm}
 {$ENDIF}
-
+procedure TForm1.FormCreate(Sender: TObject);
+var i : Integer;
+begin
+  for i:=Low(UnitNames) to High(UnitNames) do
+    ListBox1.Items.Add(UnitNames[i]);
+  AppState := asWait;
+end;
 
 function LoadUnitDAT(FileName:string):boolean;
 var
-  ii:integer;
+  i:integer;
   f:file;
 begin
   Result := false;
@@ -107,13 +111,14 @@ begin
   if not FileExists(FileName) then exit;
   assignfile(f,FileName); reset(f,1);
 
-  for ii:=1 to 28 do
-    blockread(f,SerfCarry[ii],8*70);
+  for i:=1 to 28 do
+    blockread(f,SerfCarry[i],8*70);
 
-  for ii:=1 to 41 do begin
-    blockread(f,UnitStat[ii],22);
-    blockread(f,UnitSprite[ii],112*70);
-    blockread(f,UnitSprite2[ii],36);
+  for i:=1 to 41 do
+  begin
+    blockread(f,UnitStat[i],22);
+    blockread(f,UnitSprite[i],112*70);
+    blockread(f,UnitSprite2[i],36);
   end;
   closefile(f);
 
@@ -123,19 +128,22 @@ end;
 
 function SaveUnitDAT(FileName:string):boolean;
 var
-  ii:integer;
+  i:integer;
   f:file;
 begin
   Result := false;
-  assignfile(f,FileName); reset(f,1);
+  AssignFile(f,FileName);
+  Reset(f,1);
 
-  for ii:=1 to 28 do
-    blockread(f,SerfCarry[ii],8*70);
+  Seek(f, 15680); // 15680 = 28 * (8 * 70)
+  {for i:=1 to 28 do
+    blockwrite(f,SerfCarry[i],8*70);}
 
-  for ii:=1 to 41 do begin
-    blockwrite(f,UnitStat[ii],22);
-    blockwrite(f,UnitSprite[ii],112*70);
-    blockwrite(f,UnitSprite2[ii],36);
+  for i:=1 to 41 do
+  begin
+    blockwrite(f,UnitStat[i],22);
+    blockwrite(f,UnitSprite[i],112*70);
+    blockwrite(f,UnitSprite2[i],36);
   end;
   closefile(f);
 
@@ -145,68 +153,72 @@ end;
 
 procedure TForm1.open_file(Sender: TObject);
 begin
-  if DirectoryExists('../../Data/Defines/') then
-  SaveDialog1.InitialDir := '../../Data/Defines/'
+  if DirectoryExists('..\..\Data\Defines\') then
+    OpenDialog1.InitialDir := '..\..\Data\Defines\'
   else
-  SaveDialog1.InitialDir := '';
-  if OpenDialog1.Execute then
-  LoadUnitDAT(OpenDialog1.Filename);
-end;
+    OpenDialog1.InitialDir := '';
 
-procedure TForm1.init(Sender: TObject);
-var
-  x :integer;
-begin
-x := 1;
- with ListBox1 do begin
-     while (x <42) do begin
-      Items.Add(UnitNames[x]);
-      x := x + 1;
-     end;
- end;
+  if OpenDialog1.Execute then
+  begin
+    LoadUnitDAT(OpenDialog1.Filename);
+    SaveDialog1.InitialDir := OpenDialog1.GetNamePath;
+  end;
+  AppState := asWait;
 end;
 
 procedure TForm1.ChangeSpinEdits(Sender: TObject);
+var ID:integer;
 begin
-  UnitStat[ListBox1.ItemIndex].HitPoints := HitPoints.Value;
-  UnitStat[ListBox1.ItemIndex].Attack := Attack.Value;
-  UnitStat[ListBox1.ItemIndex].AttackHorseBonus := AttackHorseBonus.Value;
-  UnitStat[ListBox1.ItemIndex].x4 := x4.Value;
-  UnitStat[ListBox1.ItemIndex].Defence := DefenceSpinEdit.Value;
-  UnitStat[ListBox1.ItemIndex].Speed := SpeedSpinEdit.Value;
-  UnitStat[ListBox1.ItemIndex].Sight := Sight.Value;
-  UnitStat[ListBox1.ItemIndex].x9 := x9.Value;
-  UnitStat[ListBox1.ItemIndex].x10 := x10.Value;
-  UnitStat[ListBox1.ItemIndex].CanWalkOut := CanWalkOut.Value;
-  UnitStat[ListBox1.ItemIndex].x11 := x11.Value;
+  if AppState <> asWait then exit;
+   ID := ListBox1.ItemIndex + 1;
+   if ID = 0 then Exit;
+
+  UnitStat[ID].HitPoints        := HitPoints.Value;
+  UnitStat[ID].Attack           := Attack.Value;
+  UnitStat[ID].AttackHorseBonus := AttackHorseBonus.Value;
+  UnitStat[ID].x4               := x4.Value;
+  UnitStat[ID].Defence          := DefenceSpinEdit.Value;
+  UnitStat[ID].Speed            := SpeedSpinEdit.Value;
+  UnitStat[ID].Sight            := Sight.Value;
+  UnitStat[ID].x9               := x9.Value;
+  UnitStat[ID].x10              := x10.Value;
+  UnitStat[ID].CanWalkOut       := CanWalkOut.Value;
+  UnitStat[ID].x11              := x11.Value;
 end;
 
 
 procedure TForm1.saveDAT(Sender: TObject);
 begin
   if SaveDialog1.Execute then
-  SaveUnitDAT(SaveDialog1.Filename);
+    SaveUnitDAT(SaveDialog1.Filename);
 end;
 
 
 procedure TForm1.showDAT(Sender: TObject);
+var ID:integer;
 begin
-   HitPoints.Value := UnitStat[ListBox1.ItemIndex].HitPoints;
-   Attack.Value :=UnitStat[ListBox1.ItemIndex].Attack;
-   AttackHorseBonus.Value :=UnitStat[ListBox1.ItemIndex].AttackHorseBonus;
-   x4.Value :=UnitStat[ListBox1.ItemIndex].x4;
-   DefenceSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Defence;
-   SpeedSpinEdit.Value :=UnitStat[ListBox1.ItemIndex].Speed;
-   x7.Value :=0;
-   Sight.Value :=UnitStat[ListBox1.ItemIndex].Sight;
-   x9.Value :=UnitStat[ListBox1.ItemIndex].x9;
-   x10.Value :=UnitStat[ListBox1.ItemIndex].x10;
-   CanWalkOut.Value :=UnitStat[ListBox1.ItemIndex].CanWalkOut;
-   x11.Value :=UnitStat[ListBox1.ItemIndex].x11;
+   ID := ListBox1.ItemIndex + 1;
+   if ID = 0 then Exit;
+
+   AppState := asView;
+   HitPoints.Value        := UnitStat[ID].HitPoints;
+   Attack.Value           := UnitStat[ID].Attack;
+   AttackHorseBonus.Value := UnitStat[ID].AttackHorseBonus;
+   x4.Value               := UnitStat[ID].x4;
+   DefenceSpinEdit.Value  := UnitStat[ID].Defence;
+   SpeedSpinEdit.Value    := UnitStat[ID].Speed;
+   x7.Value               := 0;
+   Sight.Value            := UnitStat[ID].Sight;
+   x9.Value               := UnitStat[ID].x9;
+   x10.Value              := UnitStat[ID].x10;
+   CanWalkOut.Value       := UnitStat[ID].CanWalkOut;
+   x11.Value              := UnitStat[ID].x11;
+   AppState := asWait;
 end;
 
 
 {$IFDEF FPC}
+
 initialization
   {$I unit1.lrs}
 {$ENDIF}
