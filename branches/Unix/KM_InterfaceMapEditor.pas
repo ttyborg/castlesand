@@ -5,7 +5,7 @@ uses
      {$IFDEF MSWindows} Windows, {$ENDIF}
      {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
      Classes, Controls, KromUtils, Math, SysUtils, KromOGLUtils, Forms,
-     KM_Controls, KM_Defaults, KM_Houses, KM_Units;
+     KM_Controls, KM_Defaults, KM_Houses, KM_Units, KM_Points;
 
 type
   TKMapEdInterface = class
@@ -57,6 +57,7 @@ type
     procedure Player_ChangeActive(Sender: TObject);
     procedure Player_ColorClick(Sender:TObject);
     procedure Mission_AlliancesChange(Sender:TObject);
+    procedure Mission_PlayerTypesChange(Sender:TObject);
     procedure View_Passability(Sender:TObject);
 
     function GetSelectedTile: TObject;
@@ -68,7 +69,7 @@ type
       KMMinimap:TKMMinimap;
       RatioRow_Passability:TKMRatioRow;
       Label_Passability:TKMLabel;
-      Button_PlayerSelect:array[1..MAX_PLAYERS]of TKMFlatButtonShape; //Animals are common for all
+      Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
     Panel_Common:TKMPanel;
       Button_Main:array[1..5]of TKMButton; //5 buttons
@@ -96,7 +97,7 @@ type
       Button_Village:array[1..3]of TKMButton;
       Panel_Build:TKMPanel;
         Button_BuildRoad,Button_BuildField,Button_BuildWine,Button_BuildWall,Button_BuildCancel:TKMButtonFlat;
-        Button_Build:array[1..HOUSE_COUNT]of TKMButtonFlat;
+        Button_Build:array[1..GUI_HOUSE_COUNT]of TKMButtonFlat;
       Panel_Units:TKMPanel;
         Button_UnitCancel:TKMButtonFlat;
         Button_Citizen:array[1..14]of TKMButtonFlat;
@@ -111,11 +112,12 @@ type
         ColorSwatch_Color:TKMColorSwatch;
 
     Panel_Mission:TKMPanel;
-      Button_Mission:array[1..1]of TKMButton;
+      Button_Mission:array[1..2]of TKMButton;
       Panel_Alliances:TKMPanel;
-        Label_Alliances:TKMLabel;
-        CheckBox_Alliances: array[1..MAX_PLAYERS,1..MAX_PLAYERS] of TKMCheckBox;
+        CheckBox_Alliances: array[0..MAX_PLAYERS-1,0..MAX_PLAYERS-1] of TKMCheckBox;
         CheckBox_AlliancesSym:TKMCheckBox;
+      Panel_PlayerTypes:TKMPanel;
+        CheckBox_PlayerTypes: array[0..MAX_PLAYERS-1,0..1] of TKMCheckBox;
 
     Panel_Menu:TKMPanel;
       Button_Menu_Save,Button_Menu_Load,Button_Menu_Settings,Button_Menu_Quit:TKMButton;
@@ -166,10 +168,10 @@ type
       Button_BarracksDec100,Button_BarracksDec:TKMButton;
       Button_BarracksInc100,Button_BarracksInc:TKMButton;
   public
-    constructor Create;
+    constructor Create(aScreenX, aScreenY: word);
     destructor Destroy; override;
     procedure Player_UpdateColors;
-    procedure ResizeGameArea(X,Y:word);
+    procedure Resize(X,Y:word);
     procedure ShowHouseInfo(Sender:TKMHouse);
     procedure ShowUnitInfo(Sender:TKMUnit);
     property ShowPassability:byte read fShowPassability;
@@ -189,7 +191,8 @@ type
 
 
 implementation
-uses KM_Units_Warrior, KM_PlayersCollection, KM_Render, KM_TextLibrary, KM_Terrain, KM_Utils, KM_Viewport, KM_Game, KM_CommonTypes, KM_ResourceGFX;
+uses KM_Units_Warrior, KM_PlayersCollection, KM_Player, KM_TextLibrary, KM_Terrain,
+     KM_Utils, KM_Viewport, KM_Game, KM_ResourceGFX;
 
 
 {Switch between pages}
@@ -298,6 +301,13 @@ begin
     Mission_AlliancesChange(nil);
   end else
 
+  if (Sender = Button_Main[4])or(Sender = Button_Mission[2]) then begin
+    Panel_Mission.Show;
+    Panel_PlayerTypes.Show;
+    Label_MenuTitle.Caption:='Mission - Player Types';
+    Mission_PlayerTypesChange(nil);
+  end else
+
   if (Sender=Button_Main[5]) or
      (Sender=Button_Quit_No) or
      (Sender = Button_LoadCancel) or
@@ -317,9 +327,8 @@ begin
   end;
 
   if Sender = Button_Menu_Load then begin
-    FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', true);
-    if FileList_Load.fFiles.Count > 0 then
-      FileList_Load.ItemIndex := 0; //Select first map by default
+    FileList_Load.RefreshList(ExeDir+'Maps\', 'dat', 'map', true);
+    FileList_Load.ItemIndex := 0; //Try to select first map by default
     Panel_Load.Show;
   end;
 
@@ -372,12 +381,11 @@ begin
 end;
 
 
-constructor TKMapEdInterface.Create;
+constructor TKMapEdInterface.Create(aScreenX, aScreenY: word);
 var i:integer;
 begin
-  Inherited;
-  fLog.AssertToLog(fViewport<>nil,'fViewport required to be init first');
-
+  Inherited Create;
+  Assert(fViewport<>nil, 'fViewport required to be init first');
 
   fShownUnit  := nil;
   fShownHouse := nil;
@@ -387,7 +395,7 @@ begin
 
 {Parent Page for whole toolbar in-game}
   MyControls := TKMMasterControl.Create;
-  Panel_Main := TKMPanel.Create(MyControls,0,0,224,768);
+  Panel_Main := TKMPanel.Create(MyControls, 0, 0, aScreenX, aScreenY);
 
     Image_Main1 := TKMImage.Create(Panel_Main,0,0,224,200,407); //Minimap place
 
@@ -407,8 +415,8 @@ begin
     Label_Passability := TKMLabel.Create(Panel_Main,8,240,100,30,'Off',fnt_Metal,kaLeft);
 
     TKMLabel.Create(Panel_Main,8,270,100,30,'Player',fnt_Metal,kaLeft);
-    for i:=1 to MAX_PLAYERS do begin
-      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + (i-1)*23, 290, 21, 32, inttostr(i), fnt_Grey, $FF0000FF);
+    for i:=0 to MAX_PLAYERS-1 do begin
+      Button_PlayerSelect[i]         := TKMFlatButtonShape.Create(Panel_Main, 8 + i*23, 290, 21, 32, inttostr(i+1), fnt_Grey, $FF0000FF);
       Button_PlayerSelect[i].CapOffsetY := -3;
       Button_PlayerSelect[i].Tag     := i;
       Button_PlayerSelect[i].OnClick := Player_ChangeActive;
@@ -417,22 +425,22 @@ begin
     Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 100, 10, '', fnt_Metal, kaLeft);
 
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,kaLeft);
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,fRender.RenderAreaSize.Y-16,0,0,'',fnt_Outline,kaLeft);
+    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,kaLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
 
     {5 big tabs}
     Button_Main[1] := TKMButton.Create(Panel_Common,   8, 72, 36, 36, 381);
-    Button_Main[2] := TKMButton.Create(Panel_Common,  48, 72, 36, 36, 368);
-    Button_Main[3] := TKMButton.Create(Panel_Common,  88, 72, 36, 36,  41);
-    Button_Main[4] := TKMButton.Create(Panel_Common, 128, 72, 36, 36, 441);
-    Button_Main[5] := TKMButton.Create(Panel_Common, 168, 72, 36, 36, 389);
-    Button_Main[1].Hint := fTextLibrary.GetRemakeString(54);
-    Button_Main[2].Hint := fTextLibrary.GetRemakeString(55);
-    Button_Main[3].Hint := fTextLibrary.GetRemakeString(56);
-    Button_Main[4].Hint := fTextLibrary.GetRemakeString(57);
-    Button_Main[5].Hint := fTextLibrary.GetRemakeString(58);
+    Button_Main[2] := TKMButton.Create(Panel_Common,  46, 72, 36, 36, 368);
+    Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41);
+    Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441);
+    Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389);
+    Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
+    Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
+    Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
+    Button_Main[4].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_GLOBAL];
+    Button_Main[5].Hint := fTextLibrary[TX_MAPEDITOR_MENU];
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
     Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,138,36,'',fnt_Metal,kaLeft); //Should be one-line
@@ -470,12 +478,11 @@ end;
 
 
 //Update Hint position and etc..
-procedure TKMapEdInterface.ResizeGameArea(X,Y:word);
+procedure TKMapEdInterface.Resize(X,Y:word);
 begin
   Panel_Main.Width := X;
   Panel_Main.Height := Y;
-  fViewport.ResizeGameArea(X,Y);
-  fViewport.SetZoom(fViewport.Zoom);
+  fViewport.Resize(X,Y);
 end;
 
 
@@ -580,11 +587,11 @@ begin
       Button_BuildCancel.Hint   := fTextLibrary.GetTextString(211);
 
       TKMLabel.Create(Panel_Build,100,65,100,30,'Houses',fnt_Outline,kaCenter);
-      for i:=1 to HOUSE_COUNT do
+      for i:=1 to GUI_HOUSE_COUNT do
         if GUIHouseOrder[i] <> ht_None then begin
-          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,GUIBuildIcons[byte(GUIHouseOrder[i])]);
+          Button_Build[i]:=TKMButtonFlat.Create(Panel_Build, 8+((i-1) mod 5)*37,83+((i-1) div 5)*37,33,33,fResource.HouseDat[GUIHouseOrder[i]].GUIIcon);
           Button_Build[i].OnClick:=Build_ButtonClick;
-          Button_Build[i].Hint:=fTextLibrary.GetTextString(GUIBuildIcons[byte(GUIHouseOrder[i])]-300);
+          Button_Build[i].Hint := fResource.HouseDat[GUIHouseOrder[i]].HouseName;
         end;
 
     Panel_Units := TKMPanel.Create(Panel_Village,0,28,196,400);
@@ -644,7 +651,7 @@ begin
       TKMBevel.Create(Panel_Color,8,30,180,210);
       ColorSwatch_Color := TKMColorSwatch.Create(Panel_Color, 10, 32, 16, 16, 11);
       for i:=0 to 255 do Col[i] := fResource.GetColor32(i);
-      ColorSwatch_Color.AddColors(Col);
+      ColorSwatch_Color.SetColors(Col);
       ColorSwatch_Color.OnClick := Player_ColorClick;
 end;
 
@@ -653,29 +660,51 @@ procedure TKMapEdInterface.Create_Mission_Page;
 var i,k:integer;
 begin
   Panel_Mission := TKMPanel.Create(Panel_Common,0,128,196,28);
-    Button_Mission[1] := TKMButton.Create(Panel_Mission, 8, 4, 36, 24, 41);
-    for i:=1 to 1 do Button_Mission[i].OnClick := SwitchPage;
+    Button_Mission[1] := TKMButton.Create(Panel_Mission,  8, 4, 36, 24, 41);
+    Button_Mission[2] := TKMButton.Create(Panel_Mission, 48, 4, 36, 24, 41);
+    for i:=1 to 2 do Button_Mission[i].OnClick := SwitchPage;
 
-    //todo: Improve the look and feel of alliances, replace checkboxes with flat buttons, add spaces between rows, etc.
     Panel_Alliances := TKMPanel.Create(Panel_Mission,0,28,196,400);
-      Label_Alliances := TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
-      //TKMBevel.Create(Panel_Alliances, 9, 28, 180, 180);
-      for i:=1 to MAX_PLAYERS do begin
-        TKMLabel.Create(Panel_Alliances,12+i*20+2,30,100,20,inttostr(i),fnt_Outline,kaLeft);
-        TKMLabel.Create(Panel_Alliances,12,30+i*20,100,20,inttostr(i),fnt_Outline,kaLeft);
-        for k:=1 to MAX_PLAYERS do begin
+      TKMLabel.Create(Panel_Alliances,100,10,100,30,'Alliances',fnt_Outline,kaCenter);
+      for i:=0 to MAX_PLAYERS-1 do begin
+        TKMLabel.Create(Panel_Alliances,32+i*20+2,30,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        TKMLabel.Create(Panel_Alliances,12,50+i*25,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        for k:=0 to MAX_PLAYERS-1 do begin
           //@Lewin: i=k allows some exotic cases where in theory player could fight with itself
-          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 8+k*20, 26+i*20, 20, 20, '', fnt_Metal);
-          CheckBox_Alliances[i,k].Tag       := (i-1) * MAX_PLAYERS + (k-1);
+          CheckBox_Alliances[i,k] := TKMCheckBox.Create(Panel_Alliances, 28+k*20, 46+i*25, 20, 20, '', fnt_Metal);
+          CheckBox_Alliances[i,k].Tag       := i * MAX_PLAYERS + k;
           CheckBox_Alliances[i,k].FlatStyle := true;
           CheckBox_Alliances[i,k].OnClick   := Mission_AlliancesChange;
         end;
       end;
 
-      //It does not have OnClick event for a reason
+      //It does not have OnClick event for a reason:
       // - we don't have a rule to make alliances symmetrical yet
-      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 30+MAX_PLAYERS*20+20, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
       CheckBox_AlliancesSym.Checked := true;
+      CheckBox_AlliancesSym.Disable;
+
+    Panel_PlayerTypes := TKMPanel.Create(Panel_Mission,0,28,196,400);
+      TKMLabel.Create(Panel_PlayerTypes,100,10,100,30,'Player types',fnt_Outline,kaCenter);
+      for i:=0 to MAX_PLAYERS-1 do begin
+        TKMLabel.Create(Panel_PlayerTypes,12,30,100,20,'#',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,32,30,100,20,'Human',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,102,30,100,20,'Computer',fnt_Grey,kaLeft);
+        TKMLabel.Create(Panel_PlayerTypes,12,50+i*25,100,20,inttostr(i+1),fnt_Outline,kaLeft);
+        for k:=0 to 1 do
+        begin
+          CheckBox_PlayerTypes[i,k] := TKMCheckBox.Create(Panel_PlayerTypes, 52+k*70, 48+i*25, 20, 20, '', fnt_Metal);
+          CheckBox_PlayerTypes[i,k].Tag       := i;
+          CheckBox_PlayerTypes[i,k].FlatStyle := true;
+          CheckBox_PlayerTypes[i,k].OnClick   := Mission_PlayerTypesChange;
+        end;
+      end;
+
+      //It does not have OnClick event for a reason:
+      // - we don't have a rule to make alliances symmetrical yet
+      CheckBox_AlliancesSym := TKMCheckBox.Create(Panel_Alliances, 12, 50+MAX_PLAYERS*25, 20, 20, 'Symmetrical', fnt_Metal);
+      CheckBox_AlliancesSym.Checked := true;
+      CheckBox_AlliancesSym.Disable;
 end;
 
 
@@ -847,33 +876,36 @@ procedure TKMapEdInterface.UpdateState;
 begin
   Minimap_Update(nil); //Even this Update could be excluded from MapEd interface
 end;
-                  
+
 
 procedure TKMapEdInterface.Player_UpdateColors;
 var i:integer;
 begin
   //Set player colors
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].ShapeColor := fPlayers.Player[i].FlagColor;
 
   if MyPlayer <> nil then
-    Button_PlayerSelect[byte(MyPlayer.PlayerID)].Down := true;
+    Button_PlayerSelect[MyPlayer.PlayerIndex].Down := true;
 end;
-                  
+
 
 procedure TKMapEdInterface.Player_ChangeActive(Sender: TObject);
 var i:integer;
 begin
-  for i:=1 to MAX_PLAYERS do
+  for i:=0 to MAX_PLAYERS-1 do
     Button_PlayerSelect[i].Down := false;
 
-  if (TKMControl(Sender).Tag in [1..MAX_PLAYERS]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
+  if (TKMControl(Sender).Tag in [0..MAX_PLAYERS-1]) and (fPlayers.Player[TKMControl(Sender).Tag] <> nil) then begin
     MyPlayer := fPlayers.Player[TKMControl(Sender).Tag];
     Button_PlayerSelect[TKMControl(Sender).Tag].Down := true;
   end;
 
+  if (fShownHouse <> nil) or (fShownUnit <> nil) then SwitchPage(nil);
+
   fShownHouse := nil; //Drop selection
   fShownUnit := nil;
+  fPlayers.Selected := nil;
 end;
 
 
@@ -1024,11 +1056,11 @@ begin
     GameCursor.Mode:=cm_Wall;
   end;}
 
-  for i:=1 to HOUSE_COUNT do
+  for i:=1 to GUI_HOUSE_COUNT do
   if GUIHouseOrder[i] <> ht_None then
   if Button_Build[i].Down then begin
-     GameCursor.Mode:=cm_Houses;
-     GameCursor.Tag1:=byte(GUIHouseOrder[i]);
+     GameCursor.Mode := cm_Houses;
+     GameCursor.Tag1 := byte(GUIHouseOrder[i]);
   end;
 end;
 
@@ -1088,15 +1120,15 @@ begin
   end;
 
   {Common data}
-  Label_House.Caption:=TypeToString(Sender.GetHouseType);
-  Image_House_Logo.TexID:=300+byte(Sender.GetHouseType);
-  Image_House_Worker.TexID:=140+HouseDAT[byte(Sender.GetHouseType)].OwnerType+1;
-  Image_House_Worker.Hint := TypeToString(TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1));
-  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(HouseDAT[byte(Sender.GetHouseType)].MaxHealth);
-  KMHealthBar_House.Position:=round( Sender.GetHealth / HouseDAT[byte(Sender.GetHouseType)].MaxHealth * 100 );
+  Label_House.Caption:=fResource.HouseDat[Sender.GetHouseType].HouseName;
+  Image_House_Logo.TexID:=fResource.HouseDat[Sender.GetHouseType].GUIIcon;
+  Image_House_Worker.TexID:=140+byte(fResource.HouseDat[Sender.GetHouseType].OwnerType);
+  Image_House_Worker.Hint := TypeToString(fResource.HouseDat[Sender.GetHouseType].OwnerType);
+  KMHealthBar_House.Caption:=inttostr(round(Sender.GetHealth))+'/'+inttostr(fResource.HouseDat[Sender.GetHouseType].MaxHealth);
+  KMHealthBar_House.Position:=round( Sender.GetHealth / fResource.HouseDat[Sender.GetHouseType].MaxHealth * 100 );
 
-  Image_House_Worker.Visible := TUnitType(HouseDAT[byte(Sender.GetHouseType)].OwnerType+1) <> ut_None;
-  
+  Image_House_Worker.Visible := fResource.HouseDat[Sender.GetHouseType].OwnerType <> ut_None;
+
 
   case Sender.GetHouseType of
     ht_Store: begin
@@ -1268,7 +1300,7 @@ begin
   Amt := 0;
   if AButton = mbLeft then Amt:=1;
   if AButton = mbRight then Amt:=50;
-  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt);
+  if Sender = Button_HouseHealthDec then fShownHouse.AddDamage(Amt, true);
   if Sender = Button_HouseHealthInc then fShownHouse.AddRepair(Amt);
   if fShownHouse.IsDestroyed then
     ShowHouseInfo(nil)
@@ -1407,17 +1439,17 @@ procedure TKMapEdInterface.Mission_AlliancesChange(Sender:TObject);
 var i,k:integer;
 begin
   if Sender = nil then begin
-    for i:=1 to MAX_PLAYERS do
-    for k:=1 to MAX_PLAYERS do
+    for i:=0 to fPlayers.Count-1 do
+    for k:=0 to fPlayers.Count-1 do
       if (fPlayers.Player[i]<>nil)and(fPlayers.Player[k]<>nil) then
-        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerID, fPlayers.Player[k].PlayerID)=at_Ally)
+        CheckBox_Alliances[i,k].Checked := (fPlayers.CheckAlliance(fPlayers.Player[i].PlayerIndex, fPlayers.Player[k].PlayerIndex)=at_Ally)
       else
         CheckBox_Alliances[i,k].Disable; //Player does not exist?
     exit;
   end;
 
-  i := TKMCheckBox(Sender).Tag div MAX_PLAYERS + 1;
-  k := TKMCheckBox(Sender).Tag mod MAX_PLAYERS + 1;
+  i := TKMCheckBox(Sender).Tag div fPlayers.Count;
+  k := TKMCheckBox(Sender).Tag mod fPlayers.Count;
   if CheckBox_Alliances[i,k].Checked then fPlayers.Player[i].Alliances[k] := at_Ally
                                      else fPlayers.Player[i].Alliances[k] := at_Enemy;
 
@@ -1425,6 +1457,65 @@ begin
   if CheckBox_AlliancesSym.Checked then begin
     CheckBox_Alliances[k,i].Checked := CheckBox_Alliances[i,k].Checked;
     fPlayers.Player[k].Alliances[i] := fPlayers.Player[i].Alliances[k];
+  end;
+end;
+
+
+procedure TKMapEdInterface.Mission_PlayerTypesChange(Sender:TObject);
+var i:integer;
+begin
+  if Sender = nil then begin
+    for i:=0 to fPlayers.Count-1 do
+    begin
+      CheckBox_PlayerTypes[i,0].Enabled := fPlayers[i]<>nil;
+      CheckBox_PlayerTypes[i,1].Enabled := fPlayers[i]<>nil;
+      CheckBox_PlayerTypes[i,0].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Human);
+      CheckBox_PlayerTypes[i,1].Checked := (fPlayers[i]<>nil) and (fPlayers[i].PlayerType = pt_Computer);
+    end;
+    Exit;
+  end;
+
+  //@Lewin: Are we allowed to define players freely, e.g. make 5 Human players?
+  //How is it working in multiplayer?
+  //@Krom: In KaM it works like this: Single player missions have 1 human player and the others computer.
+  //       For multiplayer the players are all humans. (although they are not defined in the script with !SET_HUMAN_PLAYER as that is for single missions)
+  //       I think we should be a bit more relaxed about it. Here are some cases:
+  //       1. Campaign/single missions: Only 1 player is human, the others are computer and this cannot be changed. (usually story based)
+  //       2. Tournament missions: (like single missions from TPR but configurable for every game) All players start equal and any can be
+  //                               human/AI/not-participating. This means you can chose the number of enemies you wish to fight, and configure alliances.
+  //                               e.g. I can chose to fight with me plus 1 computer (team 1) against 3 computers allied together. (team 2)
+  //       3. Multiplayer tournament: Same as a single tournament mission, but you can have many humans and many AI. (with configurable teams or deathmatch)
+  //       4. Multiplayer cooperative: Similar to a tournament but one or more AI are fixed and cannot be made human. (and the mission is usually story based)
+  //                                   This allows a mission to be made where many humans siege AI players in a castle, where the AI have an obvious
+  //                                   advantage and the humans must work together to defeat them.
+  //       These are just some ideas for the kinds of missions I think we should allow. Note that TPR only allows for types 1 and 3.
+  //       I do NOT think that each mission should be given a "type" of the ones mentioned above. That just makes things complicated having 4 mission types.
+  //       We do not even need a single/multiplayer distinction. I think we can make this work by having two kinds of players:
+  //       a) General: which can be controlled by a human or a computer
+  //       b) Fixed AI: which can only be computers, never human controlled.
+  //       Therefore both single and multiplayer tournament missions will only use General players, but the other two types will use
+  //       some Fixed AI for the players which must always be computer controlled, and some General players which can be either or not-participating.
+  //       When you make a mission you can define AI options for the General players if you wish, otherwise they will use defaults. (and figure it out
+  //       automatically) Fixed AI will mostly need to be told how to behave, for the story make sense and fit with the circumstances.
+  //       (e.g. so they don't try to build a city when it is a siege mission) This allows single player missions to be used for multiplayer and vice versa.
+  //       These are just ideas and I think they could be redesigned in a less confusing way for both the players and mission creators.
+  //       Let me know what you think. Maybe we should discuss this.
+  //@Lewin: Looks like we can't achieve it without changing(adding) mission scripts.. discussed in ICQ.
+  //Reset everything
+  for i:=0 to fPlayers.Count-1 do
+  begin
+    CheckBox_PlayerTypes[i,0].Checked := false;
+    CheckBox_PlayerTypes[i,1].Checked := true;
+    fPlayers[i].PlayerType := pt_Computer;
+  end;
+
+  //Define only 1 human player
+  i := TKMCheckBox(Sender).Tag;
+  if Sender = CheckBox_PlayerTypes[i,0] then
+  begin
+    CheckBox_PlayerTypes[i,0].Checked := true;
+    CheckBox_PlayerTypes[i,1].Checked := false;
+    fPlayers[i].PlayerType := pt_Human
   end;
 end;
 
@@ -1447,13 +1538,14 @@ end;
 
 procedure TKMapEdInterface.KeyPress(Key: Char);
 begin
-  if MyControls.KeyPress(Key) then exit;
+  MyControls.KeyPress(Key);
 end;
 
 
 procedure TKMapEdInterface.KeyUp(Key:Word; Shift: TShiftState);
 begin
-  if MyControls.KeyUp(Key, Shift) then exit; //Handled by Controls
+  if MyControls.KeyUp(Key, Shift) then
+    Exit; //Handled by Controls
 
   //1-5 game menu shortcuts
   if Key in [49..53] then
@@ -1467,7 +1559,7 @@ begin
 
   //Backspace resets the zoom and view, similar to other RTS games like Dawn of War.
   //This is useful because it is hard to find default zoom using the scroll wheel, and if not zoomed 100% things can be scaled oddly (like shadows)
-  if Key = VK_BACK  then fViewport.SetZoom(1);
+  if Key = VK_BACK  then fViewport.ResetZoom;
 end;
 
 
@@ -1503,9 +1595,9 @@ begin
   begin
     P := GameCursor.Cell; //Get cursor position tile-wise
     case GameCursor.Mode of
-      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan)  then MyPlayer.AddRoad(P);
-      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan)  then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:      if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer)  then MyPlayer.AddRoad(P);
+      cm_Field:     if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:      if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer)  then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
       cm_Objects:   if GameCursor.Tag1 = 255 then fTerrain.SetTree(P, 255); //Allow many objects to be deleted at once
       cm_Erase:     case GetShownPage of
@@ -1532,7 +1624,6 @@ begin
     exit; //We could have caused fGame reinit, so exit at once
   end;
 
-  fTerrain.ComputeCursorPosition(X,Y,Shift); //Update the cursor position and shift state in case it's changed
   P := GameCursor.Cell; //Get cursor position tile-wise
   if Button = mbRight then
   begin
@@ -1565,11 +1656,11 @@ begin
                   if fPlayers.Selected is TKMUnit then
                     ShowUnitInfo(TKMUnit(fPlayers.Selected));
                 end;
-      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan) then MyPlayer.AddRoad(P);
-      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan) then MyPlayer.AddField(P,ft_Corn);
-      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan) then MyPlayer.AddField(P,ft_Wine);
+      cm_Road:  if fTerrain.CanPlaceRoad(P, mu_RoadPlan, MyPlayer) then MyPlayer.AddRoad(P);
+      cm_Field: if fTerrain.CanPlaceRoad(P, mu_FieldPlan, MyPlayer) then MyPlayer.AddField(P,ft_Corn);
+      cm_Wine:  if fTerrain.CanPlaceRoad(P, mu_WinePlan, MyPlayer) then MyPlayer.AddField(P,ft_Wine);
       //cm_Wall:
-      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1)) then
+      cm_Houses:if fTerrain.CanPlaceHouse(P, THouseType(GameCursor.Tag1), MyPlayer) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
                   Build_ButtonClick(Button_BuildRoad);
@@ -1602,10 +1693,22 @@ end;
 
 
 procedure TKMapEdInterface.MouseWheel(Shift: TShiftState; WheelDelta: Integer; X,Y: Integer);
+var PrevCursor, ViewCenter: TKMPointF;
 begin
   MyControls.MouseWheel(X, Y, WheelDelta);
+  if (X < 0) or (Y < 0) then exit; //This occours when you use the mouse wheel on the window frame
   if MOUSEWHEEL_ZOOM_ENABLE and (MyControls.CtrlOver = nil) then
-    fViewport.SetZoom(fViewport.Zoom+WheelDelta/2000);
+  begin
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Make sure we have the correct cursor position to begin with
+    PrevCursor := GameCursor.Float;
+    fViewport.Zoom := fViewport.Zoom + WheelDelta/2000;
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Zooming changes the cursor position
+    //Move the center of the screen so the cursor stays on the same tile, thus pivoting the zoom around the cursor
+    ViewCenter := fViewport.GetCenter; //Required for Linux compatibility
+    fViewport.SetCenter(ViewCenter.X + PrevCursor.X-GameCursor.Float.X,
+                        ViewCenter.Y + PrevCursor.Y-GameCursor.Float.Y);
+    fTerrain.ComputeCursorPosition(X, Y, Shift); //Recentering the map changes the cursor position
+  end;
 end;
 
 

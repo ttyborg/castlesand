@@ -1,7 +1,7 @@
 unit KM_UnitTaskThrowRock;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Units, SysUtils;
 
 
 {Throw a rock}
@@ -35,6 +35,8 @@ end;
 
 destructor TTaskThrowRock.Destroy;
 begin
+  if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
+    fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our tower with "working" animations
   fPlayers.CleanUpUnitPointer(fTarget);
   Inherited;
 end;
@@ -70,17 +72,18 @@ begin
     0: begin
          GetHome.SetState(hst_Work); //Set house to Work state
          GetHome.fCurrentAction.SubActionWork(ha_Work2); //show Recruits back
-         SetActionStay(5,ua_Walk); //pretend taking the stone
+         SetActionStay(2,ua_Walk); //pretend to be taking the stone
        end;
     1: begin
          if not FREE_ROCK_THROWING then GetHome.ResTakeFromIn(rt_Stone, 1);
-         fFlightTime := fGame.Projectiles.AddItem(fUnit.PositionF, fTarget.PositionF, pt_TowerRock, fUnit.GetOwner, false); //Sound is handled by house
+         fFlightTime := fGame.Projectiles.AimTarget(fUnit.PositionF, fTarget, pt_TowerRock, fUnit.GetOwner);
          fPlayers.CleanUpUnitPointer(fTarget); //We don't need it anymore
          SetActionStay(1,ua_Walk);
        end;
-    2: begin
+    2: SetActionStay(fFlightTime,ua_Walk); //look how it goes
+    3: begin
          GetHome.SetState(hst_Idle);
-         SetActionStay(fFlightTime,ua_Walk); //look how it goes
+         SetActionStay(20,ua_Walk); //Idle before throwing another rock
        end;
     else Result := TaskDone;
   end;
@@ -94,7 +97,7 @@ begin
   if fTarget <> nil then
     SaveStream.Write(fTarget.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
   SaveStream.Write(fFlightTime);
 end;
 

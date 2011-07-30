@@ -6,7 +6,6 @@ interface
 uses
   SysUtils, Classes, Controls, Forms, Graphics,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls, KromOGLUtils,
-  {$IFDEF WDC} OpenGL, {$ENDIF}
   {$IFDEF FPC} GL, LResources, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, xlib, x, xutil, {$ENDIF}
@@ -61,45 +60,12 @@ begin
   Bar1.Position:=0;
   Refresh;
 
-  InitOpenGL;
-  h_DC := GetDC(Form1.Panel1.Handle);
-  if h_DC=0 then begin MessageBox(Form1.Handle, 'Unable to get a device context', 'Error', MB_OK or MB_ICONERROR); exit; end;
-  {$IFDEF MSWindows}
-  if not SetDCPixelFormat(h_DC) then exit;
-  h_RC := wglCreateContext(h_DC);
-  if h_RC=0 then begin MessageBox(Form1.Handle, 'Unable to create an OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR); exit; end;
-  if not wglMakeCurrent(h_DC, h_RC) then begin
-    MessageBox(Form1.Handle, 'Unable to activate OpenGL rendering context', 'Error', MB_OK or MB_ICONERROR);
-    exit;
-  end;
-  {$ENDIF}
-  {$IFDEF Unix}
-  vi := XGetVisualInfo(Application.Display, VisualIDMask, @vitemp, @nret);
-  h_RC := glXCreateContext(Application.Display, vi, nil, True);
-  { here example I foud still no idea how to add it properlyd:
-  // Just in case it didn't happen already.
-  if not InitOpenGL then RaiseLastOSError;
-  // Create OpenGL context
-  FOutputDevice := QWidgetH(outputDevice);
-  glwin := QWidget_winId(FOutputDevice);
-  xlib.XGetWindowAttributes(Application.Display, glwin, @winattr);
-  vitemp.visual := winattr.visual;
-  vitemp.visualid := XVisualIDFromVisual(vitemp.visual);
-  vi := XGetVisualInfo(Application.Display, VisualIDMask, @vitemp, @nret);
-  FRenderingContext := glXCreateContext(Application.Display, vi, nil, True);
-  if RenderingContext = nil then
-    raise Exception.Create('Failed to create rendering context');
-  if RenderingContext = GLX_BAD_CONTEXT then
-    raise Exception.Create('bad context');
-  }
-  MessageBox(Form1.Handle,'wglMakeCurrent not ported', 'Error', MB_OK);
-  {$ENDIF}
-  ReadExtensions;
-  ReadImplementationProperties;
-  Form1.RenderInit();
+  SetRenderFrame(Form1.Panel1.Handle, h_DC, h_RC);
+  Form1.RenderInit;
+
   BuildFont(h_DC,16);
   DecimalSeparator:='.';
-  
+
   if ReadGFX(ExeDir) then begin
     MakeObjectsGFX(nil);
     MakeHousesGFX(nil);

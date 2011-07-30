@@ -1,7 +1,7 @@
 unit KM_UnitTaskSelfTrain;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_CommonTypes, KM_Defaults, KM_Houses, KM_Units, SysUtils;
 
 
 {Train in school}
@@ -49,6 +49,7 @@ end;
 
 destructor TTaskSelfTrain.Destroy;
 begin
+  if (fPhase <= 5) and not fSchool.IsDestroyed then fSchool.SetState(hst_Idle); //If we abandon for some reason, clear the school animation
   fPlayers.CleanUpHousePointer(fSchool);
   Inherited;
 end;
@@ -58,7 +59,9 @@ function TTaskSelfTrain.Execute:TTaskResult;
 begin
   Result := TaskContinues;
 
-  if fSchool.IsDestroyed then
+  //If the school has been destroyed then this task should not be running (school frees it on CloseHouse)
+  //However, if we are past phase 6 (task ends on phase 7) then the school does not know about us (we have stepped outside)
+  if fSchool.IsDestroyed and (fPhase <= 6) then
   begin //School will cancel the training on own destruction
     Assert(false, 'Unexpected error. Destoyed school erases the task');
     Result := TaskDone;
@@ -70,32 +73,32 @@ begin
       0: begin
           fSchool.SetState(hst_Work);
           fSchool.fCurrentAction.SubActionWork(ha_Work1);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       1: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work2);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       2: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work3);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       3: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work4);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       4: begin
           fSchool.fCurrentAction.SubActionWork(ha_Work5);
-          SetActionStay(29,ua_Walk);
+          SetActionLockedStay(29,ua_Walk);
         end;
       5: begin
           fSchool.SetState(hst_Idle);
-          SetActionStay(9,ua_Walk);
+          SetActionLockedStay(9,ua_Walk);
          end;
       6: begin
           SetActionGoIn(ua_Walk,gd_GoOutside,fSchool);
           fSchool.UnitTrainingComplete;
-          fPlayers.Player[byte(GetOwner)].Stats.UnitCreated(UnitType,true);
+          fPlayers.Player[GetOwner].Stats.UnitCreated(UnitType,true);
          end;
       else Result := TaskDone;
     end;
@@ -109,7 +112,7 @@ begin
   if fSchool <> nil then
     SaveStream.Write(fSchool.ID) //Store ID, then substitute it with reference on SyncLoad
   else
-    SaveStream.Write(Zero);
+    SaveStream.Write(Integer(0));
 end;
 
 

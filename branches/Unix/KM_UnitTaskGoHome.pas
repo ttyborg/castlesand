@@ -1,7 +1,7 @@
 unit KM_UnitTaskGoHome;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_Defaults, KM_Units, SysUtils, KM_Points;
 
 type
   TTaskGoHome = class(TUnitTask)
@@ -12,7 +12,6 @@ type
 
 
 implementation
-uses KM_Utils;
 
 
 { TTaskGoHome }

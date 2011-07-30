@@ -24,6 +24,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    function MyIPString:string;  
     procedure ConnectTo(const aAddress:string; const aPort:string);
     procedure Disconnect;
     procedure SendData(aData:pointer; aLength:cardinal);
@@ -53,8 +54,18 @@ begin
 end;
 
 
+function TKMNetClientOverbyte.MyIPString:string;
+begin
+  if LocalIPList.Count >= 1 then
+    Result := LocalIPList[0] //First address should be ours
+  else
+    Result := '';
+end;
+
+
 procedure TKMNetClientOverbyte.ConnectTo(const aAddress:string; const aPort:string);
 begin
+  FreeAndNil(fSocket);
   fSocket := TWSocket.Create(nil);
   fSocket.Proto     := 'tcp';
   fSocket.Addr      := aAddress;
@@ -62,26 +73,36 @@ begin
   fSocket.OnSessionClosed := Disconnected;
   fSocket.OnSessionConnected := Connected;
   fSocket.OnDataAvailable := DataAvailable;
-  fSocket.Connect;
+  try
+    fSocket.Connect;
+  except
+    on E : Exception do
+    begin
+      //Trap the exception and tell the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
+      fOnConnectFailed(E.Message);
+    end;
+  end;
 end;
 
 
 procedure TKMNetClientOverbyte.Disconnect;
 begin
-  fSocket.Close;
+  if fSocket <> nil then
+    fSocket.Close;
 end;
 
 
 procedure TKMNetClientOverbyte.SendData(aData:pointer; aLength:cardinal);
 begin
-  fSocket.Send(aData, aLength);
+  if fSocket.State <> wsClosed then //Sometimes this occurs just before Disconnected
+    fSocket.Send(aData, aLength);
 end;
 
 
 procedure TKMNetClientOverbyte.Connected(Sender: TObject; Error: Word);
 begin
   if Error <> 0 then
-    fOnConnectFailed('Error #' + IntToStr(Error))
+    fOnConnectFailed('Error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')')
   else
     fOnConnectSucceed(Self);
 end;
@@ -89,20 +110,33 @@ end;
 
 procedure TKMNetClientOverbyte.Disconnected(Sender: TObject; Error: Word);
 begin
+  //Do not exit on error, because when a disconnect error occurs, the client has still disconnected
   if Error <> 0 then
-    fOnError('Client: Disconnection error #' + IntToStr(Error))
-  else
-    fOnSessionDisconnected(Self);
+    fOnError('Client: Disconnection error: '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
+
+  fOnSessionDisconnected(Self);
 end;
 
 
 procedure TKMNetClientOverbyte.DataAvailable(Sender: TObject; Error: Word);
-const BufferSize = 10240; //10kb
-var P:pointer; L:cardinal;
+const
+  BufferSize = 10240; //10kb
+var
+  P:pointer;
+  L:integer; //L could be -1 when no data is available
 begin
-  GetMem(P, BufferSize);
+  if Error <> 0 then
+  begin
+    fOnError('DataAvailable. Error '+WSocketErrorDesc(Error)+' (#' + IntToStr(Error)+')');
+    exit;
+  end;
+
+  GetMem(P, BufferSize+1); //+1 to avoid RangeCheckError when L = BufferSize
   L := TWSocket(Sender).Receive(P, BufferSize);
-  fOnRecieveData(P, L);
+
+  if L > 0 then //if L=0 then exit;
+    fOnRecieveData(P, L);
+
   FreeMem(P);
 end;
 

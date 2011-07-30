@@ -1,8 +1,8 @@
 unit KM_UnitTaskMining;
 {$I KaM_Remake.inc}
 interface
-uses Math, KromUtils,
-    KM_CommonTypes, KM_Units, KM_Units_Workplan;
+uses Math, 
+    KM_CommonTypes, KM_Units, KM_Units_Workplan, KM_Points;
 
 
 {Perform resource mining}
@@ -14,6 +14,7 @@ type
     public
       WorkPlan:TUnitWorkPlan;
       constructor Create(aWorkPlan:TUnitWorkPlan; aUnit:TKMUnit);
+      destructor Destroy; override;
       constructor Load(LoadStream:TKMemoryStream); override;
       procedure SyncLoad; override;
       function WalkTargetBlocked(aBlockingUnit: TKMUnit):boolean;
@@ -23,7 +24,7 @@ type
 
 
 implementation
-uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain, KM_Utils;
+uses KM_Defaults, KM_Houses, KM_PlayersCollection, KM_Terrain;
 
 
 { TTaskMining }
@@ -33,6 +34,14 @@ begin
   fTaskName := utn_Mining;
   WorkPlan  := aWorkPlan;
   fBeastID   := 0;
+end;
+
+
+destructor TTaskMining.Destroy;
+begin
+  if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
+    fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
+  Inherited;
 end;
 
 
@@ -251,8 +260,8 @@ begin
           if ResAcquired then begin
             GetHome.ResAddToOut(WorkPlan.Product1,WorkPlan.ProdCount1);
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
-            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
-            fPlayers.Player[byte(fUnit.GetOwner)].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);

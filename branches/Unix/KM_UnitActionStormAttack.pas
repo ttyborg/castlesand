@@ -1,12 +1,12 @@
 unit KM_UnitActionStormAttack;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Utils, KM_CommonTypes, KM_Defaults, KM_Units, Math;
+uses Classes, KM_Utils, KM_CommonTypes, KM_Defaults, KM_Units, Math, KM_Points;
 
 
 {Charge forwards until we are tired or hit an obstacle}
 type
-TUnitActionStormAttack = class(TUnitAction)
+  TUnitActionStormAttack = class(TUnitAction)
   private
     fDelay: integer; //Delay before action starts
     fTileSteps: integer; //The number of tiles we have walked onto so far
@@ -17,6 +17,7 @@ TUnitActionStormAttack = class(TUnitAction)
     constructor Create(aActionType:TUnitActionType; aRow:integer);
     constructor Load(LoadStream:TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     procedure IncVertex(aFrom, aTo: TKMPoint);
     procedure DecVertex;
     function CheckForObstacle(KMUnit: TKMUnit; NextPos: TKMPoint):boolean;
@@ -37,7 +38,7 @@ begin
   Locked          := true;
   fTileSteps      := -1; //-1 so the first initializing step makes it 0
   fDelay          := (aRow-1)*5; //No delay for the first row
-  fStamina        := MIN_STAMINA + random(MAX_STAMINA);
+  fStamina        := MIN_STAMINA + KaMRandom(MAX_STAMINA);
   fNextPos        := KMPoint(0,0);
   fVertexOccupied := KMPoint(0,0);
 end;
@@ -59,6 +60,12 @@ begin
   LoadStream.Read(fStamina);
   LoadStream.Read(fNextPos);
   LoadStream.Read(fVertexOccupied);
+end;
+
+
+function TUnitActionStormAttack.GetExplanation: string;
+begin
+  Result := 'Storming';
 end;
 
 
@@ -93,7 +100,6 @@ end;
 
 
 function TUnitActionStormAttack.Execute(KMUnit: TKMUnit):TActionResult;
-const STORM_SPEEDUP=1.5;
 var
   DX,DY:shortint;
   WalkX,WalkY,Distance:single;
@@ -112,10 +118,10 @@ begin
 
   //First and last steps are walking, inbetween are running
   if (fTileSteps<=0) or (fTileSteps>=fStamina-1) then begin
-    Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
+    Distance := KMUnit.GetSpeed;
     fActionType := ua_Walk;
   end else begin
-    Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed * STORM_SPEEDUP;
+    Distance := KMUnit.GetSpeed * STORM_SPEEDUP;
     fActionType := ua_Spec;
   end;
 

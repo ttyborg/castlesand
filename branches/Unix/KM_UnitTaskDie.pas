@@ -1,7 +1,7 @@
 unit KM_UnitTaskDie;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KM_Defaults, KM_Units, KromUtils, SysUtils;
+uses Classes, KM_Defaults, KM_Units, SysUtils;
 
 type
   {Yep, this is a Task}
@@ -39,7 +39,7 @@ begin
     0:  if Visible then
           SetActionLockedStay(0,ua_Walk)
         else begin
-          if GetHome<>nil then begin
+          if (GetHome<>nil) and not GetHome.IsDestroyed then begin
             GetHome.SetState(hst_Idle);
             GetHome.SetState(hst_Empty);
           end;
@@ -48,7 +48,7 @@ begin
     1:  begin
           SequenceLength := fResource.GetUnitSequenceLength(UnitType,ua_Die,Direction);
           if fUnit is TKMUnitAnimal then //Animals don't have a dying sequence. Can be changed later.
-            SetActionLockedStay(SequenceLength,ua_Walk,false)
+            SetActionLockedStay(0,ua_Walk,false)
           else
             SetActionLockedStay(SequenceLength,ua_Die,false);
           if fUnit is TKMUnitWarrior then

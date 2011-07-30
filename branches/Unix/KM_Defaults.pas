@@ -1,17 +1,17 @@
 unit KM_Defaults;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils, KromUtils, dglOpenGL, KM_CommonTypes;
+uses Classes, SysUtils, dglOpenGL, KM_Points;
+
 
 //Global const
 const
-//|===================| <- constant name length                 
+//|===================| <- constant name length
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
-  ACTION_TIME_DELTA     = 0.1;          //Multiplied with units speed gives distance unit walks per frame
 
   FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
   FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
@@ -27,8 +27,12 @@ const
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
   MENU_SP_MAPS_COUNT    = 14;           //Number of single player maps to display in menu
 
-  GAME_VERSION          = '2nd Fighting Demo r1580';       //Game version string displayed in menu corner
-  SAVE_VERSION          = 'r1580';       //Should be updated for every release (each time save format is changed)
+  KAM_PORT              = '56789';      //Port used in TCP networking
+
+  GAME_REVISION         = 'r2039';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '1st Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+
+  FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
 
 var
   //These should be TRUE
@@ -51,16 +55,19 @@ var
   SHOW_MAPED_IN_MENU    :boolean=true; //Allows to hide all map-editor related pages from main menu
   DO_WEIGHT_ROUTES      :boolean=true; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
   CHECK_WIN_CONDITIONS  :boolean=true; //Could be disabled in test missions
+  CUSTOM_RANDOM         :boolean=true; //Use our custom random number generator or the built in "Random()"
+  ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
   //Not fully implemented yet
   LOAD_UNIT_RX_FULL     :boolean=false; //Clip UnitsRX to 7885 sprites until we add TPR ballista/catapult support
   FOG_OF_WAR_ENABLE     :boolean=false; //Whenever dynamic fog of war is enabled or not
   KAM_WATER_DRAW        :boolean=false; //Sketching Kam-like sand underwater
-  ENABLE_MP_IN_MENU     :boolean=true; //Keep Multiplayer disabled until it's rigged
-                       
+  AGGRESSIVE_REPLAYS    :boolean=true; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
+
   //These are debug things, should be FALSE
   {User interface options}
   SHOW_DEBUG_CONTROLS   :boolean=false; //Show debug panel / Form1 menu (F11)
   SHOW_CONTROLS_OVERLAY :boolean=false; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+  SHOW_TEXT_OUTLINES    :boolean=false; //Display text areas outlines
   ENABLE_DESIGN_CONTORLS:boolean=false; //Enable special mode to allow to move/edit controls
    MODE_DESIGN_CONTORLS :boolean=false; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
   SHOW_1024_768_OVERLAY :boolean=false; //Render constraining frame
@@ -80,13 +87,14 @@ var
   SHOW_SPRITE_COUNT     :boolean=false; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :boolean=false; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :boolean=false; //Show how many commands were processed and stored by TGameInputProcess
+  SHOW_NETWORK_DELAY    :boolean=false; //Show the current delay in multiplayer game
+  SHOW_ARMYEVALS        :boolean=false; //Show result of enemy armies evaluation
   {Gameplay cheats}
   FREE_ROCK_THROWING    :boolean=false; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :boolean=false; //Reduce shooting range for debug
-  {Multiplayer}
-  MULTIPLE_COPIES       :boolean=true; //Are we running mutliple copies of KaM on the one PC to test multiplayer?
+  MULTIPLAYER_CHEATS    :boolean=false; //Multiplayer cheats should be disabled for releases, but are useful for debug
   {Data output}
-  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file 
+  WRITE_DECODED_MISSION :boolean=false; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :boolean=false; //Write even more output into log + slows down game noticably
   WRITE_WALKTO_LOG      :boolean=false; //Write even more output into log + slows down game noticably
   WriteResourceInfoToTXT:boolean=false; //Whenever to write txt files with defines data properties on loading
@@ -95,9 +103,6 @@ var
   //Statistic
   CtrlPaintCount:word; //How many Controls were painted in last frame
 
-  //Utility
-  Zero:integer=0; //used in SaveStream to represent NIL
-
 const
   MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
   MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
@@ -105,11 +110,11 @@ const
   RX7_SPRITE_COUNT = 22;  //Number of sprites to load for RX7 from the folder \Sprites\
 
 const
-  HOUSE_COUNT = 29;       //Number of KaM houses is 29
-  MAX_PLAYERS = 8;        //Maximum players per map
-  SAVEGAME_COUNT = 10;    //Savegame slots available in game menu
-  AUTOSAVE_SLOT = 10;     //Slot ID used for autosaving
-  AUTOSAVE_COUNT = 3;
+  GUI_HOUSE_COUNT   = 28;   //Number of KaM houses to show in GUI
+  MAX_PLAYERS       = 8;    //Maximum players per map
+  SAVEGAME_COUNT    = 10;   //Savegame slots available in game menu
+  AUTOSAVE_SLOT     = 10;   //Slot ID used for autosaving
+  AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 const //Here we store options that are hidden somewhere in code
   MAX_WARFARE_IN_BARRACKS = 255;          //Maximum number of weapons in the barracks from producers. Not a big problem as they are not from the store.
@@ -144,10 +149,17 @@ const //Here we store options that are hidden somewhere in code
   FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
   AIMING_DELAY_MIN = 4; //minimum time for archer to aim
   AIMING_DELAY_ADD = 8; //random component
+  FRIENDLY_FIRE = true; //Whenever archers could kill fellow men with their arrows
 
 
 type
   TCampaign = (cmp_Nil, cmp_TSK, cmp_TPR, cmp_Custom);
+
+  TPlayerIndex = shortint;
+
+const
+  PLAYER_NONE = -1; //No player
+  PLAYER_ANIMAL = -2; //animals
 
 const
   //Maps count in Campaigns
@@ -171,8 +183,7 @@ type
 
 {Cursors}
 type
-  TCursorMode = (
-                  cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
+  TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
                   cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
@@ -220,11 +231,13 @@ const
   ('rus', 'Russian'));
 
 
-type TGameResultMsg = (     //Game result
+type TGameResultMsg = ( //Game result
         gr_Win,         //Player has won the game
         gr_Defeat,      //Player was defeated
         gr_Cancel,      //Game was cancelled (unfinished)
+        gr_MultiplayerCancel, //Multiplayer game was canceled
         gr_Error,       //Some known error occured
+        gr_Disconnect,  //Disconnected from multiplayer game
         gr_Silent,      //Used when loading savegame from running game (show no screens)
         gr_ReplayEnd,   //Replay was cancelled - return to menu without screens
         gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
@@ -278,17 +291,16 @@ const //Font01.fnt seems to be damaged..
   (pal_0, pal_map,pal_lin, pal_0,pal2_setup,pal2_setup,pal2_setup,pal2_setup,pal2_setup, pal_set,
    pal_lin,pal2_mapgold, pal_0,pal_lin, pal_0,pal_lin, pal_set2);
 
+   FONT_INTERLINE = 5; //Spacing between lines of text
+
 //Which MapEditor page is being shown. Add more as they are needed.
 type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
     TKMissionMode = (mm_Normal, mm_Tactic);
 
-    TAllianceType = (at_Enemy=0, at_Ally=1);
+    TAllianceType = (at_Enemy, at_Ally);
 
-type
-  TKMDirection = (dir_NA=0, dir_N=1, dir_NE=2, dir_E=3, dir_SE=4, dir_S=5, dir_SW=6, dir_W=7, dir_NW=8);
 const
-  TKMDirectionS: array[0..8]of string = ('N/A', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
   TKMCursorDirections: array[TKMDirection]of integer = (c_DirN,c_Dir0,c_Dir1,c_Dir2,c_Dir3,c_Dir4,c_Dir5,c_Dir6,c_Dir7);
 
 {Resources}
@@ -373,7 +385,7 @@ type
 
 
 //Used to separate close-combat units from archers (they use different fighting logic)
-type TFightType = (ft_Melee=0, ft_Ranged);
+type TFightType = (ft_Melee, ft_Ranged);
 
 const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
     ft_Melee,ft_Melee,ft_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
@@ -391,7 +403,7 @@ const WarriorFightType: array[ut_Militia..ut_Barbarian] of TFightType = (
 
 
 //Used for AI defence and linking troops
-type TGroupType = (gt_None=0, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+type TGroupType = (gt_None, gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
 
 const UnitGroups: array[15..24] of TGroupType = (
     gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
@@ -438,29 +450,22 @@ const AnimalTerrain: array[31..38] of TPassability = (
 type TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
 
 type //Army_Flag=4962,
-  TUnitThought = (th_None=0, th_Eat=1, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
+  TUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
 
 const //Corresponding indices in units.rx
   ThoughtBounds:array[1..7,1..2] of word = (
   (6250,6257),(6258,6265),(6266,6273),(6274,6281),(6282,6289),(6290,6297),(6298,6305)
   );
 
-type TProjectileType = (pt_Arrow=1, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
-
-const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds:array[TProjectileType,1..2] of word = (
-  (0,0),(0,0),(4186,4190)
-  );
-
 type
-  TUnitTaskName = ( utn_Unknown=0, //Uninitialized task to detect bugs
+  TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
         utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
         utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
         utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
         utn_ThrowRock);
 
 type
-  TUnitActionName = ( uan_Unknown=0, //Uninitialized action to detect bugs
+  TUnitActionName = ( uan_Unknown, //Uninitialized action to detect bugs
         uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
 
 type
@@ -469,15 +474,17 @@ type
                      ua_WalkBooty=11, ua_WalkTool2=12, ua_WalkBooty2=13);
   TUnitActionTypeSet = set of TUnitActionType;
 
+  //What player has ordered us to do
   TWarriorOrder = (
-    wo_None,
-    wo_Walk,
-    wo_WalkOut,
-    wo_AttackUnit,
-    wo_AttackHouse,
-    wo_Storm
+    wo_None, //No orders
+    wo_Walk, //Walk somewhere
+    wo_WalkOut, //Walk out of Barracks
+    wo_AttackUnit, //Attack someone
+    wo_AttackHouse, //Attack house
+    wo_Storm //Do Storm attack
   );
 
+  //What we are doing at the moment
   TWarriorState = (
     ws_None, //Warrior is idle
     ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
@@ -533,7 +540,7 @@ const {Actions names}
 
 type
   TGatheringScript = (
-    gs_None=0,
+    gs_None,
     gs_WoodCutterCut, gs_WoodCutterPlant,
     gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
     gs_FisherCatch,
@@ -543,16 +550,17 @@ type
 
 {Houses in game}
 type
-  THouseType = ( ht_None=0, ht_Any=30,
-    ht_Sawmill=1,        ht_IronSmithy=2, ht_WeaponSmithy=3, ht_CoalMine=4,       ht_IronMine=5,
-    ht_GoldMine=6,       ht_FisherHut=7,  ht_Bakery=8,       ht_Farm=9,           ht_Woodcutters=10,
-    ht_ArmorSmithy=11,   ht_Store=12,     ht_Stables=13,     ht_School=14,        ht_Quary=15,
-    ht_Metallurgists=16, ht_Swine=17,     ht_WatchTower=18,  ht_TownHall=19,      ht_WeaponWorkshop=20,
-    ht_ArmorWorkshop=21, ht_Barracks=22,  ht_Mill=23,        ht_SiegeWorkshop=24, ht_Butchers=25,
-    ht_Tannery=26,       ht_NA=27,        ht_Inn=28,         ht_Wineyard=29);
+  //I've removed values, enums don't need them by intent
+  THouseType = ( ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop, ht_Bakery,        ht_Barracks,    ht_Butchers,
+    ht_CoalMine,        ht_Farm,          ht_FisherHut,     ht_GoldMine,    ht_Inn,
+    ht_IronMine,        ht_IronSmithy,    ht_Metallurgists, ht_Mill,        ht_Quary,
+    ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,     ht_Store,
+    ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,  ht_WeaponSmithy,
+    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
 
   //House has 3 basic states: no owner inside, owner inside, owner working inside
-  THouseState = ( hst_Empty, hst_Idle, hst_Work );
+  THouseState = (hst_Empty, hst_Idle, hst_Work);
   //These are house building states
   THouseBuildState = (hbs_Glyph, hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
 
@@ -601,41 +609,6 @@ const
   ut_Lamberjack,
   ut_Recruit,
   ut_Serf, ut_Worker );
-
-  //Building of certain house allows player to build following houses,
-  //unless they are blocked in mission script of course
-  BuildingAllowed:array[1..HOUSE_COUNT,1..8]of THouseType = (
-  (ht_Farm, ht_Wineyard, ht_CoalMine, ht_IronMine, ht_GoldMine, ht_WeaponWorkshop, ht_Barracks, ht_FisherHut), //Sawmill
-  (ht_WeaponSmithy,ht_ArmorSmithy,ht_SiegeWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None), //IronSmithy
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //CoalMine
-  (ht_IronSmithy,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //IronMine
-  (ht_Metallurgists,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //GoldMine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Mill,ht_Swine,ht_Stables,ht_None,ht_None,ht_None,ht_None,ht_None), //Farm
-  (ht_Sawmill,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Woodcutters
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_School,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Store
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Inn,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //School
-  (ht_Woodcutters,ht_WatchTower,ht_None{,ht_Wall},ht_None,ht_None,ht_None,ht_None,ht_None), //Quary
-  (ht_TownHall,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Metallurgists
-  (ht_Butchers,ht_Tannery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Swine
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Bakery,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Mill
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_ArmorWorkshop,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),  //Tannery
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None),
-  (ht_Quary,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None), //Inn
-  (ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
-  //,(ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None,ht_None)
-  );
 
 const
   School_Order:array[1..14] of TUnitType = (
@@ -699,132 +672,15 @@ MapEdTileRemap:array[1..256]of integer = (
 // 247 - doesn't work in game, replaced with random road
 
 
-//1-building area //2-entrance
-HousePlanYX:array[1..HOUSE_COUNT,1..4,1..4]of byte = (
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Sawmill
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,1,2,1)), //Iron smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon smithy
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,2,1,0)), //Coal mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,1)), //Iron mine
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,2,0)), //Gold mine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,2,1,1)), //Fisher hut
-((0,0,0,0), (0,1,1,1), (0,1,1,1), (0,1,1,2)), //Bakery
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Farm
-((0,0,0,0), (0,0,0,0), (1,1,1,0), (1,1,2,0)), //Woodcutter
-((0,0,0,0), (0,1,1,0), (1,1,1,1), (1,2,1,1)), //Armor smithy
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Store
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,1,2,1)), //Stables
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //School
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Quarry
-((0,0,0,0), (1,1,1,0), (1,1,1,0), (1,2,1,0)), //Metallurgist
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,1,1,2)), //Swine
-((0,0,0,0), (0,0,0,0), (0,1,1,0), (0,1,2,0)), //Watch tower
-((0,0,0,0), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Town hall
-((0,0,0,0), (0,0,0,0), (1,1,1,1), (1,2,1,1)), //Weapon workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,2,1,1)), //Armor workshop
-((1,1,1,1), (1,1,1,1), (1,1,1,1), (1,2,1,1)), //Barracks
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Mill
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,2,1,1)), //Siege workshop
-((0,0,0,0), (0,1,1,0), (0,1,1,1), (0,1,1,2)), //Butcher
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,2,1)), //Tannery
-((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,0,0,0)), //N/A
-((0,0,0,0), (0,1,1,1), (1,1,1,1), (1,2,1,1)), //Inn
-((0,0,0,0), (0,0,0,0), (0,1,1,1), (0,1,1,2))  //Wineyard
-//,((0,0,0,0), (0,0,0,0), (0,0,0,0), (0,1,1,0))  //Wall
-);
-
-//Does house output needs to be ordered by Player or it keeps on producing by itself
-HousePlaceOrders:array[1..HOUSE_COUNT] of boolean = (
-false,false,true ,false,false,false,false,false,false,false,
-true ,false,false,false,false,false,false,false,false,true ,
-true ,false,false,true ,false,false,false,false,false{,false});
-
-//What does house produces
-HouseOutput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Sawmill
-(rt_Steel,      rt_None,       rt_None,       rt_None), //Iron smithy
-(rt_Sword,      rt_Hallebard,  rt_Arbalet,    rt_None), //Weapon smithy
-(rt_Coal,       rt_None,       rt_None,       rt_None), //Coal mine
-(rt_IronOre,    rt_None,       rt_None,       rt_None), //Iron mine
-(rt_GoldOre,    rt_None,       rt_None,       rt_None), //Gold mine
-(rt_Fish,       rt_None,       rt_None,       rt_None), //Fisher hut
-(rt_Bread,      rt_None,       rt_None,       rt_None), //Bakery
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Farm
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Woodcutter
-(rt_MetalArmor, rt_MetalShield,rt_None,       rt_None), //Armor smithy
-(rt_All,        rt_None,       rt_None,       rt_None), //Store
-(rt_Horse,      rt_None,       rt_None,       rt_None), //Stables
-(rt_None,       rt_None,       rt_None,       rt_None), //School
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Quarry
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Metallurgist
-(rt_Pig,        rt_Skin,       rt_None,       rt_None), //Swine
-(rt_None,       rt_None,       rt_None,       rt_None), //Watch tower
-(rt_None,       rt_None,       rt_None,       rt_None), //Town hall
-(rt_Axe,        rt_Pike,       rt_Bow,        rt_None), //Weapon workshop
-(rt_Shield,     rt_Armor,      rt_None,       rt_None), //Armor workshop
-(rt_None,       rt_None,       rt_None,       rt_None), //Barracks
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Mill
-(rt_None,       rt_None,       rt_None,       rt_None), //Siege workshop
-(rt_Sausages,   rt_None,       rt_None,       rt_None), //Butcher
-(rt_Leather,    rt_None,       rt_None,       rt_None), //Tannery
-(rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_None,       rt_None,       rt_None,       rt_None), //Inn
-(rt_Wine,       rt_None,       rt_None,       rt_None){, //Wineyard
-(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
-);
-
-//What house requires
-HouseInput:array[1..HOUSE_COUNT,1..4] of TResourceType = (
-(rt_Trunk,      rt_None,       rt_None,       rt_None), //Sawmill
-(rt_IronOre,    rt_Coal,       rt_None,       rt_None), //Iron smithy
-(rt_Coal,       rt_Steel,      rt_None,       rt_None), //Weapon smithy
-(rt_None,       rt_None,       rt_None,       rt_None), //Coal mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Iron mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Gold mine
-(rt_None,       rt_None,       rt_None,       rt_None), //Fisher hut
-(rt_Flour,      rt_None,       rt_None,       rt_None), //Bakery
-(rt_None,       rt_None,       rt_None,       rt_None), //Farm
-(rt_None,       rt_None,       rt_None,       rt_None), //Woodcutter
-(rt_Steel,      rt_Coal,       rt_None,       rt_None), //Armor smithy
-(rt_All,        rt_None,       rt_None,       rt_None), //Store
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Stables
-(rt_Gold,       rt_None,       rt_None,       rt_None), //School
-(rt_None,       rt_None,       rt_None,       rt_None), //Quarry
-(rt_GoldOre,    rt_Coal,       rt_None,       rt_None), //Metallurgist
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Swine
-(rt_Stone,      rt_None,       rt_None,       rt_None), //Watch tower
-(rt_Gold,       rt_None,       rt_None,       rt_None), //Town hall
-(rt_Wood,       rt_None,       rt_None,       rt_None), //Weapon workshop
-(rt_Wood,       rt_Leather,    rt_None,       rt_None), //Armor workshop
-(rt_Warfare,    rt_None,       rt_None,       rt_None), //Barracks
-(rt_Corn,       rt_None,       rt_None,       rt_None), //Mill
-(rt_Wood,       rt_Steel,      rt_None,       rt_None), //Siege workshop
-(rt_Pig,        rt_None,       rt_None,       rt_None), //Butcher
-(rt_Skin,       rt_None,       rt_None,       rt_None), //Tannery
-(rt_None,       rt_None,       rt_None,       rt_None), //N/A
-(rt_Bread,      rt_Sausages,   rt_Wine,       rt_Fish), //Inn
-(rt_None,       rt_None,       rt_None,       rt_None){, //Wineyard
-(rt_None,       rt_None,       rt_None,       rt_None)}  //Wall
-);
-
-
 {Houses UI}
 const
-  GUIBuildIcons:array[1..HOUSE_COUNT]of word = (
-  301, 302, 303, 304, 305,
-  306, 307, 308, 309, 310,
-  311, 312, 313, 314, 315,
-  316, 317, 318, 319, 320,
-  321, 322, 323, 324, 325,
-  326, 327, 328, 329{, 338});
-
-  GUIHouseOrder:array[1..HOUSE_COUNT]of THouseType = (
+  GUIHouseOrder:array[1..GUI_HOUSE_COUNT]of THouseType = (
     ht_School, ht_Inn, ht_Quary, ht_Woodcutters, ht_Sawmill,
     ht_Farm, ht_Mill, ht_Bakery, ht_Swine, ht_Butchers,
     ht_Wineyard, ht_GoldMine, ht_CoalMine, ht_Metallurgists, ht_WeaponWorkshop,
     ht_Tannery, ht_ArmorWorkshop, ht_Stables, ht_IronMine, ht_IronSmithy,
     ht_WeaponSmithy, ht_ArmorSmithy, ht_Barracks, ht_Store, ht_WatchTower,
-    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop, ht_None{, ht_Wall});
+    ht_FisherHut, ht_TownHall, ht_SiegeWorkshop);
 
 {Terrain}
 type
@@ -909,13 +765,13 @@ type
   TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
 
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
-const UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+const
+  UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
 
+  
 type
-  TPlayerID = (play_none=0, play_1=1, play_2=2, play_3=3, play_4=4, play_5=5, play_6=6, play_7=7, play_8=8, play_animals=9);
-
-
   TSoundFX = (
+    sfx_None=0,
     sfx_CornCut=1,
     sfx_Dig,
     sfx_Pave,
@@ -992,6 +848,7 @@ type
         );
 
 const SSoundFX:array[TSoundFX] of string = (
+    'sfx_None',
     'sfx_CornCut',
     'sfx_Dig',
     'sfx_Pave',
@@ -1068,15 +925,32 @@ const SSoundFX:array[TSoundFX] of string = (
 
 
 //Sounds to play on different warrior orders
-type TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
-                     sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+type
+  TSoundToPlay = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
+                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+
+  TProjectileType = (pt_Arrow, pt_Bolt, pt_TowerRock); {pt_BallistaRock, }
+
+const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
+  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(4186,4190) );
+  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_RockThrow);
+  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.45, 0.5, 0.6);
+  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.5, 0.25), (1, 0.2), (1.25, 0)); //Arc curve and random fraction
+  ProjectileJitter:array[TProjectileType] of single = (0.1, 0.075, 0.05);
+  ProjectileMissChance:array[TProjectileType] of single = (0.3, 0.3, 0);
+
+  const STORM_SPEEDUP=1.5;
+  
+type
+  TAIAttackType = (aat_Once=0,       //Attack will occur once (after the set time has passed and if they have enough troops
+                   aat_Repeating=1); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
+
+const //KaM uses 0 for repeating attack in TSK (disused and replaced with later by Remake), 1 for once and 2 for repeating in TPR
+  RemakeAttackType:array[0..2] of TAIAttackType = (aat_Repeating, aat_Once, aat_Repeating);
 
 
 type
-  TAIAttackType = (                  //0 is an old repeating TSK attack that does not support new TPR features, so we always replace it with 1
-                   aat_Once=1,       //Attack will occur once (after the set time has passed and if they have enough troops
-                   aat_Repeating=2); //Attack will happen multiple times, (after delay time) whenever the AI has enough troops
-
   TAIAttackTarget = (att_ClosestUnit=0, //Closest enemy unit (untested as to whether this is relative to army or start position)
                      att_ClosestBuildingFromArmy=1, //Closest building from the group(s) lauching the attack
                      att_ClosestBuildingFromStartPos=2, //Closest building from the AI's start position
@@ -1136,9 +1010,9 @@ const
 //I tweaked it by hand to look similar to KaM.
 //1st row for straight, 2nd for diagonal sliding
 const
-  SlideLookup: array[1..2, 0..round(CELL_SIZE_PX*1.41)] of byte = (
-    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0));
+  SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX*1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
+    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
 
 
 const
@@ -1168,17 +1042,23 @@ const
 
 
   //Colors available for selection in multiplayer
-  //todo: Add more multiplayer colors
-  MP_COLOR_COUNT = 8;
+  MP_COLOR_COUNT = 15;
   MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
-  $FF27A700, //Green
-  $FFFF67FF, //Magenta
   $FF07FFFF, //Yellow
-  $FF577B7B, //Grey
-  $FFFFFFFF, //White
-  $FF202010  //Black
+  $FFFF67FF, //Magenta
+  $FF008000, //Green
+  $FF808080, //Grey
+  $FF008080, //Olive
+  $FF800080, //Purple
+  $FF000080, //Maroon
+  $FF00FF00, //Lime green
+  $FF808000, //Teal
+  $FFFF0000, //Blue
+  $FF800000, //Navy
+  $FF000000, //Black
+  $FFFFFFFF  //White
   );
 
   //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
@@ -1193,7 +1073,7 @@ const
   3,   //Black
   3,   //Black
   255  //White}
-  DefaultTeamColors:array[1..MAX_PLAYERS+1]of cardinal = (
+  DefaultTeamColors:array[0..7]of cardinal = (
   $FF0707FF, //Red
   $FFE3BB5B, //Cyan
   $FF27A700, //Green
@@ -1201,8 +1081,7 @@ const
   $FF07FFFF, //Yellow
   $FF577B7B, //Grey
   $FF000000, //Black
-  $FF000000, //Black
-  $FFFFFFFF //White, used for highlighting army flag on selection, team_animals
+  $FF000000  //Black
   );
 
 var
@@ -1249,40 +1128,6 @@ var
       Data:array of byte;
       u1,v1,u2,v2:single;
     end;
-  end;
-
-  //Swine&Horses, 5 beasts in each house, 3 ages for each beast
-  HouseDATs:array[1..2,1..5,1..3] of packed record
-    Step:array[1..30]of smallint;
-    Count:smallint;
-    MoveX,MoveY:integer;
-  end;
-
-  HouseDAT:array[1..HOUSE_COUNT] of packed record
-    StonePic,WoodPic,WoodPal,StonePal:smallint;
-    SupplyIn:array[1..4,1..5]of smallint;
-    SupplyOut:array[1..4,1..5]of smallint;
-    Anim:array[1..19] of record
-      Step:array[1..30]of smallint;
-      Count:smallint;
-      MoveX,MoveY:integer;
-    end;
-    WoodPicSteps,StonePicSteps:word;
-    a1:smallint;
-    EntranceOffsetX,EntranceOffsetY:shortint;
-    EntranceOffsetXpx,EntranceOffsetYpx:shortint; //When entering house units go for the door, which is offset by these values
-    BuildArea:array[1..10,1..10]of shortint;
-    WoodCost,StoneCost:byte;
-    BuildSupply:array[1..12] of record MoveX,MoveY:integer; end;
-    a5,SizeArea:smallint;
-    SizeX,SizeY,sx2,sy2:shortint;
-    WorkerWork,WorkerRest:smallint;
-    ResInput,ResOutput:array[1..4]of shortint; //KaM_Remake will use it's own tables for this matter
-    ResProductionX:shortint;
-    MaxHealth,Sight:smallint;
-    OwnerType:shortint;
-    Foot1:array[1..12]of shortint; //Sound indices
-    Foot2:array[1..12]of smallint; //vs sprite ID
   end;
 
   //Resource types serf carries around

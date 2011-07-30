@@ -1,8 +1,8 @@
 unit KM_UnitActionAbandonWalk;
 {$I KaM_Remake.inc}
 interface
-uses Math, KromUtils,
-  KM_CommonTypes, KM_Defaults, KM_Utils, KM_Units;
+uses Math, 
+  KM_CommonTypes, KM_Defaults, KM_Units, KM_Points;
 
 
 {Abandon the current walk, move onto next tile}
@@ -15,6 +15,7 @@ type
     constructor Create(LocB,aVertexOccupied :TKMPoint; const aActionType:TUnitActionType=ua_Walk);
     constructor Load(LoadStream: TKMemoryStream); override;
     destructor Destroy; override;
+    function GetExplanation:string; override;
     function Execute(KMUnit: TKMUnit):TActionResult; override;
     procedure Save(SaveStream:TKMemoryStream); override;
   end;
@@ -27,7 +28,7 @@ uses KM_Terrain;
 { TUnitActionAbandonWalk }
 constructor TUnitActionAbandonWalk.Create(LocB,aVertexOccupied:TKMPoint; const aActionType:TUnitActionType=ua_Walk);
 begin
-  fLog.AssertToLog(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
+  Assert(LocB.X*LocB.Y<>0, 'Illegal WalkTo 0;0');
   Inherited Create(aActionType);
   fActionName     := uan_AbandonWalk;
   Locked          := false;
@@ -55,6 +56,12 @@ begin
 end;
 
 
+function TUnitActionAbandonWalk.GetExplanation: string;
+begin
+  Result := 'Abandoning walk';
+end;
+
+
 function TUnitActionAbandonWalk.Execute(KMUnit: TKMUnit):TActionResult;
 var
   DX,DY:shortint; WalkX,WalkY,Distance:single;
@@ -62,7 +69,7 @@ begin
   Result := ActContinues;
 
   //Execute the route in series of moves
-  Distance := ACTION_TIME_DELTA * KMUnit.GetSpeed;
+  Distance := KMUnit.GetSpeed;
 
   //Check if unit has arrived on tile
 

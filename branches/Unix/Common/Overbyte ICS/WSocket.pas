@@ -3197,7 +3197,7 @@ end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
-function WSocketGetProc(const ProcName : String) : Pointer;
+function WSocketGetProc(const ProcName : AnsiString) : Pointer;
 {$IFDEF DELPHI1}
 var
     Error     : THandle;
@@ -3282,7 +3282,7 @@ end;
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 {$IFDEF COMPILER2_UP}
-function WSocket2GetProc(const ProcName : String) : Pointer;
+function WSocket2GetProc(const ProcName : AnsiString) : Pointer;
 begin
     { Prevents compiler warning "Return value might be undefined"  }
     Result := nil;
@@ -4388,14 +4388,14 @@ end;
 {$IFNDEF NOFORMS}
 function AllocateHWnd(Method: TWndMethod): HWND;
 begin
-    Result := Forms.AllocateHWnd(Method);
+    Result := Classes.AllocateHWnd(Method);
 end;
 
 
 {* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *}
 procedure DeallocateHWnd(Wnd: HWND);
 begin
-    Forms.DeallocateHWnd(Wnd);
+    Classes.DeallocateHWnd(Wnd);
 end;
 {$ENDIF}
 
@@ -7950,7 +7950,7 @@ begin
         I := SearchFrom;
         while I < (FRcvdCnt - Length(FLineEnd) + 1) do begin
             if FRcvdPtr[I] = FLineEnd[1] then begin
-                Found := (StrLComp(@FRcvdPtr[I], @FLineEnd[1], Length(FLineEnd)) = 0);
+                Found := (StrLComp(PAnsiChar(FRcvdPtr[I]), PAnsiChar(FLineEnd[1]), Length(FLineEnd)) = 0);
                 if Found then
                     break;    { Found the end of line marker }
             end;

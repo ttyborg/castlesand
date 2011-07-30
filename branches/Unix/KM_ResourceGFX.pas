@@ -2,26 +2,24 @@ unit KM_ResourceGFX;
 {$I KaM_Remake.inc}
 interface
 uses
-  {$IFDEF WDC} OpenGL, {$ENDIF}
-  {$IFDEF FPC} GL, {$ENDIF}
   {$IFDEF WDC} PNGImage, {$ENDIF}
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
-  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_TextLibrary, Classes
+  Forms, Graphics, SysUtils, Math, dglOpenGL, KM_Defaults, KM_ResourceHouse, KM_TextLibrary, Classes, KM_CommonTypes, KM_Points
   {$IFDEF WDC}, ZLibEx {$ENDIF}
-  {$IFDEF FPC}, Zstream, BGRABitmap {$ENDIF};
+  {$IFDEF FPC}, Zstream {$ENDIF};
 
 
 type
   TCardinalArray2 = array of Cardinal;
   TexMode = (tm_TexID, tm_AltID, tm_AlphaTest); //Defines way to decode sprites using palette info
   TDataLoadingState = (dls_None, dls_Menu, dls_All); //Resources are loaded in 2 steps, for menu and the rest
-    
 
-type
+
   TResource = class
   private
     fDataState:TDataLoadingState;
+    fHouseDat: TKMHouseDatCollection;
 
     procedure StepRefresh;
     procedure StepCaption(aCaption:string);
@@ -29,7 +27,6 @@ type
     function LoadPalettes:boolean;
     function LoadMapElemDAT(FileName:string):boolean;
     function LoadPatternDAT(FileName:string):boolean;
-    function LoadHouseDAT(FileName:string):boolean;
     function LoadUnitDAT(FileName:string):boolean;
     function LoadFont(FileName:string; aFont:TKMFont; WriteFontToBMP:boolean):boolean;
 
@@ -49,15 +46,20 @@ type
 
     function GenTexture(DestX, DestY:word; const Data:TCardinalArray2; Mode:TexMode):gluint; //This should belong to TRender?
   public
-    constructor Create(aLocale:string);
+    OnLoadingStep:TNotifyEvent;
+    OnLoadingText:TStringEvent;
+
+    constructor Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
     destructor Destroy; override;
-    function LoadMenuResources(aLocale:string):boolean;
-    function LoadGameResources:boolean;
+    procedure LoadMenuResources(aLocale:string);
+    procedure LoadGameResources;
     procedure MakeTileGFXFromTexture(Texture:GLuint);
 
     function GetColor32(aIndex:byte; aPal:TKMPal=DEF_PAL):cardinal;
 
-    property GetDataState:TDataLoadingState read fDataState;
+    property DataState: TDataLoadingState read fDataState;
+    property HouseDat: TKMHouseDatCollection read fHouseDat;
+
     function GetUnitSequenceLength(aUnitType:TUnitType; aAction:TUnitActionType; aDir:TKMDirection):smallint;
 
     procedure LoadFonts(DoExport:boolean; aLocale:string);
@@ -77,14 +79,17 @@ type
 
 
 implementation
-uses KromUtils, KM_Unit1, KM_Render, KM_CommonTypes, KM_Utils, KM_TGATexture;
+uses KromUtils, KM_Render, KM_TGATexture, KM_Log;
 
 
-constructor TResource.Create(aLocale:string);
+constructor TResource.Create(aLocale:string; aLS:TNotifyEvent; aLT:TStringEvent);
 begin
   Inherited Create;
   fDataState := dls_None;
   fLog.AppendLog('Resource loading state - None');
+
+  OnLoadingStep := aLS;
+  OnLoadingText := aLT;
 
   RXData[1].Title:='trees';       RXData[1].NeedTeamColors:=false;
   RXData[2].Title:='houses';      RXData[2].NeedTeamColors:=true;
@@ -100,31 +105,28 @@ end;
 
 destructor TResource.Destroy;
 begin
+  if fHouseDat <> nil then FreeAndNil(fHouseDat);
   Inherited;
 end;
 
 
 procedure TResource.StepRefresh;
 begin
-  if not FormLoading.Visible then exit;
-  FormLoading.Bar1.StepIt;
-  FormLoading.Refresh;
+  if Assigned(OnLoadingStep) then OnLoadingStep(Self);
 end;
 
 
 procedure TResource.StepCaption(aCaption:string);
 begin
-  if not FormLoading.Visible then exit;
-  FormLoading.Label1.Caption:=aCaption;
-  FormLoading.Refresh;
+  if Assigned(OnLoadingText) then OnLoadingText(aCaption);
 end;
 
 
-function TResource.LoadMenuResources(aLocale:string):boolean;
+procedure TResource.LoadMenuResources(aLocale:string);
 var i:integer;
 begin
-  fLog.AssertToLog(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
+  Assert(fTextLibrary <> nil, 'fTextLibrary should be init before ReadGFX');
+  Assert(fRender <> nil, 'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading palettes ...');
   LoadPalettes;
@@ -132,12 +134,7 @@ begin
 
   for i:=4 to 6 do
   begin
-    {$IFDEF MSWindows}
-    LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i);
-    {$ENDIF}
-    {$IFDEF Unix}
-    LoadRX(ExeDir+'Data/gfx/res/'+RXData[i].Title+'.rx',i);
-    {$ENDIF}
+    LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + ''+RXData[i].Title+'.rx',i);
     LoadRX7(i); //Load RX data overrides
 
     if i=4 then MakeCursors(4);
@@ -162,56 +159,47 @@ begin
   fLog.AppendLog('ReadGFX is done');
   fDataState:=dls_Menu;
   fLog.AppendLog('Resource loading state - Menu');
-  Result:=true;
 end;
 
 
-function TResource.LoadGameResources:boolean;
+procedure TResource.LoadGameResources;
 var i:integer;
 begin
-  fLog.AssertToLog(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
-  fLog.AssertToLog(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
+  if fDataState = dls_All then Exit;
+
+  Assert(fTextLibrary<>nil,'fTextLibrary should be init before ReadGFX');
+  Assert(fRender<>nil,'fRender should be init before ReadGFX to be able access OpenGL');
 
   StepCaption('Reading defines ...');
-  {$IFDEF MSWindows}
-  LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat'); StepRefresh;
-  LoadPatternDAT(ExeDir+'data\defines\pattern.dat'); StepRefresh;
-  LoadHouseDAT(ExeDir+'data\defines\houses.dat');    StepRefresh;
-  LoadUnitDAT(ExeDir+'data\defines\unit.dat');       StepRefresh;
-  {$ENDIF}
-  {$IFDEF Unix}
-  LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat'); StepRefresh;
-  LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat'); StepRefresh;
-  LoadHouseDAT(ExeDir+'data/defines/houses.dat');    StepRefresh;
-  LoadUnitDAT(ExeDir+'data/defines/unit.dat');       StepRefresh;
-  {$ENDIF}
+  LoadMapElemDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'mapelem.dat'); StepRefresh;
+  LoadPatternDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'pattern.dat'); StepRefresh;
+
+  fHouseDat := TKMHouseDatCollection.Create;
+  fHouseDat.LoadHouseDat(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'houses.dat');
+  StepRefresh;
+
+  LoadUnitDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'unit.dat');       StepRefresh;
 
   for i:=1 to 3 do
     if (i=1) or ((i=2) and MAKE_HOUSE_SPRITES) or ((i=3) and MAKE_UNIT_SPRITES) then
     begin
       StepCaption('Reading '+RXData[i].Title+' GFX ...');
-      {$IFDEF MSWindows}
-      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data\gfx\res\'+RXData[i].Title+'.rx',i));
-      {$ENDIF}
-      {$IFDEF Unix}
-      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data/gfx/res/'+RXData[i].Title+'.rx',i));
-      {$ENDIF}
+      fLog.AppendLog('Reading '+RXData[i].Title+'.rx',LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim + ''+RXData[i].Title+'.rx',i));
       LoadRX7(i); //Updated sprites
       MakeGFX(i);
       //Alpha_tested sprites for houses. They come after MakeGFX cos they will
-      //replace above data. 
+      //replace above data.
       if i=2 then MakeGFX_AlphaTest(i);
       ClearUnusedGFX(i);
       StepRefresh;
     end;
 
   StepCaption('Making minimap colors ...');
-  MakeMiniMapColors(ExeDir+'Resource\Tiles1.tga');
+  MakeMiniMapColors(ExeDir+'Resource'+ PathDelim + 'Tiles1.tga');
   fLog.AppendLog('Prepared MiniMap colors...');
   StepRefresh;
   fDataState:=dls_All;
   fLog.AppendLog('Resource loading state - Game');
-  Result:=true;
 end;
 
 
@@ -219,10 +207,10 @@ procedure TResource.LoadFonts(DoExport:boolean; aLocale:string);
 var i:TKMFont;
 begin
   for i:=low(TKMFont) to high(TKMFont) do
-  if FileExists(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt') then
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.'+aLocale+'.fnt', TKMFont(i), DoExport)
+  if FileExists(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt') then
+    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.'+aLocale+'.fnt', i, DoExport)
   else
-    LoadFont(ExeDir+'data\gfx\fonts\'+FontFiles[i]+'.fnt', TKMFont(i), DoExport);
+    LoadFont(ExeDir+FONTS_FOLDER+FontFiles[i]+'.fnt', i, DoExport);
 end;
 
 
@@ -249,7 +237,7 @@ begin
 
   for i:=low(TKMPal) to high(TKMPal) do begin
 
-    FileName := ExeDir+'data\gfx\'+PalFiles[i];
+    FileName := ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + ''+PalFiles[i];
     if FileExists(FileName) then begin
       AssignFile(f,FileName);
       FileMode := 0;
@@ -366,98 +354,6 @@ end;
 
 
 //=============================================
-//Reading houses.dat data
-//=============================================
-function TResource.LoadHouseDAT(FileName:string):boolean;
-var ii,kk,h:integer; ft:textfile; f:file;
-begin
-  Result:=false;
-  if not CheckFileExists(FileName) then exit;
-  
-  assignfile(f,FileName); reset(f,1);
-  blockread(f,HouseDATs,30*70); //Swine&Horses animations
-  for h:=1 to HOUSE_COUNT do
-    blockread(f,HouseDAT[h],88+19*70+270);
-  closefile(f);
-
-  if WriteResourceInfoToTXT then begin
-    assignfile(ft,ExeDir+'Houses.csv'); rewrite(ft);
-    writeln(ft,'House;a1;a3;a4;a5;a8;Foot---------->;');
-    for ii:=1 to HOUSE_COUNT do begin
-    //writeln(ft);
-    write(ft,fTextLibrary.GetTextString(siHouseNames+ii)+';');
-    {  write(ft,'Resource In: ');
-      for kk:=1 to 4 do if HouseDAT[ii].SupplyIn[kk,1]>0 then
-      write(ft,'#') else write(ft,' ');
-      writeln(ft);
-      write(ft,'Resource Out: ');
-      for kk:=1 to 4 do if HouseDAT[ii].SupplyOut[kk,1]>0 then
-      write(ft,'#') else write(ft,' ');
-      writeln(ft);
-      for kk:=1 to 19 do writeln(ft,HouseAction[kk]+#9+inttostr(HouseDAT[ii].Anim[kk].Count));}
-      //write(ft,inttostr(HouseDAT[ii].WoodPicSteps)+'wooding ;');
-      //write(ft,inttostr(HouseDAT[ii].StonePicSteps)+'stoning ;');
-      write(ft,inttostr(HouseDAT[ii].a1)+';'); //0
-      //write(ft,'X '+inttostr(HouseDAT[ii].EntranceOffsetX)+';');
-      //write(ft,'Y '+inttostr(HouseDAT[ii].EntranceOffsetY)+';'); //0
-      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-      //write(ft,inttostr(HouseDAT[ii].EntranceOffsetXpx)+';');
-      {writeln(ft);
-      for kk:=1 to length(HouseDAT[ii].BuildArea) do begin
-        for h:=1 to 10 do
-          write(ft,inttostr(HouseDAT[ii].BuildArea[kk,h])+';');
-        writeln(ft,';');
-      end;}
-      //write(ft,inttostr(HouseDAT[ii].WoodCost)+';');
-      //write(ft,inttostr(HouseDAT[ii].StoneCost)+';');
-      //for kk:=1 to 12 do write(ft,'dx '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveX)+' dy '+inttostr(HouseDAT[ii].BuildSupply[kk].MoveY)+';');
-      write(ft,inttostr(HouseDAT[ii].a5)+';');
-      //write(ft,'Area '+inttostr(HouseDAT[ii].SizeArea)+';');
-      //write(ft,'Size '+inttostr(HouseDAT[ii].SizeX)+'x'+inttostr(HouseDAT[ii].SizeY)+';');
-      write(ft,'Size2 '+inttostr(HouseDAT[ii].sx2)+'x'+inttostr(HouseDAT[ii].sy2)+';');
-      write(ft,inttostr(HouseDAT[ii].WorkerWork)+'W sec;');
-      write(ft,inttostr(HouseDAT[ii].WorkerRest)+'R sec;');
-      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResInput[kk]+1))+';');
-      //for kk:=1 to 4 do write(ft,TypeToString(TResourceType(HouseDAT[ii].ResOutput[kk]+1))+';');
-      //write(ft,'Product x'+inttostr(HouseDAT[ii].ResProductionX)+';');
-      //write(ft,inttostr(HouseDAT[ii].MaxHealth)+'hp;');
-      //write(ft,'Sight '+inttostr(HouseDAT[ii].Sight)+';');
-      //write(ft,TypeToString(TUnitType(HouseDAT[ii].OwnerType+1))+';');
-      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot1[kk])+';');
-      for kk:=1 to 12 do write(ft,inttostr(HouseDAT[ii].Foot2[kk])+';');
-      writeln(ft);
-    end;
-    closefile(ft);
-  end;
-
-  //Form1.Close;
-
-  Result:=true;
-end;
-
-
-{//Append info for new houses
-procedure TResource.AddHouseDAT;
-var i:integer;
-begin
-  for i:=30 to HOUSE_COUNT do begin
-    fillChar(HouseDAT[i],SizeOf(HouseDAT[i]),#0);
-    HouseDAT[i].StonePic:=129-1;
-    HouseDAT[i].WoodPic:=130-1;
-    HouseDAT[i].WoodPal:=132-1;
-    HouseDAT[i].StonePal:=131-1;
-    HouseDAT[i].WoodPicSteps:=7;
-    HouseDAT[i].StonePicSteps:=8;
-    HouseDAT[i].WoodCost:=1;
-    HouseDAT[i].StoneCost:=1;
-    HouseDAT[i].OwnerType:=0;
-    HouseDAT[i].MaxHealth:=100;
-    HouseDAT[i].Sight := 12;
-  end;
-end;}
-
-
-//=============================================
 //Reading unit.dat data
 //=============================================
 function TResource.LoadUnitDAT(FileName:string):boolean;
@@ -481,7 +377,7 @@ begin
 
   if WriteResourceInfoToTXT then begin
     assignfile(ft,ExeDir+'UnitDAT.csv'); rewrite(ft);
-    writeln(ft,'Name;x1;Attack;AttackHorseBonus;x4;HitPoints;Speed;x7;Sight;x9;x10;CanWalkOut;0;');
+    writeln(ft,'Name;HitPoints;Attack;AttackHorseBonus;x4;Defence;Speed;x7;Sight;x9;x10;CanWalkOut;x11;');
     for ii:=1 to 40 do begin
       write(ft,fTextLibrary.GetTextString(siUnitNames+ii)+';');
       write(ft,inttostr(UnitStat[ii].HitPoints)+';');
@@ -611,9 +507,9 @@ begin
       MyBitMap.Canvas.Pixels[ck,ci]:= TD[ci*TexWidth+ck] AND $FFFFFF;
     end;
 
-    CreateDir(ExeDir+'Export\');
-    CreateDir(ExeDir+'Export\Fonts\');
-    MyBitMap.SaveToFile(ExeDir+'Export\Fonts\'+ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
+    CreateDir(ExeDir+'Export'+ PathDelim);
+    CreateDir(ExeDir+'Export'+ PathDelim + 'Fonts'+ PathDelim);
+    MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'Fonts'+ PathDelim +ExtractFileName(FileName)+PalFiles[FontPal[aFont]]+'.bmp');
     MyBitMap.Free;
   end;
 
@@ -625,22 +521,20 @@ end;
 { This function should parse all valid files in Sprites folder and load them
   additionaly to or replacing original sprites }
 procedure TResource.LoadRX7(RX:integer);
+{$IFDEF WDC}
 var
   FileList:TStringList;
   SearchRec:TSearchRec;
   i:integer; x,y:integer;
   ID:integer; p:cardinal;
-  {$IFDEF WDC}
   po:TPNGObject;
   {$ENDIF}
-  {$IFDEF FPC}
-  po:TBGRABitmap;
-  {$ENDIF}
 begin
-  if not DirectoryExists(ExeDir + 'Sprites\') then exit;
+  {$IFDEF WDC}
+  if not DirectoryExists(ExeDir + 'Sprites'+ PathDelim) then exit;
 
   FileList := TStringList.Create;
-  ChDir(ExeDir + 'Sprites\');
+  ChDir(ExeDir + 'Sprites'+ PathDelim);
   FindFirst('*', faAnyFile, SearchRec);
   repeat
     if (SearchRec.Name<>'.')and(SearchRec.Name<>'..') then //Exclude parent folders
@@ -653,7 +547,7 @@ begin
 
   //#-####.png - default texture
   //#-####a.png - alternative texture
-
+  
   for i:=0 to FileList.Count-1 do begin
 
     ID := StrToIntDef(Copy(FileList.Strings[i], 3, 4),0); //wrong file will return 0
@@ -662,20 +556,15 @@ begin
         RXData[RX].HasMask[i] := true //todo: [Krom] Support alternative textures
       else
         RXData[RX].HasMask[i] := false;
-      {$IFDEF WDC}
       po := TPNGObject.Create;
-      {$ENDIF}
-      {$IFDEF FPC}
-      po := TBGRABitmap.Create;
-      {$ENDIF}
-      po.LoadFromFile(ExeDir + 'Sprites\' + FileList.Strings[i]);
+      po.LoadFromFile(ExeDir + 'Sprites'+ PathDelim + FileList.Strings[i]);
 
       RXData[RX].Size[ID].X := po.Width;
       RXData[RX].Size[ID].Y := po.Height;
 
       setlength(RXData[RX].RGBA[ID], po.Width*po.Height);
       setlength(RXData[RX].Mask[ID], po.Width*po.Height); //Should allocate space for it's always comes along
-      {$IFDEF WDC}
+
       case po.TransparencyMode of //There are ways to process PNG transparency
         ptmNone:
           for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
@@ -693,15 +582,14 @@ begin
           end;
         else Assert(false, 'Unknown PNG transparency mode')
       end;
-      {$ENDIF}
-      {$IFDEF FPC}
-      //just try ptmNone:
-      //for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do
-      //    RXData[RX].RGBA[ID, y*po.Width+x] := cardinal(po.Pixels[x,y]) OR $FF000000;
-      {$ENDIF}
+
       //todo: Apply team colour masks after loading
       //@Krom: I'm struggling a bit here... do you think you could implement alternative textures for
       //       custom PNG images? Delete my attempt if it's wrong, I tried copying and modifying it.
+      //@Lewin: I'm not sure how to make it to work so that custom 24bit images were easy to edit and
+      //        loaded without errors in color areas recognition.
+      //todo: Think about using grey masks for flag colors (see above)
+
       {for y:=0 to po.Height-1 do for x:=0 to po.Width-1 do begin
           L := RXData[RX].RGBA[ID,y*po.Width+x];
           if RXData[RX].HasMask[i] and (L in[GetColor32(23),GetColor32(24),GetColor32(25),GetColor32(26),
@@ -721,7 +609,9 @@ begin
       po.Free;
     end;
   end;
+
   FileList.Free;
+  {$ENDIF}
 end;
 
 
@@ -863,7 +753,7 @@ begin
   end;
 
   if WriteAllTexturesToBMP then begin
-    CreateDir(ExeDir+'Export\GenTextures\');
+    CreateDir(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim);
     MyBitMap:=TBitMap.Create;
     MyBitMap.PixelFormat:=pf24bit;
     MyBitMap.Width:=DestX;
@@ -871,12 +761,12 @@ begin
 
     for i:=0 to DestY-1 do for k:=0 to DestX-1 do
       MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) AND $FFFFFF; //Ignore alpha
-    MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'.bmp');
+    MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim +int2fix(Result,4)+'.bmp');
 
     if Mode=tm_AlphaTest then begin //these Alphas are worth looking at
       for i:=0 to DestY-1 do for k:=0 to DestX-1 do
         MyBitMap.Canvas.Pixels[k,i] := ((PCardinal(Cardinal(@Data[0])+(i*DestX+k)*4))^) SHR 24 *65793;
-      MyBitMap.SaveToFile(ExeDir+'Export\GenTextures\'+int2fix(Result,4)+'a.bmp');
+      MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'GenTextures'+ PathDelim +int2fix(Result,4)+'a.bmp');
     end;
 
     MyBitMap.Free;
@@ -893,15 +783,16 @@ Textures should be POT to improve performance and avoid drivers bugs
 In result we have GFXData filled.}
 procedure TResource.MakeGFX_AlphaTest(RXid:integer);
 var
-  ID,ID1,ID2:integer; //RGB and A index
+  ID:THouseType;
+  ID1,ID2:integer; //RGB and A index
   i,k,h,StepCount:integer;
   t,tx,ty:integer;
   ColorID:byte;
   WidthPOT,HeightPOT:integer;
   TD:array of cardinal;
 begin
-  for ID:=1 to HOUSE_COUNT do
-    if HouseDAT[ID].StonePic<>-1 then //Exlude House27 which is unused
+  for ID:=Low(THouseType) to High(THouseType) do
+    if HouseDat[ID].IsValid then
 
       for h:=1 to 2 do begin
         if h=1 then begin
@@ -1075,22 +966,13 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     UsePal:TKMPal;
 begin
-  {$IFDEF MSWindows}
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\'+RXData[RXid].Title+'.rx\');
-  {$ENDIF}
-  {$IFDEF Unix}
-  CreateDir(ExeDir+'Export/');
-  CreateDir(ExeDir+'Export/'+RXData[RXid].Title+'.rx/');
-  {$ENDIF}
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim +RXData[RXid].Title+'.rx'+ PathDelim);
   MyBitMap := TBitMap.Create;
   MyBitMap.PixelFormat := pf24bit;
-  {$IFDEF MSWindows}
-  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[RXid].Title+'.rx',RXid);
-  {$ENDIF}
-  {$IFDEF Unix}
-  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[RXid].Title+'.rx',RXid);
-  {$ENDIF}
+
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[RXid].Title+'.rx',RXid);
+
   for id:=1 to RXData[RXid].Qty do begin
 
     sx := RXData[RXid].Size[id].X;
@@ -1108,12 +990,8 @@ begin
       t := RXData[RXid].Data[id,y*sx+x];
       MyBitMap.Canvas.Pixels[x,y] := fResource.GetColor32(t,UsePal) AND $FFFFFF;
     end;
-    {$IFDEF MSWindows}
-    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\'+RXData[RXid].Title+'.rx\'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
-    {$ENDIF}
-    {$IFDEF Unix}
-    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export/'+RXData[RXid].Title+'.rx/'+RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
-    {$ENDIF}
+    if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim +RXData[RXid].Title+'.rx'+ PathDelim + RXData[RXid].Title+'_'+int2fix(id,4)+'.bmp');
+
     setlength(RXData[RXid].Data[id],0);
   end;
 
@@ -1127,38 +1005,21 @@ var MyBitMap:TBitMap;
     sy,sx,y,x:integer;
     Used:array of integer;
 begin
-  {$IFDEF MSWindows}
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\UnitAnim\');
-  {$ENDIF}
-  {$IFDEF Unix}
-  CreateDir(ExeDir+'Export/');
-  CreateDir(ExeDir+'Export/UnitAnim/');
-  {$ENDIF}
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-  {$IFDEF MSWindows}
-  fResource.LoadUnitDAT(ExeDir+'data\defines\unit.dat');
-  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[3].Title+'.rx',3);
-  {$ENDIF}
-  {$IFDEF Unix}
-  fResource.LoadUnitDAT(ExeDir+'data/defines/unit.dat');
-  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[3].Title+'.rx',3);
-  {$ENDIF}
+
+  fResource.LoadUnitDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'unit.dat');
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[3].Title+'.rx',3);
 
   ci:=0;
   for iUnit:=byte(ut_Militia) to byte(ut_Militia) do begin
     for iAct:=1 to 14 do begin
       for iDir:=1 to 8 do if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[1]<>-1 then begin
         for iFrame:=1 to UnitSprite[iUnit].Act[iAct].Dir[iDir].Count do begin
-          {$IFDEF MSWindows}
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\');
-          CreateDir(ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\');
-          {$ENDIF}
-          {$IFDEF Unix}
-          CreateDir(ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/');
-          CreateDir(ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/'+UnitAct[iAct]+'/');
-          {$ENDIF}
+          CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+'+ PathDelim + ');
+          CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+'+ PathDelim + '+UnitAct[iAct]+'+ PathDelim + ');
           if UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1<>0 then
             ci:=UnitSprite[iUnit].Act[iAct].Dir[iDir].Step[iFrame]+1;
 
@@ -1172,21 +1033,13 @@ begin
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
           if sy>0 then MyBitMap.SaveToFile(
-            {$IFDEF MSWindows}
-            ExeDir+'Export\UnitAnim\'+TypeToString(TUnitType(iUnit))+'\'+UnitAct[iAct]+'\'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
-            {$ENDIF}
-            {$IFDEF Unix}
-            ExeDir+'Export/UnitAnim/'+TypeToString(TUnitType(iUnit))+'/'+UnitAct[iAct]+'/'+inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
-            {$ENDIF}
+            ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim +TypeToString(TUnitType(iUnit))+ PathDelim +UnitAct[iAct]+ PathDelim +inttostr(iDir)+'_'+int2fix(iFrame,2)+'.bmp');
         end;
       end;
     end;
   end;
-  {$IFDEF MSWindows}
-  CreateDir(ExeDir+'Export\UnitAnim\_TheRest');
-  {$ENDIF}{$IFDEF Unix}
-  CreateDir(ExeDir+'Export/UnitAnim/_TheRest');
-  {$ENDIF}
+
+  CreateDir(ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim + '_TheRest');
   setlength(Used,length(RXData[3].Size));
   for iUnit:=1 to 41 do
   for iAct:=1 to 14 do
@@ -1213,11 +1066,7 @@ begin
       MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
     end;
     if sy>0 then MyBitMap.SaveToFile(
-      {$IFDEF MSWindows}
-      ExeDir+'Export\UnitAnim\_TheRest\'+'_'+int2fix(ci,4)+'.bmp');
-      {$ENDIF}{$IFDEF Unix}
-      ExeDir+'Export/UnitAnim/_TheRest/'+'_'+int2fix(ci,4)+'.bmp');
-      {$ENDIF}
+      ExeDir+'Export'+ PathDelim + 'UnitAnim'+ PathDelim + '_TheRest'+ PathDelim +'_'+int2fix(ci,4)+'.bmp');
   end;
 
   MyBitMap.Free;
@@ -1227,39 +1076,26 @@ end;
 {Export Houses graphics categorized by House and Action}
 procedure ExportHouseAnim2BMP;
 var MyBitMap:TBitMap;
-    Q,ID,Ac,k,ci:integer; t:byte;
+    ID:THouseType;
+    Q,Beast,Ac,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
     s:string;
 begin
-  {$IFDEF MSWindows}
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\HouseAnim\');
-  {$ENDIF}{$IFDEF Unix}
-  CreateDir(ExeDir+'Export/');
-  CreateDir(ExeDir+'Export/HouseAnim/');
-  {$ENDIF}
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-  {$IFDEF MSWindows}
-  fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
-  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[2].Title+'.rx',2);
-  {$ENDIF}{$IFDEF Unix}
-  fResource.LoadHouseDAT(ExeDir+'data\defines\houses.dat');
-  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[2].Title+'.rx',2);
-  {$ENDIF}
+
+  fResource.LoadGameResources;
+
   ci:=0;
-  for ID:=byte(ht_WatchTower) to byte(ht_WatchTower) do begin
+  for ID:=ht_WatchTower to ht_WatchTower do begin
     for Ac:=1 to 5 do begin //Work1..Work5
-      for k:=1 to HouseDAT[ID].Anim[Ac].Count do begin
-        {$IFDEF MSWindows}
-        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\');
-        CreateDir(ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\');
-        {$ENDIF}{$IFDEF Unix}
-        CreateDir(ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/');
-        CreateDir(ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/Work'+IntToStr(Ac)+'/');
-        {$ENDIF}
-        if HouseDAT[ID].Anim[Ac].Step[k]+1<>0 then
-        ci:=HouseDAT[ID].Anim[Ac].Step[k]+1;
+      for k:=1 to fResource.HouseDat[ID].Anim[Ac].Count do begin
+        CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim);
+        CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim + 'Work'+IntToStr(Ac)+ PathDelim);
+        if fResource.HouseDat[ID].Anim[Ac].Step[k]+1<>0 then
+        ci:=fResource.HouseDat[ID].Anim[Ac].Step[k]+1;
 
         sx:=RXData[2].Size[ci].X;
         sy:=RXData[2].Size[ci].Y;
@@ -1271,34 +1107,22 @@ begin
           MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
         end;
         if sy>0 then MyBitMap.SaveToFile(
-        {$IFDEF MSWindows}
-        ExeDir+'Export\HouseAnim\'+TypeToString(THouseType(ID))+'\Work'+IntToStr(Ac)+'\_'+int2fix(k,2)+'.bmp');
-        {$ENDIF}{$IFDEF Unix}
-        ExeDir+'Export/HouseAnim/'+TypeToString(THouseType(ID))+'/Work'+IntToStr(Ac)+'/_'+int2fix(k,2)+'.bmp');
-        {$ENDIF}
+        ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +fResource.HouseDat[ID].HouseName+ PathDelim + 'Work'+IntToStr(Ac)+ PathDelim + '_'+int2fix(k,2)+'.bmp');
       end;
     end;
   end;
 
   ci:=0;
   for Q:=1 to 2 do begin
-    if Q=1 then s:='_Swine';
-    if Q=2 then s:='_Stables';
-    {$IFDEF MSWindows}
-    CreateDir(ExeDir+'Export\HouseAnim\'+s+'\');
-    {$ENDIF}{$IFDEF Unix}
-    CreateDir(ExeDir+'Export/HouseAnim/'+s+'/');
-    {$ENDIF}
-    for ID:=1 to 5 do begin
+    if Q=1 then ID:=ht_Swine
+           else ID:=ht_Stables;
+    CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim + '_'+fResource.HouseDat[ID].HouseName+ PathDelim);
+    for Beast:=1 to 5 do begin
       for Ac:=1 to 3 do begin //Age 1..3
-        for k:=1 to HouseDATs[Q,ID,Ac].Count do begin
-          {$IFDEF MSWindows}
-          CreateDir(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\');
-          {$ENDIF}{$IFDEF Unix}
-          CreateDir(ExeDir+'Export/HouseAnim/'+s+'/'+int2fix(ID,2)+'/');
-          {$ENDIF}
-          if HouseDATs[Q,ID,Ac].Step[k]+1<>0 then
-          ci:=HouseDATs[Q,ID,Ac].Step[k]+1;
+        for k:=1 to fResource.HouseDat.BeastAnim[ID,Beast,Ac].Count do begin
+          CreateDir(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim +s+ PathDelim +int2fix(Beast,2)+ PathDelim);
+          if fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1<>0 then
+          ci:=fResource.HouseDat.BeastAnim[ID,Beast,Ac].Step[k]+1;
 
           sx:=RXData[2].Size[ci].X;
           sy:=RXData[2].Size[ci].Y;
@@ -1309,11 +1133,7 @@ begin
             t:=RXData[2].Data[ci,y*sx+x];
             MyBitMap.Canvas.Pixels[x,y]:=fResource.GetColor32(t,DEF_PAL) AND $FFFFFF;
           end;
-          {$IFDEF MSWindows}
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export\HouseAnim\'+s+'\'+int2fix(ID,2)+'\_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
-          {$ENDIF}{$IFDEF Unix}
-          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export/HouseAnim/'+s+'/'+int2fix(ID,2)+'/_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
-          {$ENDIF}
+          if sy>0 then MyBitMap.SaveToFile(ExeDir+'Export'+ PathDelim + 'HouseAnim'+ PathDelim + '_'+fResource.HouseDat[ID].HouseName+ PathDelim +int2fix(Beast,2)+ PathDelim + '_'+int2fix(Ac,1)+'_'+int2fix(k,2)+'.bmp');
         end;
       end;
     end;
@@ -1329,22 +1149,14 @@ var MyBitMap:TBitMap;
     ID,k,ci:integer; t:byte;
     sy,sx,y,x:integer;
 begin
-  {$IFDEF MSWindows}
-  CreateDir(ExeDir+'Export\');
-  CreateDir(ExeDir+'Export\TreeAnim\');
-  {$ENDIF}{$IFDEF Unix}
-  CreateDir(ExeDir+'Export/');
-  CreateDir(ExeDir+'Export/TreeAnim/');
-  {$ENDIF}
+  CreateDir(ExeDir+'Export'+ PathDelim);
+  CreateDir(ExeDir+'Export'+ PathDelim + 'TreeAnim'+ PathDelim);
   MyBitMap:=TBitMap.Create;
   MyBitMap.PixelFormat:=pf24bit;
-  {$IFDEF MSWindows}
-  fResource.LoadMapElemDAT(ExeDir+'data\defines\mapelem.dat');
-  fResource.LoadRX(ExeDir+'data\gfx\res\'+RXData[1].Title+'.rx',1);
-  {$ENDIF}{$IFDEF Unix}
-  fResource.LoadMapElemDAT(ExeDir+'data/defines/mapelem.dat');
-  fResource.LoadRX(ExeDir+'data/gfx/res/'+RXData[1].Title+'.rx',1);
-  {$ENDIF}
+
+  fResource.LoadMapElemDAT(ExeDir+'data'+ PathDelim + 'defines'+ PathDelim + 'mapelem.dat');
+  fResource.LoadRX(ExeDir+'data'+ PathDelim + 'gfx'+ PathDelim + 'res'+ PathDelim +RXData[1].Title+'.rx',1);
+
   ci:=0;
   for ID:=1 to MapElemQty do begin
     for k:=1 to MapElem[ID].Count do begin
@@ -1363,12 +1175,13 @@ begin
       if sy>0 then MyBitMap.SaveToFile(
       //@Lewin: insert field here and press Export>TreeAnim. Rename each folder after export to 'Cuttable',
       //'Quad' and etc.. there you'll have it. Note, we use 1..254 counting, JBSnorro uses 0..253 counting
-      ExeDir+'Export\TreeAnim\'+{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
+      ExeDir+'Export'+ PathDelim + 'TreeAnim'+ PathDelim +{inttostr(word(MapElem[ID].DiagonalBlocked))+'_'+}int2fix(ID,3)+'_'+int2fix(k,2)+'.bmp');
     end;
   end;
 
   MyBitMap.Free;
 end;
+
 
 {Tile textures aren't always the same, e.g. if someone makes a mod they will be different,
 thus it's better to spend few ms and generate minimap colors from actual data}
@@ -1410,8 +1223,8 @@ begin
        if i <> 0 then OutputStream.Write(Buf, i);
      until i <= 0;
     {$ENDIF}
-    OutputStream.Position := 0; //SizeOf(TGAHeader)
-    OutputStream.ReadBuffer(c[1], 18);
+    OutputStream.Position := 0; 
+    OutputStream.ReadBuffer(c[1], 18); //SizeOf(TGAHeader)
     SizeX := c[13]+c[14]*256;
     SizeY := c[15]+c[16]*256;
     setlength(c,SizeX*SizeY*4+1);
@@ -1505,12 +1318,14 @@ begin
     IconInfo.hbmColor:=bm.Handle;
     IconInfo.hbmMask:=bm2.Handle;
 
+    //I have a suspicion that maybe Windows could create icon delayed, at a time when bitmap data is
+    //no longer valid (replaced by other bitmap or freed). Hence issues with transparency.
+    {$IFDEF MSWindows}
+    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
+    {$ENDIF}
     {$IFDEF Unix}
     IconInfoPointer := @IconInfo;
     Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfoPointer);
-    {$ENDIF}
-    {$IFDEF MSWindows}
-    Screen.Cursors[Cursors[i]]:=CreateIconIndirect(IconInfo);
     {$ENDIF}
   end;
 
@@ -1518,9 +1333,6 @@ begin
   bm2.Free;
   Screen.Cursor := c_Default;
 end;
-
-
-
 
 
 end.
