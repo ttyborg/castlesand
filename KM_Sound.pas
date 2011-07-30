@@ -235,10 +235,6 @@ begin
   if not fIsSoundInitialized then exit;
   if not CheckFileExists(ExeDir+'data'+ PathDelim + 'sfx'+ PathDelim + 'sounds.dat') then exit;
   AssignFile(f, ExeDir+'data'+ PathDelim + 'sfx'+ PathDelim + 'sounds.dat');
-  {$ENDIF}{$IFDEF Unix}
-  if not CheckFileExists(ExeDir+'Data/sfx/sounds.dat') then exit;
-  AssignFile(f, ExeDir+'Data/sfx/sounds.dat');
-  {$ENDIF}
   FileMode := 0;
   Reset(f,1);
   FileMode := 2;
@@ -401,9 +397,6 @@ begin
     Result := ''
   else
     Result := ExeDir + 'data'+ PathDelim + 'Sfx'+ PathDelim + 'Speech.'+aLocale+ PathDelim + WarriorSFXFolder[byte(aUnitType)] + PathDelim + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
-    {$ENDIF}{$IFDEF Unix}
-    Result := ExeDir + 'Data/sfx/speech.'+aLocale+'/' + WarriorSFXFolder[byte(aUnitType)] + '/' + WarriorSFX[aSound] + IntToStr(aNumber) + '.wav';
-    {$ENDIF}
 end;
 
 
