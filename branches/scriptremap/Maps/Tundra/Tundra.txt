@@ -1,5 +1,0 @@
-Title
-Tundra
-
-SmallDesc
-A multiplayer mission by Kirelareus
