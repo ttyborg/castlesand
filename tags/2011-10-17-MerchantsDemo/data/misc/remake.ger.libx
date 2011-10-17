@@ -1,0 +1,150 @@
+
+MaxID:140
+
+1:Mission abgebrochen
+2:Aufbau Tutorial
+3:Kampf Tutorial
+4:Einzelspieler
+5:Karten Editor
+6:Letzten Replay anzeigen
+7:Mission Starten
+8:Titel
+9:Größe
+10:Missionstyp: %s
+11:Siegbedingung: %s
+12:Niederlagebedingung: %s
+13:Verbündete: 
+14:Gegner: 
+16:Neue Kartengröße
+17:Breite
+18:Höhe
+19:Neue Karte erstellen
+20:Verfügbare Karten
+21:Vorhandene Karte öffnen
+22:Eingabe:
+23:Gameplay:
+24:Sound:
+25:Musik ausschalten
+26:Grafik:
+27:Helligkeit
+28:Vollbild
+29:Übernehmen
+30:Sprache:
+31:Lade... Bitte warten
+32:Ein Fehler ist aufgetreten!
+33:Loading new locale
+34:Gespeicherte Spiele
+35:Name
+36:Beschreibung
+37:Laden
+38:Löschen
+39:Spielstand wirklich löschen?
+40:Löschen
+41:Abbrechen
+139:Multiplayer Karten
+140:Singleplayer Karten
+
+43:Spiel gewonnen!
+44:Weiterspielen
+45:Spiel beenden
+46:Spiel verloren!
+47:Weiterspielen
+48:Spiel beenden
+49:Replay beendet
+50:Weiter betrachten
+51:Zurück zum Menü
+52:Nicht verfügbar
+53:%s drücken zum weiterspielen
+54:An das Team
+55:Spielerinfo
+56:Chat
+57:Name schon vorhand.
+58:Überschreiben
+59:Speichern
+60:Laden
+
+61:Ein Fehler ist während des Spiels aufgetreten.
+62:Bitte senden Sie die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler. Die Kontaktinformationen finden sie in der ReadMe-Datei. Vielen Dank für Ihre Hilfe!\n\nWARNUNG: Wenn Sie weiterspielen riskieren Sie weitere Abstürze oder Fehler. Wollen Sie auf eigene Gefahr weiterspielen?
+63:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte aktualisieren Sie ihren Grafikkartentreiber.
+64:Netzwerkfehler:
+65:Fehler: Bitte Spielername eingeben
+66:Verbindung fehlgeschlagen: %s
+67:Du bist nicht verbunden.
+68:Mission %d
+
+69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
+70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
+
+71:Markthalle
+72:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll
+73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll
+74:Von x%d
+75:Zu x%d
+
+76:Terrain bearbeiten
+77:Häuser bearbeiten
+78:Optische Skripte
+79:Globale Skripte
+80:Menü
+
+82:Spielername
+81:Status:
+83:ERSTELLE SERVER
+84:Name
+85:Port
+86:Erstelle lokalen Server
+87:Erstelle Internet Server
+88:Server Name
+89:Status
+90:Spieler
+91:Ping
+92:Aktualisiere Server Liste
+93:SERVER DETAILS
+94:Spielerliste:
+95:Adresse
+96:Port
+97:Raum
+98:Beitreten
+99:Verbinde, bitte warten...
+100:Lade Ankündigung...
+101:Aktualisiere...
+
+102:Spielerliste
+103:Startposition
+104:Team
+105:Flaggenfarbe
+106:Bereit
+107:Ping
+108:Kick
+109:Öffnen
+110:KI-Spieler
+111:Wähle...
+112:Zufällig
+113:Kein Team
+114:Keine Info vorhanden.
+115:Team %d
+116:Nachrichtenliste:
+117:Nachricht:
+118:Wähle Karte:
+119:Einzelkarte
+120:Gespeichertes Spiel
+121:Wähle eine Karte...
+122:Spielstand wählen...
+123:Karteninfo:
+124:Spieler: %d
+125:Modus:
+126:Bedingungen:
+127:Größe:
+128:Lobby verlassen
+129:Bereit!
+130:Start!
+
+131:Warte auf Spieler:
+
+132:KaM Remake Credits
+133:Original Knights & Merchants Credits
+134:PROGRAMMIERUNG:
+135:WEITERE PROGRAMMIERUNG:
+136:ZUSÄTZLICHE GRAFIKEN:
+137:ZUSÄTZLICHE ÜBERSETZUNGEN:
+138:SPEZIELLES DANKESCHÖN AN:

@@ -1,0 +1,150 @@
+
+MaxID:140
+
+1:Mission Annulée
+2:Tutoriel de Construction
+3:Tutoriel de Bataille
+4:Joueur Solo
+5:Editeur de Maps
+6:Voir le Dernier Replay
+7:Continuer
+8:Titre
+9:Taille
+10:Type de Mission: %s
+11:Condition de Victoire: %s
+12:Condition de Défaite: %s
+13:Alliés:
+14:Ennemis:
+16:Taille de la Carte :
+17:Largeur
+18:Hauteur
+19:Créer une Mission
+20:Missions Existantes :
+21:Charger une Mission Existante
+22:Contrôles :
+23:Gameplay :
+24:Effets Sonores :
+25:Désactiver
+26:Graphisme :
+27:Luminosité
+28:Plein Ecran
+29:Appliquer
+30:Langage :
+31:Chargement... Veuillez patienter
+32:Une Erreur s'est Produite !
+33:Chargement du nouveau local
+34:Liste des Sauvegardes
+35:Nom du Fichier
+36:Description
+37:Charger
+38:Supprimer
+39:Etes-vous sûr(e) de vouloir supprimer cette sauvegarde ?
+40:Supprimer
+41:Annulée
+139:Missions Multijoueur
+140:Missions Solo
+
+43:Vous avez Gagné !
+44:Continuer à Jouer
+45:Victoire !
+46:Vous avez Perdu !
+47:Continuer à Regarder
+48:Défaite !
+49:Le Replay est Terminé
+50:Continuer à Regarder
+51:Quitter au Menu
+52:Non disponible
+53:Appuyer sur %s pour reprendre
+54:Pour l'alliance
+55:Info sur les joueurs
+56:Chat
+57:Fichier déjà existant
+58:Ecraser
+59:Enregistrer
+60:Charger
+
+61:Une erreur s'est produite durant la partie.
+62:Veuillez envoyer le fichier %s se trouvant dans le dossier KaM Remake\\Crash Reports aux développeurs. Les détails de contact peuvent être trouvés dans le fichier Readme. Merci beaucoup de votre aide !\n\nATTENTION: Continuer à jouer après cette erreur peut causer de future crashs et instabilités. Voulez-vous prendre ce risque et continuer à jouer ?
+63:Une ancienne version d'OpenGL à été détecté, le jeu peut être lent et/ou avec des défauts graphiques.\nVeuillez mettre à jour vos pilotes graphiques pour obtenir une meilleure performance.
+64:Erreur réseau:
+65:Erreur: Le nom du joueur doit contenir au moins un caractère
+66:Connexion échoué: %s
+67:Vous vous êtes déconnecté
+68:Mission %d
+
+69:La Hutte de votre Pêcheur est trop éloignée de l'eau.
+70:Votre Pêcheur ne peut plus pêcher de poissons dans l'eau à proximité de sa Hutte.
+
+71:Place du Marché
+72:Utilisez le bouton gauche de la sourie pour sélectionner une marchandise à échanger
+73:Utilisez le bouton droit de la sourie pour sélectionner une marchandise à échanger
+74:De x%d
+75:Pour x%d
+
+76:Edition du terrain
+77:Planification du village
+78:Scripts visuel
+79:Scripts global
+80:Menu
+
+82:Nom du Joueur
+81:Status :
+83:CREER UN SERVEUR
+84:Nom
+85:Port
+86:Créer un Serveur Local
+87:Créer un Serveur Internet
+88:Nom du Serveur
+89:Etat
+90:Joueurs
+91:Ping
+92:Rafraichir la Liste des Serveurs
+93:DETAILS DU SERVEUR
+94:Liste des Joueurs :
+95:Adresse
+96:Port
+97:Salle
+98:Joindre
+99:Connexion, veuillez patienter...
+100:Chargement des annonces...
+101:Rafraichissement...
+
+102:Liste des Joueurs
+103:Position
+104:Alliance
+105:Couleur
+106:Prêt
+107:Ping
+108:Bannir
+109:Libre
+110:Joueur IA
+111:Sélect...
+112:Aléatoire
+113:Aucune
+114:Aucune
+115:Alliance %d
+116:Liste des Messages :
+117:Envoyer un Message :
+118:Sélectionner une Mission :
+119:Mission
+120:Sauvegarde
+121:Sélect. une mission...
+122:Sélect. un fichier...
+123:Info sur la Mission :
+124:Joueurs: %d
+125:Mode:
+126:Conditions:
+127:Taille:
+128:Quitter le Lobby
+129:Prêt
+130:Débuter !
+
+131:Attente de Joueurs:
+
+132:Crédits de KaM Remake
+133:Crédits Original de Knights & Merchants
+134:PROGRAMMATION :
+135:PROGRAMMATION ADDITIONNEL :
+136:GRAPHISMES ADDITIONNEL :
+137:TRADUCTIONS ADDITIONNEL :
+138:REMERCIMENTS PARTICULIERS :
