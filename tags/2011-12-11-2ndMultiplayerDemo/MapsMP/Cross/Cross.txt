@@ -1,0 +1,8 @@
+Title
+Cross
+
+SmallDesc
+A multiplayer battle mission by Kirelareus.
+
+BigDesc
+A multiplayer battle mission by Kirelareus.

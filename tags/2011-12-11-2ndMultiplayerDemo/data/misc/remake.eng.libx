@@ -1,0 +1,224 @@
+
+MaxID:212
+
+1:Mission canceled
+2:Town Tutorial
+3:Battle Tutorial
+4:Single Player
+5:Map Editor
+202:Replay Viewer
+203:View Replay
+6:View Last Replay
+7:Start Mission
+8:Title
+9:Size
+10:Mission type: %s
+11:Win condition: %s
+12:Defeat condition: %s
+13:Allies: 
+14:Enemies: 
+16:New map size
+17:Width
+18:Height
+19:Create New Map
+20:Available maps
+21:Load Existing Map
+22:Controls:
+23:Gameplay:
+24:Sound:
+141:Scroll speed
+25:Disable music
+143:Shuffle tracks
+26:Graphics:
+27:Brightness
+28:Fullscreen
+29:Apply
+30:Language:
+31:Loading... Please wait
+207:trees, houses and units
+208:initializing
+209:multiplayer initialization
+210:script
+32:An Error Has Occurred!
+212:An error has occurred while parsing the file %s
+33:Loading new locale
+34:List of savegames
+35:File name
+36:Description
+37:Load
+38:Delete
+39:Are you sure you want to delete this save?
+40:Delete
+41:Cancel
+139:Multiplayer maps
+140:Singleplayer maps
+
+43:You've won!
+44:Continue playing
+45:Victory!
+46:You've lost!
+47:Continue watching
+48:Defeat
+49:Replay has ended
+50:Continue Watching
+51:Quit to Menu
+166:Drop Players
+167:The host will be allowed to drop these players after %d seconds
+168:The host is now allowed to drop these players
+171:Are you sure you want to quit?
+172:Are you sure you want to permanently drop these players?
+173:Cancel
+52:Not available
+53:Press %s to resume the game
+54:To team
+55:Players info
+56:Chat
+57:Save already exists
+58:Overwrite
+59:Save
+60:Load
+205:Unsupported format %s
+206:Unsupported version %s
+211:New Mission
+194:Game time:|%s
+
+61:An error has occurred during gameplay.
+62:Please send the file %s from your KaM Remake\\Crash Reports folder to the developers. Contact details can be found in the Readme file. Thank you very much for your kind help!\n\nWARNING: Continuing to play after this error may cause further crashes and instabilities. Would you like to take this risk and continue playing?
+63:Old OpenGL version detected, game may run slowly and/or with graphic flaws\nPlease update your graphic drivers to get better performance
+64:Network error:
+65:Error: Player name must not be blank
+66:Connection failed: %s
+67:You have disconnected
+68:Mission %d
+150:Building and Fighting
+151:Fighting
+
+69:Your fisherman's hut is too far away from the water.
+70:Your fisherman cannot catch any further fish in the nearby water bodies.
+
+71:Marketplace
+72:Use the left mouse button to select the ware to trade
+73:Use the right mouse button to select the ware to trade
+74:From x%d
+75:To x%d
+162:Decrease trade amount
+161:Increase trade amount
+184:Trading this resource is not available in this mission
+185:Plant and fell
+186:Fell only
+
+76:Terrain editing
+77:Village planning
+78:Visual scripts
+79:Global scripting
+80:Menu
+
+82:Player name
+81:Status:
+83:CREATE SERVER
+84:Name
+85:Port
+86:Create Local Server
+87:Create Internet Server
+88:Server name
+89:State
+90:Players
+91:Ping
+92:Refresh Server List
+93:SERVER DETAILS
+94:Player list:
+144:Game information:
+95:Address
+96:Port
+97:Room
+98:Join
+153:Ready
+99:Connecting, please wait ...
+159:Wrong protocol version: %s. Server uses: %s
+100:Loading announcements...
+101:Refreshing...
+142:No servers found
+145:-
+146:Lobby
+147:Loading
+148:Game
+
+102:Players list
+103:Start location
+104:Team
+105:Flag colour
+106:Ready
+107:Ping
+108:Kick
+109:Open
+110:AI Player
+111:Select...
+112:Random
+113:None
+114:None
+115:Team %d
+117:Post message:
+118:Map type
+119:Single Map
+188:Building Map
+189:Fighting Map
+190:Co-operative Map
+120:Saved Game
+121:Select a map...
+122:Select a save...
+123:Map info:
+124:Players: %d
+125:Mode:
+126:Conditions:
+127:Size:
+195:Game options:
+204:Peacetime (minutes)
+128:Quit lobby
+129:Ready
+152:Not ready
+130:Start!
+149:Location %d
+154:Error: Please select a player from the save to control
+155:Error: Map failed to load or no map selected
+156:Cannot start: %s
+157:Not everyone is ready to start
+158:Player count exceeds map limit
+160:Server has assigned hosting rights to us
+187:Game started
+
+131:Waiting for players:
+163:Saving game...
+164:%s was defeated!
+169:The host (%s) has quit
+170:The connection to the server was lost. Attempting to reconnect...
+191:You are not allowed to do that during peacetime
+192:Peacetime remaining: %s
+193:Peacetime is over. To thy weapons!
+
+174:Citizens|trained
+175:Citizens|lost
+176:Soldiers|equipped
+177:Soldiers|lost
+178:Units|defeated
+179:Buildings|constructed
+180:Buildings|lost
+181:Buildings|destroyed
+182:Wares|produced
+183:Weapons|produced
+
+196:H
+197:L
+198:S
+
+199:Halt troop ('%s')
+200:Link up troop ('%s')
+201:Separate troop ('%s')
+
+132:KaM Remake Credits
+133:Original Knights & Merchants Credits
+134:PROGRAMMING:
+135:ADDITIONAL PROGRAMMING:
+136:ADDITIONAL GRAPHICS:
+165:ADDITIONAL SOUNDS:
+137:ADDITIONAL TRANSLATIONS:
+138:SPECIAL THANKS TO:

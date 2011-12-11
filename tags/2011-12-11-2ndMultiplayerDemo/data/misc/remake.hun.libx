@@ -1,0 +1,224 @@
+
+MaxID:212
+
+1:Küldetés megszakítva
+2:Oktató Küldetés (Város)
+3:Oktató Küldetés (Csata)
+4:Egyjátékos mód
+5:Pálya Szerkesztõ
+202:Visszajátszások
+203:Visszajátszás megtekintése
+6:Utolsó visszajátszás megtekintése
+7:Küldetés Indítása
+8:Cím
+9:Méret
+10:Küldetés Típusa: %s
+11:Gyõzelmi feltétel: %s
+12:Vereség feltétel: %s
+13:Szövetségesek: 
+14:Elenségek: 
+16:Térkép mérete
+17:Szélesség
+18:Magasság
+19:Új Térkép Készítése
+20:Elérhetõ térképek
+21:Térkép Betöltése
+22:Vezérlõk:
+23:Játékmenet:
+24:Hangok:
+141:Görgetési sebesség
+25:Zene kikapcsolása
+143:Véletlenszerû zenelejátszás
+26:Grafika:
+27:Fényerõsség
+28:Teljes képernyõ
+29:Alkalmaz
+30:Nyelv:
+31:Betöltés... Kérem várjon
+207:fák, házak és egységek
+208:felkészülés
+209:többjátékos módra felkészülés
+210:szkript
+32:Hiba történt!
+212:Hiba történt a %s fájl beolvasása közben
+33:Új nyelv betöltése
+34:Mentett állások
+35:Fájlnév
+36:Leírás
+37:Töltés
+38:Törlés
+39:Biztosan akarod törölni ezt a mentett állást?
+40:Törlés
+41:Mégse
+139:Többjátékos pályák
+140:Egyjátékos pályák
+
+43:Megnyerted a játékot!
+44:Játék folytatása
+45:Gyõzelem!
+46:Elvesztetted a játékot!
+47:Játék megfigyelése
+48:Vereség
+49:A visszajátszás végetért
+50:Játék megfigyelése
+51:Vissza a menübe
+166:Játékos kidobása
+167:A hosztnak lehetõsége lesz ezeket a játékosokat kidobni a játékból %d másodperc múlva
+168:A hoszt most már kidobhatja ezeket a játékosokat
+171:Biztosan ki szeretnél lépni?
+172:Biztos véglegesen ki szeretnéd zárni ezeket a játékosokat?
+173:Mégsem
+52:Nem elérhetõ
+53:Nyomj %s billentyût a játék folytatásához
+54:Csapatnak
+55:Játékos információk
+56:Chat
+57:A mentett állás már létezik
+58:Felülír
+59:Mentés
+60:Töltés
+205:Nem támogatott formátum %s
+206:Nem támogatott verzió %s
+211:Új Küldetés
+194:Játék idõ:|%s
+
+61:Egy hiba történt a játék során.
+62:Kérlek küldd el a %s fájlt a KaM Remake\\Crash Reports könyvtárból a fejlesztõknek. További információkat a kapcsolatfelvételrõl a Readme fájlban találhatsz. Nagyon köszönjük a segítségedet!\n\nVIGYÁZAT: A játék folytatása ez a hiba után további hibákat vagy instabil játékmenetet eredményezhet. Vállalod a kockázatot és szeretnéd folytatni a játékot??
+63:Régi OpenGL verzió érzékelve, a játék lassabban futhat és/vagy Grafikus hibák történhetnek\nKérlek frissítsd a videokártya drivereidet a jobb teljesítményért
+64:Hálózati hiba:
+65:Hiba: A játékos neve nem lehet üres
+66:Kapcsolódási hiba: %s
+67:Megszakadt a kapcsolat
+68:Küldetés %d
+150:Építkezés és Csata
+151:Csata
+
+69:A halászkunyhód túl messze van a víztõl.
+70:A halászod nem tud több halat fogni a közeli vízbõl.
+
+71:Piactér
+72:Eladni kívánt áru kiválasztása a bal egér gombal
+73:Vásárolni kívánt áru kiválasztása a jobb egér gombal
+74:Elad x%d
+75:Vesz x%d
+162:Mennyiség csökkentése
+161:Mennyiség növelése
+184:Ennek a nyersanyagnak a kereskedelme ezen a pályán nem engedélyezett
+185:Ültet és kivág
+186:Csak kivág
+
+76:Tereprendezés
+77:Település tervezés
+78:Vizuális szkriptek
+79:Globális szkriptek
+80:Menü
+
+82:Játékos neve
+81:Állapot:
+83:SZERVER LÉTREHOZÁSA
+84:Szerver név
+85:Port
+86:Lokális Szerver Létrehozása
+87:Internet Szerver Létrehozás
+88:Szerver név
+89:Állapot
+90:Játékosok
+91:Ping
+92:Szerver Lista Frissítése
+93:Szerver Részletek
+94:Játékos lisa:
+144:Játék információ
+95:Cím
+96:Port
+97:Szoba
+98:Csatlakozás
+153:Kész
+99:Kapcsolódás, kérem várjon ...
+159:Hibás protokol verzió: %s. A szerver által használt: %s
+100:Események töltése...
+101:Frissítés...
+142:Nem található szerver
+145:-
+146:Lobby
+147:Betöltés
+148:Játék
+
+102:Játékosok
+103:Kezdõhely
+104:Csapat
+105:Zászló szín
+106:Kész
+107:Ping
+108:Kirúg
+109:Nyitva
+110:Számítógép
+111:Válassz...
+112:Véletlen
+113:Nincs
+114:Nincs
+115:Csapat %d
+117:Üzenet írása:
+118:Pálya típusa
+119:Egy térkép
+188:Építkezés
+189:Csata
+190:Kooperatív
+120:Mentett játék
+121:Válassz egy térképet...
+122:Válassz egy mentést...
+123:Térkép infó:
+124:Játékosok: %d
+125:Játékmód:
+126:Feltételek:
+127:Méret:
+195:Játék beállítások:
+204:Békeidõ (percben)
+128:Kilépés
+129:Kész
+152:Nincs kész
+130:Indítás!
+149:Kezdõhely %d
+154:Hiba: Kérem válasszon egy játékost a mentésbõl, hogy irányíthassa
+155:Hiba: Nem sikerült betölteni a térképet vagy nincs térkép kiválasztva
+156:Nem lehet indítani: %s
+157:Nem áll mindenki készen a kezdésre
+158:A játékosok száma meghaladja a térkép korlátait
+160:A szerver átadta a házigazda szerepét nekünk
+187:A játék elkezdõdött
+
+131:Várakozás a játékosokra:
+163:Játék mentése...
+164:%s megsemmisült!
+169:A hoszt (%s) kilépett a játékból
+170:A kapcsolat a szerverhez elveszett. Újracsatlakozás folyamatban...
+191:Nem tehetsz ilyet békeidõben
+192:Békeidõbõl hátra van: %s
+193:A békeidõ végetért. Fegyverbe!
+
+174:Polgárok|képzett
+175:Polgárok|elvesztett
+176:Katonák|felszerelt
+177:Katonák|elvesztett
+178:Egységek|legyõzve
+179:Épületek|építve
+180:Épületek|elvesztve
+181:Épületek|megsemmisítve
+182:Áruk|elõállítva
+183:Fegyverek|elõállítva
+
+196:S
+197:K
+198:V
+
+199:Csapat állj ('%s')
+200:Csapatok összekapcsolása ('%s')
+201:Csapatok szétválasztása ('%s')
+
+132:KaM Remake Készítõk
+133:Eredeti Knights & Merchants Készítõk
+134:PROGRAMOZÁS:
+135:TOVÁBBI PROGRAMOZÁS:
+136:TOVÁBBI GRAFIKA:
+165:TOVÁBBI HANGOK:
+137:TOVÁBBI FORDÍTÓK:
+138:KÜLÖN KÖSZÖNET:

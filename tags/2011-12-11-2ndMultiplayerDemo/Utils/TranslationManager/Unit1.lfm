@@ -1,0 +1,161 @@
+object Form1: TForm1
+  Left = 226
+  Height = 829
+  Top = 154
+  Width = 1275
+  Caption = 'KaM Remake Translation Manager'
+  ClientHeight = 829
+  ClientWidth = 1275
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Name = 'MS Sans Serif'
+  OnCreate = FormCreate
+  Position = poDesktopCenter
+  LCLVersion = '0.9.30'
+  object Label1: TLabel
+    Left = 472
+    Height = 17
+    Top = 8
+    Width = 90
+    Caption = 'Constant name'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 344
+    Height = 17
+    Top = 336
+    Width = 86
+    Caption = 'Show Missing:'
+    ParentColor = False
+  end
+  object LabelIncludeSameAsEnglish: TLabel
+    Left = 365
+    Height = 81
+    Top = 384
+    Width = 97
+    AutoSize = False
+    Caption = 'Include strings that are the same in English'
+    Enabled = False
+    ParentColor = False
+    WordWrap = True
+    OnClick = LabelIncludeSameAsEnglishClick
+  end
+  object ListBox1: TListBox
+    Left = 8
+    Height = 727
+    Top = 48
+    Width = 329
+    Anchors = [akTop, akLeft, akBottom]
+    ItemHeight = 0
+    OnClick = ListBox1Click
+    TabOrder = 0
+  end
+  object EditConstName: TEdit
+    Left = 472
+    Height = 24
+    Top = 24
+    Width = 297
+    OnChange = EditConstNameChange
+    TabOrder = 1
+  end
+  object btnReorderList: TButton
+    Left = 344
+    Height = 25
+    Top = 240
+    Width = 121
+    Caption = 'Reorder IDs'
+    OnClick = btnReorderListClick
+    TabOrder = 2
+  end
+  object btnLoad: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Load'
+    OnClick = btnLoadClick
+    TabOrder = 3
+  end
+  object btnSave: TButton
+    Left = 96
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'Save'
+    OnClick = btnSaveClick
+    TabOrder = 4
+  end
+  object btnInsert: TButton
+    Left = 344
+    Height = 25
+    Top = 48
+    Width = 121
+    Caption = 'Insert New'
+    OnClick = btnInsertClick
+    TabOrder = 5
+  end
+  object ScrollBox1: TScrollBox
+    Left = 472
+    Height = 729
+    Top = 48
+    Width = 777
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabOrder = 6
+  end
+  object btnDelete: TButton
+    Left = 344
+    Height = 25
+    Top = 112
+    Width = 121
+    Caption = 'Delete'
+    OnClick = btnDeleteClick
+    TabOrder = 7
+  end
+  object btnInsertSeparator: TButton
+    Left = 344
+    Height = 25
+    Top = 80
+    Width = 121
+    Caption = 'Insert Separator'
+    OnClick = btnInsertSeparatorClick
+    TabOrder = 8
+  end
+  object btnMoveUp: TButton
+    Left = 344
+    Height = 25
+    Top = 176
+    Width = 121
+    Caption = 'Move Up'
+    OnClick = btnMoveUpClick
+    TabOrder = 9
+  end
+  object btnMoveDown: TButton
+    Left = 344
+    Height = 25
+    Top = 208
+    Width = 121
+    Caption = 'Move Down'
+    OnClick = btnMoveDownClick
+    TabOrder = 10
+  end
+  object cbShowMissing: TComboBox
+    Left = 344
+    Height = 24
+    Top = 352
+    Width = 121
+    DropDownCount = 16
+    ItemHeight = 16
+    OnChange = cbShowMissingChange
+    Style = csDropDownList
+    TabOrder = 11
+  end
+  object cbIncludeSameAsEnglish: TCheckBox
+    Left = 344
+    Height = 23
+    Top = 384
+    Width = 24
+    Enabled = False
+    OnClick = cbIncludeSameAsEnglishClick
+    TabOrder = 12
+  end
+end
