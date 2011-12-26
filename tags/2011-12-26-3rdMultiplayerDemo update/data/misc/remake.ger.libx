@@ -1,0 +1,231 @@
+
+MaxID:220
+
+1:Mission abgebrochen
+2:Aufbaututorial
+3:Kampftutorial
+4:Einzelspieler
+5:Karteneditor
+202:Replays
+203:Replay anzeigen
+6:Letzten Replay anzeigen
+7:Mission starten
+8:Bezeichnung
+9:Größe
+10:Missionstyp: %s
+11:Siegbedingung: %s
+12:Niederlagebedingung: %s
+13:Verbündete: 
+14:Gegner: 
+16:Neue Kartengröße
+17:Breite
+18:Höhe
+19:Neue Karte erstellen
+20:Verfügbare Karten
+21:Vorhandene Karte öffnen
+22:Steuerung:
+23:Spieleinstellungen:
+24:Sound:
+141:Scrollgeschw.
+25:Keine Musik
+143:Lieder zufällig
+26:Grafik:
+27:Helligkeit
+28:Vollbild
+29:Übernehmen
+30:Sprache:
+31:Lade... Bitte warten
+216:Einheiten
+217:Gebäude
+218:Bäume
+219:Definitionen
+220:Texturen
+215:Zusätzliche Grafiken
+208:Initialisierung
+209:Multiplayer Initialisierung
+210:Skript
+32:Ein Fehler ist aufgetreten!
+212:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
+33:Neue Lokalisierung laden
+34:Gespeicherte Spielstände
+35:Name
+36:Beschreibung
+37:Laden
+38:Löschen
+39:Spielstand wirklich löschen?
+40:Löschen
+41:Abbrechen
+139:Mehrspieler Karten
+140:Einzelspieler Karten
+
+43:Spiel gewonnen!
+44:Weiterspielen
+45:Spiel beenden
+46:Spiel verloren!
+47:Weiterspielen
+48:Spiel beenden
+49:Replay beendet
+50:Weiter betrachten
+51:Zurück zum Menü
+166:Spieler entfernen
+167:Der Host kann diese Spieler nach %d Sekunden trennen.
+168:Der Host darf diese Spieler nicht trennen
+171:Wirklich beenden?
+172:Soll dieser Spieler dauerhaft entfernt werden?
+173:Abbrechen
+52:Nicht verfügbar
+53:%s drücken zum weiterspielen.
+54:Ans Team senden
+55:Spielerinfo
+56:Chat
+57:Name schon vorhand.
+58:Ersetzen
+59:Speichern
+60:Laden
+205:Nicht unterstütztes Format %s!
+206:Nicht unterstützte Version %s!
+211:Neue Mission
+194:Spieldauer:|%s
+
+61:Während des Spielens ist ein Fehler aufgetreten.
+62:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!\n\nWARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
+63:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.\nBitte Grafikkartentreiber aktualisieren!
+64:Netzwerkfehler:
+65:Fehler: Bitte Spielername eingeben
+66:Verbindung fehlgeschlagen: %s
+67:Du bist nicht verbunden.
+68:Mission %d
+150:Aufbau & Gefecht
+151:Gefecht
+
+69:Diese Fischerhütte ist zu weit vom Wasser entfernt!
+70:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
+
+71:Markthalle
+72:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
+73:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
+74:Von x%d
+75:Zu x%d
+162:Verringere Warenanzahl
+161:Erhöhe Warenanzahl
+184:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
+185:Pflanzen & Fällen
+186:Nur fällen
+
+76:Gelände bearbeiten
+77:Häuser bearbeiten
+78:Optische Skripte
+79:Globale Skripte
+80:Menü
+
+82:Spielername
+81:Status:
+83:ERSTELLE SERVER
+84:Name
+85:Port
+86:Erstelle lokalen Server
+87:Erstelle Internet Server
+88:Servername
+89:Status
+90:Spieler
+91:Ping
+92:Aktualisiere Serverliste
+93:SERVERDETAILS
+94:Spielerliste:
+144:Spielinfo:
+95:Adresse
+96:Port
+97:Raum
+98:Beitreten
+153:Bereit
+99:Verbinde, bitte warten...
+159:Falsche Version des Protokolls: %s. Benötigt wird: %s!
+100:Lade Ankündigung...
+101:Aktualisiere...
+142:Keinen Server gefunden.
+145:-
+146:Lobby
+147:Laden
+148:Spiel
+
+102:Spieler
+103:Startposition
+104:Team
+105:Farbe
+106:Bereit
+107:Ping
+108:Kick
+109:Öffnen
+213:Geschlossen
+110:Computer
+111:Wähle...
+112:Zufällig
+113:Keins
+114:Keine Info vorhanden.
+115:Team %d
+117:Nachricht:
+118:Typ:
+119:Einzelkarte
+188:Aufbau
+189:Gefecht
+190:Koop-Modus
+120:Spielstand laden
+121:Wähle eine Karte...
+122:Spielstand wählen...
+123:Karteninfo:
+124:Spieler: %d
+125:Modus:
+126:Bedingungen:
+127:Größe:
+195:Optionen:
+204:Friedenszeit (Min.):
+128:Lobby verlassen
+129:Bereit!
+152:Nicht bereit
+130:Start!
+149:Standort %d
+154:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
+155:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+156:Kann nicht starten: %s.
+157:Es ist noch nicht jeder bereit zu starten.
+158:Die Spieleranzahl hat die Grenze erreicht.
+160:Der Server hat dir die Hostingrechte übertragen.
+187:Spiel gestartet
+214:Host übernimmt Spieler Setup.
+
+131:Warte auf Spieler:
+163:Spiel wird gespeichert...
+164:%s wurde besiegt!
+169:Der Host (%s) hat das Spiel verlassen.
+170:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
+191:Aktion während der Friedenszeit nicht möglich.
+192:Friedenszeit verbleibend: %s
+193:Der Frieden ist vorüber. Zu den Waffen!
+
+174:Bürger|ausgebildet
+175:Bürger|verloren
+176:Soldaten|ausgehoben
+177:Soldaten|verloren
+178:Einheiten|besiegt
+179:Gebäude|errichtet
+180:Gebäude|verloren
+181:Gebäude|zerstört
+182:Waren|produziert
+183:Waffen|produziert
+
+196:H
+197:V
+198:S
+
+199:Truppe anhalten ('%s')
+200:Truppen verbinden ('%s')
+201:Truppe trennen ('%s')
+
+132:KaM Remake Credits
+133:Ursprünglichel Knights & Merchants Credits
+134:PROGRAMMIERUNG:
+135:WEITERE PROGRAMMIERUNG:
+136:WEITERE GRAFIKEN:
+165:ZUSÄTZLICHE SOUNDEFFEKTE:
+137:ZUSÄTZLICHE ÜBERSETZUNGEN:
+138:BESONDERER DANK AN:
