@@ -1,0 +1,1052 @@
+unit KM_Defaults;
+{$I KaM_Remake.inc}
+interface
+uses Classes, SysUtils, KM_Points;
+
+
+//Global const
+const
+//|===================| <- constant name length
+  MAX_MAP_SIZE          = 192;
+  CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
+  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
+  TOOLBAR_WIDTH         = 224;          //Toolbar width in game
+  //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
+  TERRAIN_PACE          = 10;           //Terrain gets updated once per ** ticks (10 by default), Warning, it affects tree-corn growth rate
+
+  FOG_OF_WAR_MIN        = 80;           //Minimum value for explored but FOW terrain, MIN/ACT determines FOW darkness
+  FOG_OF_WAR_ACT        = 160;          //Until this value FOW is not rendered at all
+  FOG_OF_WAR_MAX        = 255;          //This is max value that FOW can be, MAX-ACT determines how long until FOW appears
+  FOG_OF_WAR_INC        = 128;          //Increment for FOW
+  FOG_OF_WAR_DEC        = 12;           //Decrement for FOW
+
+  FPS_LAG               = 16;           //Allowed lag between frames, 1000/FPSLag = max allowed FPS, 1 means unlimited
+  FPS_INTERVAL          = 1000;         //Time in ms between FPS measurements, bigger value = more accurate result
+  SCROLLSPEED           = 1;            //This is the speed that the viewport will scroll every 100 ms, in cells
+  SCROLLFLEX            = 4;            //This is the number of pixels either side of the edge of the screen which will count as scrolling
+  MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
+  MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
+
+  GAME_REVISION         = 'r2946';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '3rd Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
+
+  FONTS_FOLDER = 'data'+PathDelim+'gfx'+PathDelim+'fonts'+PathDelim;
+
+var
+  //These should be True
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
+  CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
+  FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
+  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
+
+  //Implemented
+  MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
+  DO_UNIT_INTERACTION   :Boolean = True; //Debug for unit interaction
+  SMOOTH_SCROLLING      :Boolean = True; //Smooth viewport scrolling
+  ENABLE_FIGHTING       :Boolean = True; //Allow fighting
+  DO_WEIGHT_ROUTES      :Boolean = True; //Add additional cost to tiles in A* if they are occupied by other units (IsUnit=1)
+  CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
+  KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
+  //Not fully implemented yet
+  FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
+
+  //These are debug things, should be False
+  {User interface options}
+  SHOW_DEBUG_CONTROLS   :Boolean = False; //Show debug panel / Form1 menu (F11)
+  SHOW_CONTROLS_OVERLAY :Boolean = False; //Draw colored overlays ontop of controls, usefull for making layout (F6)! always Off here
+  SHOW_TEXT_OUTLINES    :Boolean = False; //Display text areas outlines
+  ENABLE_DESIGN_CONTORLS:Boolean = False; //Enable special mode to allow to move/edit controls
+  MODE_DESIGN_CONTORLS  :Boolean = False; //Special mode to move/edit controls activated by F7, it must block OnClick events! always Off here
+  OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
+  {Gameplay display}
+  AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
+  SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
+  SHOW_UNIT_ROUTES      :Boolean = False; //Draw unit routes
+  SHOW_PROJECTILES      :Boolean = False; //Shows projectiles trajectory
+  SHOW_POINTER_DOTS     :Boolean = False; //Show pointer count as small dots below unit/houses
+  SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
+  SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
+  SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
+  TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
+  SHOW_SPRITES_RECT     :Boolean = False; //Render outline around every sprite
+  SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
+  DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
+  RENDER_3D             :Boolean = False; //Experimental 3D render
+  {Stats}
+  SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
+  SHOW_POINTER_COUNT    :Boolean = True; //Show debug total count of unit/house pointers being tracked
+  SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
+  SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
+  SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
+  INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
+  SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
+  {Gameplay cheats}
+  FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
+  REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. canWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  {Data output}
+  WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
+  WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
+  WRITE_WALKTO_LOG      :Boolean = False; //Write even more output into log + slows down game noticably
+  WRITE_RECONNECT_LOG   :Boolean = True;
+  WriteResourceInfoToTXT:Boolean = False; //Whenever to write txt files with defines data properties on loading
+  WriteAllTexturesToBMP :Boolean = False; //Whenever to write all generated textures to BMP on loading (extremely time consuming)
+
+  //Statistic
+  CtrlPaintCount: Word; //How many Controls were painted in last frame
+
+const
+  MAX_RES_IN_HOUSE=5;     //Maximum resource items allowed to be in house
+  MAX_ORDER=999;          //Number of max allowed items to be ordered in production houses (Weapon/Armor/etc)
+  MAX_TEX_RESOLUTION=512; //Maximum texture resolution client can handle (used for packing sprites)
+
+const
+  MAX_PLAYERS       = 8;    //Maximum players per map
+  AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
+
+const //Here we store options that are hidden somewhere in code
+  GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
+  FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
+  UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
+  UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
+  TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
+  TIME_ATTACK_WARNINGS = 200;             //Time between audio messages saying you are being attacked
+  DISTANCE_FOR_WARNINGS = 30;             //The distance you must be from an event to recieve a warning about it
+  TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
+  TROOPS_TRAINED_CONDITION = 0.75;        //Condition troops start with when trained
+  DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
+
+
+  //Archer properties
+  RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
+  RANGE_BOWMAN_MAX      = 10.99;
+  RANGE_SLINGSHOT_MAX   = 10.99;
+  RANGE_WATCHTOWER_MAX  = 6.99; //Measured in KaM. Distance from the doorway of tower
+
+  RANGE_ARBALETMAN_MIN  = 4; //KaM: We will shoot a unit standing 4 tiles away, but not one standing 3 tiles away
+  RANGE_BOWMAN_MIN      = 4;
+  RANGE_SLINGSHOT_MIN   = 4;
+  RANGE_WATCHTOWER_MIN  = 0; //In KaM towers have no minimum range, they will shoot any unit less than the range
+
+  LINK_RADIUS = 5; //Radius to search for groups to link to after being trained at the barracks (measured from KaM)
+
+  FIRING_DELAY = 0; //on which frame archer fires his arrow/bolt
+  SLINGSHOT_FIRING_DELAY = 12; //on which frame archer fires his arrow/bolt
+  AIMING_DELAY_MIN = 8; //minimum time for archer to aim
+  AIMING_DELAY_ADD = 8; //random component
+  FRIENDLY_FIRE = True; //Whenever archers could kill fellow men with their arrows
+
+  NET_DROP_PLAYER_MIN_WAIT = 30; //Host must wait at least this long before dropping disconnected players
+
+type
+  TPlayerIndex = shortint;
+  TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
+
+const
+  PLAYER_NONE = -1; //No player
+  PLAYER_ANIMAL = -2; //animals
+
+{Cursors}
+type
+  TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
+                  cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
+
+const
+  MAPED_HEIGHT_CIRCLE = 0;
+  MAPED_HEIGHT_SQUARE = 1;
+
+  MAPED_TILES_COLS = 6;
+  MAPED_TILES_ROWS = 8;
+
+
+const
+  SETTINGS_FILE = 'KaM_Remake_Settings.ini';
+
+  DirCursorCircleRadius  = 32; //Radius of the direction selector cursor restriction area
+  DirCursorNARadius = 15;  //Radius of centeral part that has no direction
+
+{Controls}
+
+const
+  LOCALES_COUNT = 15;
+  Locales:array[1..LOCALES_COUNT, 1..4]of shortstring = (
+  //Code  Codepage Flag  Title
+  ('ptb', '1252',  '8',  'Brazilian Portuguese'),
+  ('bul', '1251',  '18', 'Bulgarian'),
+  ('cze', '1250',  '9',  'Czech'),
+  ('dut', '1252',  '15', 'Dutch'),
+  ('eng', '1252',  '5',  'English'),
+  ('est', '1252',  '19', 'Estonian'),
+  ('fre', '1252',  '11', 'French'),
+  ('ger', '1252',  '6',  'German'),
+  ('hun', '1250',  '17', 'Hungarian'),
+  ('ita', '1252',  '10', 'Italian'),
+  ('pol', '1250',  '7',  'Polish'),
+  ('rus', '1251',  '14', 'Russian'),
+  ('svk', '1250',  '12', 'Slovak'),
+  ('spa', '1252',  '13', 'Spanish'),
+  ('swe', '1252',  '16', 'Swedish'));
+  DEFAULT_LOCALE = 'eng';
+
+  TRANSLATOR_CREDITS = '|Brazilian Portuguese - Vinycius Maia|Bulgarian - Christian|Czech - Jolinar_CZ & Milan Molnar|'+
+  'Dutch - xzaz & Tom|Estonian - Ingvar & Eva|French - Sylvain Domange|German - The Knight|Hungarian - Jecy|'+
+  'Italian - Paolo Castelvetere|Polish - Przemyslaw Pietras|Russian - Krom|'+
+  'Slovak - Robert Marko|Spanish - Oscar|Swedish - Edvin Linge||'+
+  '';
+
+type TGameResultMsg = ( //Game result
+        gr_Win,         //Player has won the game
+        gr_Defeat,      //Player was defeated
+        gr_Cancel,      //Game was cancelled (unfinished)
+        gr_Error,       //Some known error occured
+        gr_Disconnect,  //Disconnected from multiplayer game
+        gr_Silent,      //Used when loading savegame from running game (show no screens)
+        gr_ReplayEnd,   //Replay was cancelled - return to menu without screens
+        gr_MapEdEnd);   //Map Editor was closed - return to menu without screens
+
+               
+{Fonts}
+type //Indexing should start from 1.
+  TKMFont = (fnt_Antiqua,  fnt_Briefing,    fnt_Game,     fnt_Grey,
+             fnt_MainB,    fnt_MainMapGold, fnt_Metal,    fnt_Mini,
+             fnt_Outline,  fnt_Won);
+
+{Removed fonts that were in KaM:
+  Adam (unused)
+  Font01 (damaged)
+  KMLobby (used for internet lobby in TPR)
+  MainA (identical to MainMapGold in all game versions)
+  MainA.old (probably never meant to be included in the release anyway)
+  Minimum (same as mini but with less characters)
+  System (unused)
+}
+
+
+//Which MapEditor page is being shown. Add more as they are needed.
+type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
+
+    TKMissionMode = (mm_Normal, mm_Tactic);
+
+    TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
+
+{Resources}
+type
+  TResourceType = (
+    rt_None,  //Special resource types
+    rt_Trunk, rt_Stone, rt_Wood, rt_IronOre, rt_GoldOre,
+    rt_Coal, rt_Steel, rt_Gold, rt_Wine, rt_Corn,
+    rt_Bread, rt_Flour, rt_Leather, rt_Sausages, rt_Pig,
+    rt_Skin, rt_Shield, rt_MetalShield, rt_Armor, rt_MetalArmor,
+    rt_Axe, rt_Sword, rt_Pike, rt_Hallebard, rt_Bow,
+    rt_Arbalet, rt_Horse, rt_Fish,
+    rt_All, rt_Warfare, rt_Food);
+
+const
+  WARE_MIN = rt_Trunk;
+  WARE_MAX = rt_Fish;
+  WARFARE_MIN = rt_Shield;
+  WEAPON_MIN = rt_Shield;
+  WEAPON_MAX = rt_Arbalet;
+  WARFARE_MAX = rt_Horse;
+
+const //Using shortints instead of bools makes it look much neater in code-view
+  CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
+  0,0,1,0,0,
+  0,1,0,1,0,
+  1,0,0,0,1,
+  1,0,0,0,1,
+  1,1,1,1,1,
+  0,0,0);
+
+const {Aligned to right to use them in GUI costs display as well}
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
+    (rt_None,rt_Wood),    //rt_Shield
+    (rt_Coal,rt_Steel),   //rt_MetalShield
+    (rt_None,rt_Leather), //rt_Armor
+    (rt_Coal,rt_Steel),   //rt_MetalArmor
+    (rt_Wood,rt_Wood),    //rt_Axe
+    (rt_Coal,rt_Steel),   //rt_Sword
+    (rt_Wood,rt_Wood),    //rt_Pike
+    (rt_Coal,rt_Steel),   //rt_Hallebard
+    (rt_Wood,rt_Wood),    //rt_Bow
+    (rt_Coal,rt_Steel)    //rt_Arbalet
+  );
+
+{ Terrain }
+type
+  TPassability = (CanWalk=1, CanWalkRoad, CanBuild, CanBuildIron, CanBuildGold,
+                  CanMakeRoads, CanMakeFields, CanPlantTrees, CanFish, CanCrab,
+                  CanWolf, CanElevate, CanWorker, canFactor);
+  TPassabilitySet = set of TPassability;
+
+type
+  TWalkConnect = (
+    wcWalk, 
+    wcRoad,
+    wcFish,
+    wcWolf,
+    wcCrab, //These things are used often but changed rarely
+    wcWork, //CanWorker areas
+    wcAvoid //WalkAvoid is different - used rarely and changed each frame
+  );
+
+const
+  PassabilityStr: array [TPassability] of string = (
+    'canWalk',      // General passability of tile for any walking units
+    'canWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
+    'canBuild',     // Can we build a house on this tile?
+    'canBuildIron', // Special allowance for Iron Mines
+    'canBuildGold', // Special allowance for Gold Mines
+    'canMakeRoads', // Thats less strict than house building, roads can be placed almost everywhere where units can walk, except e.g. bridges
+    'canMakeFields',// Thats more strict than roads, cos e.g. on beaches you can't make fields
+    'canPlantTrees',// If Forester can plant a tree here, dunno if it's the same as fields
+    'canFish',      // Water tiles where fish can move around
+    'canCrab',      // Sand tiles where crabs can move around
+    'canWolf',      // Soil tiles where wolfs can move around
+    'canElevate',   // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
+    'canWorker',    // Like canWalk but allows walking on building sites
+    'canFactor'     // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
+  );
+
+{Units}
+type
+  TUnitType = (ut_None, ut_Any,
+    ut_Serf,          ut_Woodcutter,    ut_Miner,         ut_AnimalBreeder,
+    ut_Farmer,        ut_Lamberjack,    ut_Baker,         ut_Butcher,
+    ut_Fisher,        ut_Worker,        ut_StoneCutter,   ut_Smith,
+    ut_Metallurgist,  ut_Recruit,
+
+    ut_Militia,      ut_AxeFighter,   ut_Swordsman,     ut_Bowman,
+    ut_Arbaletman,   ut_Pikeman,      ut_Hallebardman,  ut_HorseScout,
+    ut_Cavalry,      ut_Barbarian,
+
+    ut_Peasant,      ut_Slingshot,    ut_MetalBarbarian,ut_Horseman,
+    //ut_Catapult,   ut_Ballista,
+
+    ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
+    ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
+
+const UNIT_MIN = ut_Serf;
+      UNIT_MAX = ut_Duck;
+      CITIZEN_MIN = ut_Serf;
+      CITIZEN_MAX = ut_Recruit;
+      WARRIOR_MIN = ut_Militia;
+      WARRIOR_MAX = ut_Horseman;
+      WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
+      WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
+      HUMANS_MIN = ut_Serf;
+      HUMANS_MAX = ut_Horseman;
+      ANIMAL_MIN = ut_Wolf;
+      ANIMAL_MAX = ut_Duck;
+
+//Used for AI defence and linking troops
+type  TGroupType = (gt_Melee, gt_AntiHorse, gt_Ranged, gt_Mounted);
+const KaMGroupType: array[TGroupType] of byte = (0, 1, 2, 3);
+
+type TCheckAxis = (ax_X, ax_Y);
+
+const
+  UnitGroups: array[WARRIOR_MIN..WARRIOR_MAX] of TGroupType = (
+    gt_Melee,gt_Melee,gt_Melee, //ut_Militia, ut_AxeFighter, ut_Swordsman
+    gt_Ranged,gt_Ranged,        //ut_Bowman, ut_Arbaletman
+    gt_AntiHorse,gt_AntiHorse,  //ut_Pikeman, ut_Hallebardman,
+    gt_Mounted,gt_Mounted,      //ut_HorseScout, ut_Cavalry,
+    gt_Melee,                   //ut_Barbarian
+    //TPR Army
+    gt_AntiHorse,        //ut_Peasant
+    gt_Ranged,           //ut_Slingshot
+    gt_Melee,            //ut_MetalBarbarian
+    gt_Mounted           //ut_Horseman
+    {gt_Ranged,gt_Ranged, //ut_Catapult, ut_Ballista,}
+    );
+
+  //AI's prefences for training troops
+  AITroopTrainOrder: array[TGroupType,1..3] of TUnitType = (
+    (ut_Swordsman,    ut_AxeFighter, ut_Militia),
+    (ut_Hallebardman, ut_Pikeman,    ut_None),
+    (ut_Arbaletman,   ut_Bowman,     ut_None),
+    (ut_Cavalry,      ut_HorseScout, ut_None));
+
+  //Offsets for flags rendering in pixels
+  FlagXOffset: array[TGroupType, TKMDirection] of shortint = (
+    ( 0, 10, -1,  2,  1, -6,-10,  4, 13),  //gt_Melee
+    ( 0,  6,  5,  7, -3,-10, -4, 10,  9),  //gt_AntiHorse
+    ( 0,  8,  6,  6, -6, -8, -3,  8,  6),  //gt_Ranged
+    ( 0,  6,  2,  3, -5,-10, -8,  5,  6)); //gt_Mounted
+
+  FlagYOffset: array[TGroupType, TKMDirection] of shortint = (
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Melee
+    ( 0, 23, 25, 25, 21, 20, 19, 20, 22),  //gt_AntiHorse
+    ( 0, 28, 30, 30, 26, 25, 24, 25, 27),  //gt_Ranged
+    ( 0,  4, 16, 16,  4,  5,  2,  3,  4)); //gt_Mounted
+
+
+type
+  TGoInDirection = (gd_GoOutside=-1, gd_GoInside=1); //Switch to set if unit goes into house or out of it
+
+type
+  TUnitThought = (th_None, th_Eat, th_Home, th_Build, th_Stone, th_Wood, th_Death, th_Quest);
+
+const //Corresponding indices in units.rx
+  ThoughtBounds: array [TUnitThought, 1..2] of Word = (
+  (0,0), (6250,6257), (6258,6265), (6266,6273), (6274,6281), (6282,6289), (6290,6297), (6298,6305)
+  );
+
+type
+  TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
+        utn_SelfTrain, utn_Deliver,        utn_BuildRoad,  utn_BuildWine,        utn_BuildField,
+        utn_BuildWall, utn_BuildHouseArea, utn_BuildHouse, utn_BuildHouseRepair, utn_GoHome,
+        utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
+        utn_ThrowRock);
+
+type
+  TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack);
+
+type
+  TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
+                     ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
+                     ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
+  TUnitActionTypeSet = set of TUnitActionType;
+
+  //What player has ordered us to do
+  TWarriorOrder = (
+    wo_None, //No orders
+    wo_Walk, //Walk somewhere
+    wo_WalkOut, //Walk out of Barracks
+    wo_AttackUnit, //Attack someone
+    wo_AttackHouse, //Attack house
+    wo_Storm //Do Storm attack
+  );
+
+  //What we are doing at the moment
+  TWarriorState = (
+    ws_None, //Warrior is idle
+    ws_Walking, //Warrior is in the process of walking by player instruction (could have been ordered to attack too because there is no difference)
+    ws_RepositionPause, //Warrior has just finished walking and is pausing breifly before repositioning (i.e. rotating to the final facing direction) Without this pause it looks too quick odd.
+    ws_Engage //One or more of our group members are in combat and we are on our way to help them.
+  );
+
+const FishCountAct:array[1..5]of TUnitActionType = (ua_Walk, ua_Work, ua_Spec, ua_Die, ua_Work1);
+
+{Walk to somewhere}
+type
+  //Status of interaction
+  TInteractionStatus = (kis_None,       //We have not yet encountered an interaction (we are just walking)
+                        kis_Pushing,    //We are pushing an idle unit out of the way
+                        kis_Pushed,     //We were pushed (idle then asked to move)
+                        kis_Trying,     //We are or have been stuck (difference between this and kis_None is only for debug)
+                        kis_Waiting     //We have been stuck for a while so allow other units to swap with us
+  );
+
+//These are only for debug
+const
+  TInteractionStatusNames: array[TInteractionStatus] of string = ('None', 'Pushing', 'Pushed', 'Trying', 'Waiting');
+
+const {Actions names}
+  UnitAct:array[TUnitActionType]of string = ('ua_Walk', 'ua_Work', 'ua_Spec', 'ua_Die', 'ua_Work1',
+             'ua_Work2', 'ua_WorkEnd', 'ua_Eat', 'ua_WalkArm', 'ua_WalkTool',
+             'ua_WalkBooty', 'ua_WalkTool2', 'ua_WalkBooty2', 'ua_Unknown');
+
+
+type
+  TGatheringScript = (
+    gs_None,
+    gs_WoodCutterCut, gs_WoodCutterPlant,
+    gs_FarmerSow, gs_FarmerCorn, gs_FarmerWine,
+    gs_FisherCatch,
+    gs_StoneCutter,
+    gs_CoalMiner, gs_GoldMiner, gs_IronMiner,
+    gs_HorseBreeder, gs_SwineBreeder);
+
+{Houses in game}
+type
+  //I've removed values, enums don't need them by intent
+  THouseType = ( ht_None, ht_Any,
+    ht_ArmorSmithy,     ht_ArmorWorkshop,   ht_Bakery,        ht_Barracks,      ht_Butchers,
+    ht_CoalMine,        ht_Farm,            ht_FisherHut,     ht_GoldMine,      ht_Inn,
+    ht_IronMine,        ht_IronSmithy,      ht_Marketplace,   ht_Metallurgists, ht_Mill,
+    ht_Quary,           ht_Sawmill,         ht_School,        ht_SiegeWorkshop, ht_Stables,
+    ht_Store,           ht_Swine,           ht_Tannery,       ht_TownHall,      ht_WatchTower,
+    ht_WeaponSmithy,    ht_WeaponWorkshop,  ht_Wineyard,      ht_Woodcutters    );
+
+  //House has 3 basic states: no owner inside, owner inside, owner working inside
+  THouseState = (hst_Empty, hst_Idle, hst_Work);
+  //These are house building states
+  THouseBuildState = (hbs_NoGlyph, hbs_Wood, hbs_Stone, hbs_Done);
+
+  THouseActionType = (
+  ha_Work1, ha_Work2, ha_Work3, ha_Work4, ha_Work5, //Start, InProgress, .., .., Finish
+  ha_Smoke, ha_FlagShtok, ha_Idle,
+  ha_Flag1, ha_Flag2, ha_Flag3,
+  ha_Fire1, ha_Fire2, ha_Fire3, ha_Fire4, ha_Fire5, ha_Fire6, ha_Fire7, ha_Fire8);
+  THouseActionSet = set of THouseActionType;
+
+const
+  HouseAction:array[THouseActionType] of string = (
+  'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
+  'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
+  'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
+  'ha_Fire1', 'ha_Fire2', 'ha_Fire3', 'ha_Fire4', 'ha_Fire5', 'ha_Fire6', 'ha_Fire7', 'ha_Fire8');
+
+
+  //Number means ResourceType as it is stored in Barracks, hence it's not rt_Something
+  TroopCost:array[ut_Militia..ut_Cavalry,1..4] of TResourceType = (
+  (rt_Axe,          rt_None,        rt_None,  rt_None ), //Militia
+  (rt_Shield,       rt_Armor,       rt_Axe,   rt_None ), //Axefighter
+  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_None ), //Swordfighter
+  (rt_Armor,        rt_Bow,         rt_None,  rt_None ), //Bowman
+  (rt_MetalArmor,   rt_Arbalet,     rt_None,  rt_None ), //Crossbowman
+  (rt_Armor,        rt_Pike,        rt_None,  rt_None ), //Lance Carrier
+  (rt_MetalArmor,   rt_Hallebard,   rt_None,  rt_None ), //Pikeman
+  (rt_Shield,       rt_Armor,       rt_Axe,   rt_Horse), //Scout
+  (rt_MetalShield,  rt_MetalArmor,  rt_Sword, rt_Horse)  //Knight
+  );
+
+
+const
+//Tiles table made by JBSnorro, thanks to him :)
+MapEdTileRemap:array[1..256]of integer = (
+ 1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
+27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
+28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
+29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
+30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
+31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
+18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
+17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
+// 247 - doesn't work in game, replaced with random road
+
+{Terrain}
+type
+  TFieldType = (
+    ft_None=0,
+    ft_Road,
+    ft_Corn,
+    ft_InitWine, //Reset rotation and set grapes ground, but without Grapes yet
+    ft_Wine,
+    ft_Wall
+    );
+
+  THouseStage = (
+    hsNone,        //Nothing, clear area
+    hsFence,       //Wooden fence, partially walkable as workers digg it up
+    hsBuilt        //Done
+  );
+
+  TTileOverlay = (to_None=0, to_Dig1, to_Dig2, to_Dig3, to_Dig4, to_Road, to_Wall);
+
+  //There are 4 steps in tile blocking scheme:
+  // 0. Tile is normally walkable
+  // 1. Set the tile as CantBuild
+  // 2. Sets the tile as CantWalk to anyone except workers who are performing
+  //    the digging task, so they could escape the area.
+  //    The Worker will push out any unit on his way.
+  //    sidenote: CanElevate is per-vertex property, hence it's not identical to CanWorker
+  // 3. Set the tile as fully blocked
+  TTileLock = (     // CanBuild CanWalk CanWorker CanElevate House Digged Fenced
+        tlNone,     // X        X         X       X          -     -      -
+        tlFenced,   // -        X         X       X          X     -      X
+        tlDigged,   // -        -         X       X          X     X      X
+        tlHouse,    // -        -         -       -          X     X      -
+        tlLocked    // -        -         -       -          -     X      -
+        );
+
+  TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
+
+
+  TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
+                    vu_NWSE,    //Vertex is used NW-SE like this: \
+                    vu_NESW);   //Vertex is used NE-SW like this: /
+
+const
+  //Chopable tree, Chopdown animation,
+  //Grow1, Grow2, Grow3, Grow4, Chop, Remainder
+  ChopableTrees:array[1..13,1..6]of byte = (
+  //For grass
+  (  88,  89,  90,  90,  91,  37), //duplicate
+  (  97,  98,  99, 100, 101,  41),
+  ( 102, 103, 104, 105, 106,  45),
+  ( 107, 108, 109, 110, 111,  41),
+  ( 112, 113, 114, 114, 115,  25), //duplicate
+  ( 116, 117, 118, 119, 120,  25),
+  //For grass and yellow
+  (  92,  93,  94,  95,  96,  49),
+  //For yellow soil only
+  ( 121, 122, 123, 124, 125,  64),
+  //For dirt (pine trees)
+  ( 149, 150, 151, 151, 152,  29), //duplicate
+  ( 153, 154, 155, 155, 156,  29), //duplicate
+  ( 157, 158, 159, 160, 161,  33),
+  ( 162, 163, 164, 165, 166,  33),
+  ( 167, 168, 169, 170, 171,  33));
+
+//Ages at which tree grows up / changes sprite
+TreeAge1 = 250;  //I did measured only corn, and it was ~195sec
+TreeAge2 = 500;
+TreeAgeFull = 800; //Tree is old enough to be chopped
+
+CORN_AGE1 = 10; //When Corn reaches this age - seeds appear, 0 means unplanted field
+CORN_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
+CORN_AGE3 = 430;
+CORN_AGEFULL = 640; //Corn ready to be harvested
+
+WINE_AGE1 = 10; //When Wine reaches this age - seeds appear, 0 means unplanted field
+WINE_AGE2 = 220;   //Numbers are measured from KaM, ~195sec
+WINE_AGE3 = 430;
+WINE_AGEFULL = 640; //Corn ready to be harvested
+
+
+//   1      //Select road tile and rotation
+//  8*2     //depending on surrounding tiles
+//   4      //Bitfield
+RoadsConnectivity:array [0..15,1..2]of byte = (
+(248,0),(248,0),(248,1),(250,3),
+(248,0),(248,0),(250,0),(252,0),
+(248,1),(250,2),(248,1),(252,3),
+(250,1),(252,2),(252,1),(254,0));
+
+{DeliverList}
+type
+  TDemandType = (dt_Once, dt_Always); //Is this one-time demand like usual, or constant (storehouse, barracks)
+
+//The frame shown when a unit is standing still in ua_Walk. Same for all units!
+const
+  UnitStillFrames: array[TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
+
+  
+type
+  TSoundFX = (
+    sfx_None=0,
+    sfx_CornCut=1,
+    sfx_Dig,
+    sfx_Pave,
+    sfx_MineStone,
+    sfx_CornSow,
+    sfx_ChopTree,
+    sfx_housebuild,
+    sfx_placemarker,
+    sfx_Click,
+    sfx_mill,
+    sfx_saw,
+    sfx_wineStep,
+    sfx_wineDrain,
+    sfx_metallurgists,
+    sfx_coalDown,
+    sfx_Pig1,sfx_Pig2,sfx_Pig3,sfx_Pig4,
+    sfx_Mine,
+    sfx_unknown21, //Pig?
+    sfx_Leather,
+    sfx_BakerSlap,
+    sfx_CoalMineThud,
+    sfx_ButcherCut,
+    sfx_SausageString,
+    sfx_QuarryClink,
+    sfx_TreeDown,
+    sfx_WoodcutterDig,
+    sfx_CantPlace,
+    sfx_MessageOpen,
+    sfx_MessageClose,
+    sfx_MessageNotice,
+    sfx_Melee34, //Usage of melee sounds can be found in Docs\Melee sounds in KaM.csv
+    sfx_Melee35,
+    sfx_Melee36,
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee43,
+    sfx_Melee44,
+    sfx_Melee45,
+    sfx_Melee46,
+    sfx_Melee47,
+    sfx_Melee48,
+    sfx_Melee49,
+    sfx_Melee50,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee55,
+    sfx_Melee56,
+    sfx_Melee57,
+    sfx_BowDraw,
+    sfx_ArrowHit,
+    sfx_CrossbowShoot,  //60
+    sfx_CrossbowDraw,
+    sfx_BowShoot,       //62
+    sfx_BlacksmithBang,
+    sfx_BlacksmithFire,
+    sfx_CarpenterHammer, //65
+    sfx_Horse1,sfx_Horse2,sfx_Horse3,sfx_Horse4,
+    sfx_RockThrow,
+    sfx_HouseDestroy,
+    sfx_SchoolDing,
+    //Below are TPR sounds ...
+    sfx_SlingerShoot,
+    sfx_BalistaShoot,
+    sfx_CatapultShoot,
+    sfx_unknown76,
+    sfx_CatapultReload,
+    sfx_SiegeBuildingSmash
+        );
+
+  TSoundFXNew = (
+    sfxn_ButtonClick,
+    sfxn_Trade,
+    sfxn_MPChatMessage,
+    sfxn_MPChatOpen,
+    sfxn_MPChatClose,
+    sfxn_Victory,
+    sfxn_Defeat,
+    sfxn_Error1,
+    sfxn_Error2,
+    sfxn_Peacetime
+
+  );
+
+const
+  NewSFXFolder = 'Sounds\';
+  NewSFXFile:array[TSoundFXNew] of string = (
+    'UI\ButtonClick.wav',
+    'Buildings\MarketPlace\Trade.wav',
+    'Chat\ChatArrive.wav',
+    'Chat\ChatOpen.wav',
+    'Chat\ChatClose.wav',
+    'Misc\Victory.wav',
+    'Misc\Defeat.wav',
+    'UI\Error001.wav',
+    'UI\Error002.wav',
+    'Misc\PeaceTime.wav'
+    );
+
+const MeleeSoundsHit:array[0..14] of TSoundFX = (
+    sfx_Melee34,
+    sfx_Melee35,
+    sfx_Melee36,
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee44,
+    sfx_Melee45,
+    sfx_Melee46,
+    sfx_Melee47,
+    sfx_Melee48,
+    sfx_Melee49,
+    sfx_Melee50,
+    sfx_Melee55,
+    sfx_Melee56,
+    sfx_Melee57
+        );
+
+const MeleeSoundsMiss:array[0..8] of TSoundFX = (
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee43,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54
+        );
+
+const MeleeSoundsHouse:array[0..12] of TSoundFX = (
+    sfx_Melee37,
+    sfx_Melee38,
+    sfx_Melee39,
+    sfx_Melee40,
+    sfx_Melee41,
+    sfx_Melee42,
+    sfx_Melee43,
+    sfx_Melee47,
+    sfx_Melee51,
+    sfx_Melee52,
+    sfx_Melee53,
+    sfx_Melee54,
+    sfx_Melee57
+        );
+
+const SSoundFX:array[TSoundFX] of string = (
+    'sfx_None',
+    'sfx_CornCut',
+    'sfx_Dig',
+    'sfx_Pave',
+    'sfx_MineStone',
+    'sfx_CornSow',
+    'sfx_ChopTree',
+    'sfx_housebuild',
+    'sfx_placemarker',
+    'sfx_Click',
+    'sfx_mill',
+    'sfx_saw',
+    'sfx_wineStep',
+    'sfx_wineDrain',
+    'sfx_metallurgists',
+    'sfx_coalDown',
+    'sfx_Pig1','sfx_Pig2','sfx_Pig3','sfx_Pig4',
+    'sfx_Mine',
+    'sfx_unknown21', //Pig?
+    'sfx_Leather',
+    'sfx_BakerSlap',
+    'sfx_CoalMineThud',
+    'sfx_ButcherCut',
+    'sfx_SausageString',
+    'sfx_QuarryClink',
+    'sfx_TreeDown',
+    'sfx_WoodcutterDig',
+    'sfx_CantPlace',
+    'sfx_MessageOpen',
+    'sfx_MessageClose',
+    'sfx_MessageNotice',
+    'sfx_Melee34', //Killed by shot?
+    'sfx_Melee35', //Killed by stone?
+    'sfx_Melee36', //Killed by stone?
+    'sfx_Melee37', //Smacked?
+    'sfx_Melee38',
+    'sfx_Melee39',
+    'sfx_Melee40',
+    'sfx_Melee41', //House hit
+    'sfx_Melee42', //Clung?
+    'sfx_Melee43',
+    'sfx_Melee44', //Killed
+    'sfx_Melee45', //Killed
+    'sfx_Melee46', //Killed
+    'sfx_Melee47', //House hit
+    'sfx_Melee48', //injured?
+    'sfx_Melee49', //injured?
+    'sfx_Melee50',
+    'sfx_Melee51', //Sword-sword', hit blocked?
+    'sfx_Melee52', //Sword-sword', hit blocked?
+    'sfx_Melee53', //Sword-sword', hit blocked?
+    'sfx_Melee54', //Sword-sword', hit blocked?
+    'sfx_Melee55', //Killed?
+    'sfx_Melee56', //Barbarian Killed?
+    'sfx_Melee57', //House hit?
+    'sfx_BowDraw',
+    'sfx_ArrowHit',
+    'sfx_CrossbowShoot',  //60
+    'sfx_CrossbowDraw',
+    'sfx_BowShoot',       //62
+    'sfx_BlacksmithBang',
+    'sfx_BlacksmithFire',
+    'sfx_CarpenterHammer', //65
+    'sfx_Horse1','sfx_Horse2','sfx_Horse3','sfx_Horse4',
+    'sfx_RockThrow',
+    'sfx_HouseDestroy',
+    'sfx_SchoolDing',
+    //Below are TPR sounds ...
+    'sfx_SlingerShoot',
+    'sfx_BalistaShoot',
+    'sfx_CatapultShoot',
+    'sfx_unknown76',
+    'sfx_CatapultReload',
+    'sfx_SiegeBuildingSmash');
+
+
+//Sounds to play on different warrior orders
+type
+  TWarriorSpeech = (sp_Select, sp_Eat, sp_RotLeft, sp_RotRight, sp_Split, sp_Join, sp_Halt, sp_Move, sp_Attack,
+                  sp_Formation, sp_Death, sp_BattleCry, sp_StormAttack);
+
+  TAttackNotification = (an_Citizens, an_Town, an_Troops);
+
+  TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
+
+const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
+  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
+  ProjectileLaunchSounds:array[TProjectileType] of TSoundFX = (sfx_BowShoot, sfx_CrossbowShoot, sfx_None, sfx_RockThrow);
+  ProjectileHitSounds:   array[TProjectileType] of TSoundFX = (sfx_ArrowHit, sfx_ArrowHit, sfx_ArrowHit, sfx_None);
+  ProjectileSpeeds:array[TProjectileType] of single = (0.75, 0.75, 0.6, 0.8);
+  ProjectileArcs:array[TProjectileType,1..2] of single = ((1.6, 0.5), (1.4, 0.4), (2.5, 1), (1.2, 0.2)); //Arc curve and random fraction
+  ProjectileJitter:array[TProjectileType] of single = (0.05, 0.05, 0.05, 0.025); //Jitter added according to distance
+  ProjectilePredictJitter:array[TProjectileType] of single = (2, 2, 2, 6); //Jitter added according to target's speed (moving target harder to hit)
+  ProjectileMissChance:array[TProjectileType] of single = (0.33, 0.33, 0.33, 0.2);
+
+  const STORM_SPEEDUP=1.5;
+  
+
+type
+  //@Krom: Sketch of the goal and message displaying system used in KaM (from scripting point of view anyway)
+  //       Please let me know your thoughts. This is very similar to that used in KaM and is quite flexable/expandable. (we can add more parameters/conditions as well as existing KaM ones, possibly using a new script command)
+  //       Somethings are probably named unclearly, please give me suggestions or change them. Goals are the one part
+  //       of scripting that seems to confuse everyone at first, mainly because of the TGoalStatus. In 99% of cases gs_True and gt_Defeat
+  //       go together, because the if the defeat conditions is NOT true you lose, not the other way around. I guess it should be called a
+  //       "survival" conditions rather than defeat.
+  //       I put some examples below to give you an idea of how it works. Remember this is basically a copy of the goal scripting system in KaM,
+  //       not something I designed. It can change, this is just easiest to implement from script compatability point of view.
+  //       Talk to me about it on Skype/ICQ sometime :)
+
+  TGoalType = (glt_None=0,  //Means: It is not required for victory or defeat (e.g. simply display a message)
+               glt_Victory, //Means: "The following condition must be true for you to win"
+               glt_Survive);//Means: "The following condition must be true or else you lose"
+  //Conditions are the same numbers as in KaM script
+  TGoalCondition = (//gc_Unknown0=0,      //Not used/unknown
+                    gc_BuildTutorial=1,   //Must build a tannery (and other buildings from tutorial?) for it to be true. In KaM tutorial messages will be dispalyed if this is a goal
+                    gc_Time=2,            //A certain time must pass
+                    gc_Buildings=3,       //Storehouse, school, barracks
+                    gc_Troops=4,          //All troops
+                    //gc_Unknown5=5,        //Not used/unknown
+                    gc_MilitaryAssets=6,  //All Troops, Coal mine, Weapons Workshop, Tannery, Armory workshop, Stables, Iron mine, Iron smithy, Weapons smithy, Armory smithy, Barracks, Town hall and Vehicles Workshop
+                    gc_SerfsAndSchools=7, //Serfs (possibly all citizens?) and schoolhouses
+                    gc_EconomyBuildings=8 //School, Inn and Storehouse
+                    //We can come up with our own
+                    );
+
+  TGoalStatus = (gs_True=0, gs_False=1); //Weird that it's inverted, but KaM uses it that way
+
+const
+  GoalConditionStr: array [TGoalCondition] of string =
+  ({'Unknown',} 'Build Tannery', 'Time', 'StoreSchoolBarracks', 'Troops', 'Unknown',
+   'Military assets', 'Serfs&Schools', 'School Inn Store');
+
+  GoalStatusStr: array [TGoalStatus] of string =
+  ('True', 'False');
+
+
+//Pixel positions (waypoints) for sliding around other units. Uses a lookup to save on-the-fly calculations.
+//Follows a sort of a bell curve (normal distribution) shape for realistic acceleration/deceleration.
+//I tweaked it by hand to look similar to KaM.
+//1st row for straight, 2nd for diagonal sliding
+const
+  SlideLookup: array[1..2, 0..Round(CELL_SIZE_PX*1.42)] of byte = ( //1.42 instead of 1.41 because we want to round up just in case (it was causing a crash because Round(40*sqrt(2)) = 57 but Round(40*1.41) = 56)
+    (0,0,0,0,0,0,1,1,2,2,3,3,4,5,6,7,7,8,8,9,9,9,9,8,8,7,7,6,5,4,3,3,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+    (0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,5,5,5,6,6,6,7,7,7,7,6,6,6,5,5,5,4,4,4,3,3,2,2,2,1,1,1,1,0,0,0,0,0,0,0,0,0));
+
+
+const
+  //How many options are we supporting
+  //@Jimmy: Use dynamic count
+  RESOLUTION_COUNT = 15;
+  REFRESH_RATE_COUNT = 15;
+
+//Record storing resolution and list of its allowed refresh rates
+type
+  TScreenResData = record
+                 Width, Height: Word;
+                 RefRate: array [1..REFRESH_RATE_COUNT] of Word;
+               end;
+
+var
+  //Lists available screen resolutions and their supported refresh rates
+  ScreenRes: array[1..RESOLUTION_COUNT] of TScreenResData;
+
+type
+  TRXType = (
+    rxTrees,
+    rxHouses,
+    rxUnits,
+    rxGui,
+    rxGuiMain,
+    rxGuiMainH,
+    rxMenu, //Remake menu elements
+    rxTiles, //Tiles
+    rxGame); //Remake game sprites
+
+const
+  MAPSIZES_COUNT = 11;
+  MapSize: array[1..MAPSIZES_COUNT] of word=( 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192 );
+
+
+  //Colors available for selection in multiplayer
+  MP_COLOR_COUNT = 15;
+  MP_TEAM_COLORS: array[1..MP_COLOR_COUNT] of cardinal = (
+  $FF0707FF, //Red
+  $FF0061FF, //Orange
+  $FF07FFFF, //Yellow
+  $FF00FF00, //Lime green
+  $FF008000, //Dark green
+  $FFE3BB5B, //Cyan
+  $FFFF0000, //Blue
+  $FF800080, //Purple
+  $FFFF67FF, //Pink
+  $FF000080, //Maroon
+  $FF004F7D, //Brown
+  $FF00B8A8, //Olive green
+  $FFFFFFFF, //White
+  $FF808080, //Grey
+  $FF000000  //Black
+  );
+
+  //Players colors, as they appear in KaM when the color is not specified in the script, copied from pallete values.
+  //Using these as the defaults when loading the script means the colors will be the same as KaM when not defined.
+  //Default IDs from KaM:
+  {229, //Red
+  36,  //Cyan
+  106, //Green
+  20,  //Magenta
+  233, //Yellow
+  213, //Grey
+  3,   //Black
+  3,   //Black
+  255  //White}
+  DefaultTeamColors:array[0..7]of cardinal = (
+  $FF0707FF, //Red
+  $FFE3BB5B, //Cyan
+  $FF27A700, //Green
+  $FFFF67FF, //Magenta
+  $FF07FFFF, //Yellow
+  $FF577B7B, //Grey
+  $FF000000, //Black
+  $FF000000  //Black
+  );
+
+var
+  OldTimeFPS,OldFrameTimes,FrameCount:cardinal;
+
+  ExeDir:string;
+
+  GameCursor: record
+    Float:TKMPointF;    //Precise cursor position in map coords
+    Cell:TKMPoint;      //Cursor position cell
+    SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
+    Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Tag1:byte;          //Tag to know building type, unit type, brush size
+    Tag2:byte;          //Additional tag for MapEd (brush shape)
+  end;
+
+
+
+  //Trees and other terrain elements properties
+  MapElemQty:integer=254; //Default qty
+  ActualMapElemQty:integer; //Usable qty read from RX file
+  ActualMapElem:array[1..254]of integer; //pointers to usable MapElem's
+  OriginalMapElem:array[1..256]of integer; //pointers of usable MapElem's back to map objects. (reverse lookup to one above) 256 is no object.
+  MapElem:array[1..512]of packed record
+    Step:array[1..30]of smallint;           //60
+    Count:word;                             //62
+    MoveX,MoveY:integer;                    //70
+    CuttableTree:longbool;                  //This tree can be cut by a woodcutter
+    DiagonalBlocked:longbool;               //Can't walk diagonally accross this object (mainly trees)
+    AllBlocked:longbool;                    //All passibility blocked. Can't walk, build, swim, etc.
+    WineOrCorn:longbool;                    //Draw multiple (4 or 2) sprites per object (corn or grapes)
+    CanGrow:longbool;                       //This object can grow (i.e. change to another object)
+    DontPlantNear:longbool;                 //This object can't be planted within one tile of
+    Stump:shortint;                         //95 Tree stump
+    CanBeRemoved:longbool;                  //99 //Can be removed in favor of building house
+  end;
+
+  //Unused by KaM Remake
+  PatternDAT:array[1..256]of packed record
+    MinimapColor:byte;
+    Walkable:byte;  //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    Buildable:byte; //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    TileType:byte;  //This looks like a 0..31 bitfield, --||--
+    u1:byte; //Boolean IsTransitionTile?
+    u2:byte;
+  end;
+  TileTable:array[1..30,1..30]of packed record
+    Tile1,Tile2,Tile3:byte;
+    b1,b2,b3,b4,b5,b6,b7:boolean;
+  end;
+
+
+implementation
+
+
+end.
