@@ -1,11 +1,20 @@
-#Events for mission description.
+#summary Mission events
+#labels Featured
 
 = Mission events =
 
-Using simple syntax events can be added to custom missions.
+Using simple syntax events can be added to custom missions. The events are stored in `\Maps\map_name\map_name.evt` file, which can be opened by any text editor (i.e. Notepad).
+
+Each line is an event. First comes Trigger (that sets event off) with player index and parameters, then comes Action (what will happen) with player index and parameters as well. 
+
+`HOUSE_BUILT 0 5 SHOW_MESSAGE 0 17`
+
+Above line means that when Player0 has built house type 5 Player0 (himself) will receive a message #17.
+
+Comments and empty lines are allowed, preceeding with `//` mark.
 
 
-=Available triggers=
+==Available triggers==
 
 || Trigger || Description || Parameters ||
 || *DEFEATED* || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || none ||
@@ -13,7 +22,7 @@ Using simple syntax events can be added to custom missions.
 || *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) ||
 
 
-=Available actions=
+==Available actions==
 
 || Action || Description || Parameters ||
 || *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay anmount in game ticks || 2. Message index ||
