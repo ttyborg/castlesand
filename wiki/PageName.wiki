@@ -1,0 +1,21 @@
+#Events for mission description.
+
+= Mission events =
+
+Using simple syntax events can be added to custom missions.
+
+
+=Available triggers=
+
+|| Trigger || Description || Parameters ||
+|| *DEFEATED* || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || none ||
+|| *HOUSE_BUILT* || Occurs when player has built the specified house type || 1. House type index ||
+|| *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) ||
+
+
+=Available actions=
+
+|| Action || Description || Parameters ||
+|| *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay anmount in game ticks || 2. Message index ||
+|| *SHOW_MESSAGE* || Displays a message immediately || 1. Message index ||
+|| *VICTORY* || Proclaims victory to the player || none ||
