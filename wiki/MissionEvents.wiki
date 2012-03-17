@@ -28,3 +28,8 @@ Comments and empty lines are allowed, preceeding with `//` mark.
 || *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay anmount in game ticks || 2. Message index ||
 || *SHOW_MESSAGE* || Displays a message immediately || 1. Message index ||
 || *VICTORY* || Proclaims victory to the player || none ||
+
+==Examples==
+
+TIME -1 600 SHOW_MESSAGE 0 1 //After 1 minute show text message #1 to Player0
+DEFEATED 1 DELAYED_MESSAGE 0 50 2 //After Player1 gets defeated wait 5sec and show message #2 to Player0
