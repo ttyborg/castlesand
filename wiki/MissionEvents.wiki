@@ -3,15 +3,15 @@
 
 = Mission events =
 
-Using simple syntax events can be added to custom missions. The events are stored in `\Maps\map_name\map_name.evt` file, which can be opened by any text editor (i.e. Notepad).
+Using simple syntax events can be added to custom missions. The events are stored in `\Maps\map_name\map_name.evt` file, which can be opened by any text editor (e.g. Notepad).
 
-Each line is an event. First comes Trigger (that sets event off) with player index and parameters, then comes Action (what will happen) with player index and parameters as well. 
+Each line is an event. First comes Trigger (what sets event off) with player index and parameters, then comes Action (what will happen) with player index and parameters as well. 
 
 `HOUSE_BUILT 0 5 SHOW_MESSAGE 0 17`
 
 Above line means that when Player0 has built house type 5 Player0 (himself) will receive a message #17.
 
-Comments and empty lines are allowed, preceeding with `//` mark.
+Comments and empty lines are allowed, preceding with `//` mark.
 
 
 ==Available triggers==
@@ -32,4 +32,5 @@ Comments and empty lines are allowed, preceeding with `//` mark.
 ==Examples==
 
 TIME -1 600 SHOW_MESSAGE 0 1 //After 1 minute show text message #1 to Player0
+
 DEFEATED 1 DELAYED_MESSAGE 0 50 2 //After Player1 gets defeated wait 5sec and show message #2 to Player0
