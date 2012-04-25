@@ -16,18 +16,22 @@ Comments and empty lines are allowed, preceding with `//` mark.
 
 ==Available triggers==
 
-|| Trigger || Description || Parameters ||
-|| *DEFEATED* || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || none ||
-|| *HOUSE_BUILT* || Occurs when player has built the specified house type || 1. House type index ||
-|| *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) ||
+|| Trigger || Description || Parameter 1 || Parameter 2 ||
+|| *DEFEATED* || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || - || - ||
+|| *HOUSE_BUILT* || Occurs when player has built the specified house type || 1. House type index || - ||
+|| *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) || - ||
+|| _UNIT_COUNT_ || Set off when specified count of citizens are in players village || 1. Unit type || 2. Count ||
+|| _WARES_COUNT_ || Set off when specified amount of wares accumulates in players Stores || 1. Ware type || 2. Count ||
 
 
 ==Available actions==
 
-|| Action || Description || Parameters ||
-|| *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay anmount in game ticks || 2. Message index ||
-|| *SHOW_MESSAGE* || Displays a message immediately || 1. Message index ||
-|| *VICTORY* || Proclaims victory to the player || none ||
+|| Action || Description || Parameter 1 || Parameter 2 ||
+|| _ALLIANCE_CHANGE_ || Change the alliance setting between specified players || 1. Target player index || - ||
+|| *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay amount in game ticks || 2. Message index ||
+|| *SHOW_MESSAGE* || Displays a message immediately || 1. Message index || - ||
+|| _UNLOCK_HOUSE_ || Allow player to build specified type of house || 1. House type || - ||
+|| *VICTORY* || Proclaims victory to the player || - || - ||
 
 ==Examples==
 
