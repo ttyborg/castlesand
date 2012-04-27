@@ -1,0 +1,440 @@
+
+MaxID:2703
+
+0:Saekaater
+1:Sepikoda
+2:Relva sepikoda
+3:Söekaevandus
+4:Rauakaevandus
+5:Kullakaevandus
+6:Kaluri
+7:Pagariäri
+8:Talu
+9:Puuraiduri onn
+10:Raudturvise sepikoda
+11:Laohoone
+12:Tallid
+13:Koolimaja
+14:Kivikaevandus
+15:Kulla sepikoda
+16:Sealaut
+17:Vahitorn
+18:Linnakoda
+19:Relvakoda
+20:Turvisekoda
+21:Kasarmu
+22:Veski
+23:Vallutusseadmetekoda
+24:Lihunikäri
+25:Nahaparkimiskoda
+26:Treening saal
+27:Kõrts
+28:Viinamarjaistandus
+29:Turuplats
+39:Palk
+40:Kivi
+41:Laudpuit
+42:Raua maak
+43:Kulla maak
+44:Süsi
+45:Raud
+46:Kuld
+47:Veini tünn
+48:Rukkis
+49:Leib
+50:Jahu
+51:Parknahk
+52:Vorst
+53:Siga
+54:Nahk
+55:Puukilp
+56:Raudkilp
+57:Nahkturvis
+58:Raudturvis
+59:Käsikirves
+60:Mõõk
+61:Oda
+62:Piik
+63:Vibu
+64:Amb
+65:Hobune
+66:Kala
+69:Pärisori
+70:Puuraidur
+71:Kaevandaja
+72:Tõuaretaja
+73:Talupoeg
+74:Puusepp
+75:Pagar
+76:Lihunik
+77:Kalamees
+78:Ehitaja
+79:Kiviraidur
+80:Sepp
+81:Kullassepp
+82:Nekrut
+83:Rahvaväelane
+84:Kirve võitleja
+85:Mõõga võitleja
+86:Vibukütt
+87:Ambur
+88:Oda kandja
+89:Piigi kandja
+90:Skaut
+91:Rüütel
+92:Barbar
+93:Mässaja
+94:Kelm
+95:Sõdalane
+96:Hulkur sõdalane
+97:Katapult
+98:Ballista
+99:Pärisori veab laiali |kaubad ja resursse.||Majad peavad olema |ühendatud teedega.
+100:Palkide tootmiseks|saekaatrile, on Teil vaja|puuraidurit.||Puuraidur taasistutab |metsa ise.
+101:Kaevandaja kaevab |süsi, raua ja kulla maake|kaevandustes.
+102:Tõuaretaja|kasutab rukkist, et |kasvatada sigu|sealaudas ja|hobuseid tallides.
+103:Talupoeg istutab|ja korjab rukkist|põllul.||Lisaks toodab ta veel veini|veiniistanduses.
+104:Puusepp tötab seakaatris, |relvakojas ja |Turvisekoda.||Lisaks ta ehitab katapulte |ja balistasid |vallutusseadmetekojas.
+105:Pagar jahvatab |rukkise jahuks.||Lisaks küpsetab |leiba pagariäris.
+106:Lihunik teeb vorste |lihunikuäris ja |parknahka |nahaparkimiskojas.
+107:Kalamees püüab|kalu lähedal asuvatest|vetest.
+108:Ehitaja ehitab maju |ja teesid. Lihtsalt |märgi ehitus objekti |asukoht ja ehitaja| tegutseb automaatselt.||Ta parandab ka |kahjustatud majasid.
+109:Ehitajate varustamiseks |on vajalik kiviraidur, kes |lõikab kivid õigesse |suurusesse.
+110:Sepp sepistab |raudrelvasid ja| raudrüüsid relva |ja raudturvise |sepikodades.
+111:Kullassepp kasutab |sütt kulla ja raua maagi |töötlemiseks.
+112:Nekrutit saab |varustada kasarmus.||Lisaks töötab ta |vahitornis.
+147:Majade valikusse
+148:Kaupade jaguneminemisse
+149:Statistikasse
+150:Sättetesse
+151:Tagasi minek
+152:Maja|Valik
+153:Kaupade|jagunemine
+154:Statistika
+155:Sätted
+156:Lae Mäng
+157:Salvesta Mäng
+158:Oled kindel,|et tahad lahkuda |sellest missioonist?
+159:Lõpeta Missioon
+160:Mine tagasi
+161:Sätted
+162:Lõpeta missioon
+163:Ümbruskonna heli
+164:Muuda helitugevust
+165:Muusika
+166:Muusika lahti/kinni
+167:Automaatsalvestis
+168:Muusika Mängija
+169:Eelmine lugu
+170:Uus lugu
+171:Lammuta
+172:Eemalda ehitised/väljatoodud
+173:Ehita tee
+174:Ehita teed
+175:Künna põldu
+176:Künna põldusid
+177:Määra viinamarjapõld
+178:Määra viinamarjapõllud
+179:Tühista
+180:Tühista hetkeline treening
+181:Vaja minev:
+182:Olek:
+183:Kohale toimetab:
+184:Maja|ehitamisel
+185:Hävita
+186:Kas oled kindel et soovid |lammutada seda maja?
+187:Hävita valitud maja
+188:Vähenda tellimuse arv
+189:Suurenda tellimuse arv
+190:Eelmine sõduri tüüp
+191:Järgmine sõduri tüüp
+192:Varusta hetke sõduri tüüp
+193:Järgmine amet
+194:Eelmine amet
+195:Lisa järjekorda
+196:Hind:
+197:Luba/keela maja parandus
+198:Maja ei ole saadaval hetkel
+199:Olek
+200:Keera sõdur vasakule
+201:Keera sõdur paremale
+202:Ründa ('a')
+203:Saada sõdur ('d')
+204:Varusta toiduga
+205:Välkrünnak
+206:Lisa rida
+207:Vähenda rida
+208:Valige|grupp
+209:Tühista
+210:Kustuta
+211:Kustuta hetke sõnumi
+212:Mine
+213:Liigub hetkese sõnumi kohani
+214:Sulge
+215:Sulgeb akna
+216:|Sinu kiviraidur ei pääse kivini.
+217:|Sinu söekaevanduses on süsi lõppenud.
+218:|Sinu rauakaevanduses on raud lõppenud.
+219:|Sinu kullakaevanduses on kuld lõppenud.
+220:|See maja on asustamatta.
+221:|Sinu sõdurid on väga näljased, anna neile midagi süüa!
+222:PAUS
+223:Muuda helitugevust
+224:Luba/keela kauba vedu
+418:Vaim
+419:Hõivatud
+420:Keskaegne pasun
+421:Kevad
+422:Lauto
+423:Palgasõdur
+424:Printsess
+425:Kuninganna
+426:Turul
+427:Lahinguväljal
+428:Õukonna tants
+429:Armee
+430:Lossis
+431:Laadad
+432:Õukonnas
+433:Sisseastumine
+434:Sügav sinine
+435:Rabelema
+847:Kampaania 'The Shattered Kingdom'
+848:Kampaania 'The Peasants Rebellion'
+849:Mängi üksikkaarti
+850:Alusta kaarti
+851:Tagasi menüüsse
+852:Lae salvestatud mäng
+853:Võrgumäng
+854:Sätted
+855:Lõputiitrid
+856:Lahku mängust
+857:Jätka
+858:Taaskäivita missioon
+859:Resolutsioon:
+860:VÕIT!
+861:KAOTUS!
+862:Kaotatud üksused:
+863:Hävitatud üksused:
+864:Kaotatud ehitised:
+865:Hävitatud ehitised:
+866:Ehitatud ehitised:
+867:Treenitud üksused:
+868:Relvi toodetud:
+869:Sõdureid treenitud:
+870:Missioon lõpetatud:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMEERIMINE:|Peter Ohlmann||MÄNGU GRAAFIKA:|Adam Sprys||TASEME KUJUNDUS:|Adam Sprys|Andre Quaß||HELI TÖÖTLUS JA MIKSIMINE:|Tonstudio Mannheim||MUUSIKA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||KAUNISTUSED:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUTSEERIA:|Uwe Schäfer||JUHEND:|Peter Ohlmann|Uwe Schäfer||BETA TESTIJAD:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||MÄNGU JUHENDAJA:|Achim Heidelauf||VÄLJASTAJA:|TopWare Interactive||VAHETSEENID:||JUHATAMINE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||HÄÄLED:|Claus Boyen (Jutustaja)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||KUNSTITÖÖD:|Boleslaw Kasza|Adam Sprys||AVA-ANIMATSIOON:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||ERI TÄNUD:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Missioon katkestatud
+1687:Linna ehitamise tutvustus
+1688:Võitluse tutvustus
+1689:Üksikmäng
+1690:Kaardi ehitamine
+1691:Vaata viimast kordust
+1692:Alusta missiooni
+1693:Pealkiri
+1694:Suurus
+1695:Missiooni tüüp: %s
+1696:Võitmise tingimused: %s
+1697:Kaotamise tingimused: %s
+1698:Liitlased:
+1699:Vaenlased:
+1701:Uus kaardi suurus
+1702:Laius
+1703:Pikkus
+1704:Loo uus kaart
+1705:Olemas olevad kaardid
+1706:Lae olemas olev kaart
+1707:Juhtimisseaded:
+1708:Mängu seaded
+1709:Heli:
+1710:Vaigista muusika
+1711:Graafika:
+1712:Heledus
+1713:Täisekraan
+1714:Lisa
+1715:Keel:
+1716:Toimub laadimine... Palun oodake
+1717:Viga on esinenud!
+1718:Uue lokaadi laadimine
+1719:Salvestatud mängude list
+1720:Faili nimi
+1721:Iseloomustus
+1722:Lae
+1723:Kustuta
+1724:Oled kindel, et soovid seda salvestust kustutada?
+1725:Kustuta
+1726:Loobu
+1728:Sa Võitsid!
+1729:Jätka mängu
+1730:Võit!
+1731:Sa kaotasid!
+1732:Jätka vaatamist
+1733:Kaotus
+1734:Kordus on lõppenud
+1735:Jätka vaatamist
+1736:Lahku menüüni
+1737:Pole saadaval
+1738:Vajuta %s, et jätkata mängu
+1739:Meeskonnale
+1740:Mängijate info
+1741:Vestlus
+1742:Salvesta üle juba olemasolev
+1743:Kirjuta üle
+1744:Salvesta
+1745:Lae
+1746:Viga on esinenud mängu ajal.
+1747:Palun saatke fail %s oma KaM Remake\\Crash Reports kaustast arendajatele. Kontakti andmeid võib leida Readme failist. Suured tänud Teie abi eest!
+1748:Vana OpelGL versioon avastatud, mäng võib töötada aeglaselt ja/või graafika vigadega
+1749:Võrgu viga:
+1750:Viga: Mängija nimi ei saa olla tühi
+1751:Ühenduse viga: %s
+1752:Ühendus on kaotatud
+1753:Missioon %d
+1754:Su kalastus onn on veest liiga kaugel.
+1755:Sinu kalamees ei saa rohkem püüda kala lähedal olevatest vetest.
+1757:Kasuta vasakut hiireklahvi, et valida toode, mida vahetada
+1758:Kasuta paremat hiireklahvi, et valida toodet, mida vahetada
+1759:Millest: x%d
+1760:Milleks: x%d
+1761:Pinnastiku kujundamine
+1762:Küla planeerimine
+1763:Visuaalsed skriptid
+1764:Globaalsed skriptid
+1765:Menüü
+1766:Staatus:
+1767:Mängija nimi
+1768:LOO SERVER
+1769:Nimi
+1770:Port
+1771:Loo Kohalik Server
+1772:Loo Interneti Server
+1773:Serveri nimi
+1774:Olek
+1775:Mängijad
+1776:Ping
+1777:Värskenda Serverite nimekirja
+1778:SERVERI DETAILID
+1779:Mängijate nimekiri:
+1780:Aadress
+1781:Port
+1782:Tuba
+1783:Liitu
+1784:Toimub ühendamine, palun oodake ...
+1785:Toimub teadete laadimine...
+1786:Uuendamine...
+1787:Mängijate nimekiri
+1788:Alustamise asukoht
+1789:Meeskond
+1791:Valmis
+1792:Ping
+1793:Eemalda
+1794:Avatud
+1795:Mängib arvuti
+1796:Vali...
+1797:Suvaline
+1799:Ühtegi
+1802:Postita sõnum:
+1803:Kaardi tüüp
+1804:Üksik Kaart
+1805:Salvestatud Mäng
+1806:Vali kaart...
+1807:Vali salvestus...
+1808:Kaardi info:
+1809:Mängijad: %d
+1810:Tüüp:
+1811:Tingimused:
+1812:Suurus:
+1813:Lahku eesruumi
+1814:Valmis
+1815:Alusta!
+1816:Mängijate ootamine:
+1817:KaM Remake Lõputiitrid
+1818:Originaalsed Knights & Merchants Lõputiitrid
+1819:PROGRAMMEERIMINE:
+1820:LISA PROGRAMMEERIMINE:
+1821:LISA GRAAFIKA:
+1822:LISA TÕLKED:
+1823:SUURED TÄNUD:
+1824:Võrgumängu kaardid
+1825:Üksikmängu kaardid
+1826:Rulliku kiirus
+1827:Servereid ei leitud
+1828:Suva lood
+1829:Mängu informatsioon:
+1830:-
+1831:Eesruum
+1832:Toimub Laadmine
+1833:Mäng
+1834:Asukoht %d
+1835:Ehitamine ja Võitlemine
+1836:Võitlemine
+1837:Pole valmis
+1838:Valmis
+1839:Viga: Palun vali mängija salvestisest, et teda kontrollida
+1840:Viga: Kaardi laadimine ebaõnnestus või ühtegi kaarti ei ole valitud
+1841:Ei saa alustada: %s
+1842:Kõik ei ole valmis alustama
+1843:Mängijate arv ületab kaardi limiidi
+1844:Vale protokolli versioon: %s. Server kasutab: %s
+1845:Server on juhtimis õiused meile määranud
+1846:Tõsta kauba hulka
+1847:Vähenda kauba hulka
+1848:Mängu salvestamine...
+1849:%s kaotas!
+1850:LISA HELID:
+1851:Elimineeri mängijaid
+1852:Mängu juht võib elimineerida mängijaid pärast %d sekundit
+1853:Mängu juht võib nüüd elimineerida neid mängijaid
+1854:Mängujuht (%s) on lahkunud
+1855:Ühendus sevreriga on kaotatud. Taasühendamine...
+1856:Oled kindel, et soovid lahkuda?
+1857:Oled kindel, et soovid lõplikult elimineerida neid mängijaid?
+1858:Tühista
+1859:Elanikke|treenitud
+1860:Elanikke|kaotatud
+1861:Sõdureid|relvastatud
+1862:Sõdureid|kaotatud
+1863:Üksusi|hävitatud
+1864:Ehitisi|ehitatud
+1865:Ehitised|kaotatud
+1866:Ehitisi|hävitatud
+1867:Kaupu|toodetud
+1868:Relvi|toodetud
+1869:Selle ressurssi vahetamine pole võimalik selles missioonis
+1870:Istuta ja langeta
+1871:Ainult langeta
+1872:Mänguga on alustatud
+1873:Ehitamise Kaart
+1874:Võitlemise Kaart
+1875:Koostöö kaart
+1876:Sa ei saa seda teha rahuajal
+1877:Rahuaega jäänud: %s
+1878:Rahuaeg on lõppenud. Relvadele!
+1879:Mängu aeg:|%s
+1880:Mängu seaded:
+1881:P
+1882:L
+1883:J
+1884:Peata sõdur ('%s')
+1885:Lisa sõdur ('%s')
+1886:Jaga sõdurid ('%s')
+1887:Korduse vaatamine
+1888:Vaata kordust
+1889:Rahuaeg (minutid)
+1890:Toeta formaat %s
+1891:Toetamata versioon %s
+1893:alustamine
+1894:võrgumängu valmistamine
+1895:skript
+1896:Uus Missioon
+1897:Liigendamise viga on esinenud failis %s
+1898:Suletud
+1899:Mängujuht seadistab
+1900:lisa spraidid
+1901:üksused
+1902:majad
+1903:puud
+1904:definitsioonid
+1905:ruudustik
+2691:Tühista
+2692:Tühista
