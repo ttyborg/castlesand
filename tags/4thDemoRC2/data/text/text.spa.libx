@@ -1,0 +1,441 @@
+
+MaxID:2705
+
+0:Aserradero
+1:Fundición de hierro
+2:Herrería de armas
+3:Mina de carbón
+4:Mina de hierro
+5:Mina de oro
+6:Casa del pescador
+7:Panadería
+8:Granja
+9:Cabaña del lenador
+10:Herrería armaduras
+11:Almacén
+12:Cuadras
+13:Escuela
+14:Cantera
+15:Fundición de oro
+16:Criadero de cerdos
+17:Atalaya
+18:Ayuntamiento
+19:Taller de armas
+20:Taller de armaduras
+21:Cuartel
+22:Molino
+23:Taller de vehículos
+24:Carnicería
+25:Curtiduría
+26:Casa de formación
+27:Comedor
+28:Lagar
+29:Mercado
+39:Troncos
+40:Piedras
+41:Madera
+42:Mineral de hierro
+43:Mineral de oro
+44:Carbón
+45:Hierro
+46:Oro
+47:Barriles de vino
+48:Grano
+49:Panes
+50:Harina
+51:Cuero
+52:Chorizos
+53:Cerdos
+54:Pieles
+55:Escudo de madera
+56:Escudo de hierro
+57:Armadura de cuero
+58:Armadura de hierro
+59:Hacha de mano
+60:Espada
+61:Lanza
+62:Pica
+63:Arco
+64:Ballesta
+65:Caballos
+66:Peces
+69:Ayudante
+70:Leñador
+71:Minero
+72:Ganadero
+73:Campesino/Viticultor
+74:Carpintero
+75:Panadero/Molinero
+76:Carnicero/Curtidor
+77:Pescador
+78:Albañil
+79:Cantero
+80:Herrero
+81:Fundidor
+82:Recluta
+83:Milicia
+84:Soldado con hacha
+85:Soldado con espada
+86:Arquero
+87:Ballestero
+88:Lancero
+89:Piquero
+90:Vigía
+91:Caballería
+92:Bárbaro
+93:Rebelde
+94:Hondero
+95:Guerrero
+96:Vagabundo
+97:Catapulta
+98:Balista
+99:El ayudante abastece los|edificios con las|materias necesarias.||Tenga en cuenta que|deberá haber un camino|construído de casa a casa.
+100:Para abastecer el|aserradero con troncos|necesita al leñador.||El leñador foresta|de nuevo el terreno.
+101:El minero extrae mine-|rales de las minas de|carbón, de hierro y de oro.
+102:En ganadero cría cerdos|y caballos en los|criaderos, alimentándolos|con cereales.
+103:El campesino siembra y|cosecha el grano en el|campo.||Además pisa la uva en|la viña.
+104:El carpintero trabaja|en el aserradero, en|el taller de armas y|en el taller de armaduras.
+105:El panadero cuece el|pan en la panadería.||Además produce harina|moliendo el grano|en el molino.
+106:El carnicero produce|chorizos en la carnicería|y cuero en la curtiduría.
+107:El pescador pesca|peces en las aguas cercanas.
+108:El albañil construye|edificios y calles.|Indíquele, situando|las marcas en el|lugar deseado, donde|ha de construír.|Además repara los|edificios dañados.
+109:Para que los albañiles|tengan suficientes|piedras para construír|calles y edificios, el| cantero labra las piedras.
+110:El herrero elabora|armaduras pesadas y|armas en la herreía|de armas y de armaduras.
+111:El fundidor produce|hierro, arcas de|oro y de hierro.
+112:El recluta en el cuartel|es equipado con las|armas necesarias para|luchar como soldado.||Además ocupa|la atalaya.
+147:Construcción
+148:Reparto de materiales
+149:Estadística
+150:Opciones
+151:Volver
+152:Construcción
+153:Reparto de|materiales
+154:Estadística
+155:Opciones
+156:Cargar juego
+157:Guardar juego
+158:¿De veras Vos|deseáis abandonar|a vuestro pueblo?
+159:Finalizar la misión
+160:Volver
+161:Ajustes
+162:Finalizar la misión
+163:Ruidos
+164:Modificar volumen
+165:Música
+166:Música si/no.
+167:Autoalmacenar
+168:Canciones
+169:Canción anterior
+170:Próxima canción
+171:Derribar
+172:Derribar edificios/marcas
+173:Construír calle
+174:Construcción de calles
+175:Arar campo
+176:Agricultura
+177:Plantar viñas
+178:Viña
+179:Suspender
+180:Suspender formación actual.
+181:Reservas:
+182:Estado:
+183:Suministra
+184:En construcción.
+185:Derribar
+186:¿De veras Vos deseáis|derribar el edificio?
+187:Derribar edificio seleccionado.
+188:Reducir pedido
+189:Aumentar pedido
+190:Anterior tipo de unidad.
+191:Próximo tipo de unidad.
+192:Equipar unidad actual.
+193:Próximo oficio.
+194:Anterior oficio.
+195:A la cola.
+196:Reclutas presentes:
+197:ON/OFF Reparación del edificio.
+198:Edificio no disponible de momento.
+199:Aguante
+200:Girar a la izquierda
+201:Girar a la derecha
+202:¡Asalto!  ('a')
+203:Enviar tropa.  ('d')
+204:Abastecer con alimentos a la tropa.
+205:Iniciar asalto.
+206:Agregar fila.
+207:Retirar fila.
+208:Elegir|grupo
+209:Interrumpir
+210:Borrar
+211:Borra el mensaje actual.
+212:Mostrar
+213:Te posiciona en el lugar descrito.
+214:Cancelar
+215:Cerrar mensaje.
+216:|El cantero ya no puede picar más piedras.
+217:|La mina de carbón se ha agotado.
+218:|La mina de hierro se ha agotado.
+219:|La mina de oro se ha agotado.
+220:|Esta casa está desocupada.
+221:|Esta tropa está hambrienta, debería comer algo|cuanto antes!
+222:PAUSA
+223:Modificar volumen
+224:ON/OFF Suministro de mercancías.
+418:Espíritu
+419:Laboriosos
+420:Cuerno medieval
+421:La Primavera
+422:Laúd
+423:Los Soldados
+424:La princesa
+425:La reina
+426:En el mercado
+427:En el campo
+428:Baile en la corte
+429:El Ejército
+430:En el castillo
+431:Clarines
+432:La corte
+433:Entrada
+434:Azul profundo
+435:Esfuerzo
+847:Jugar a 'The Shattered Kingdom'
+848:Jugar a 'The Peasants Rebellion'
+849:Jugar en un mapa simple
+850:Comenzar mapa
+851:Ir al menú
+852:Cargar partida
+853:Multijugador
+854:Opciones
+855:Créditos
+856:Salir
+857:Continuar
+858:Repetir misión
+859:Resolución:
+860:¡VICTORIA!
+861:¡DERROTA!
+862:Unidades perdidas:
+863:Unidades vencidas:
+864:Edificios perdidos:
+865:Edificios destruidos:
+866:Edificios construídos:
+867:Unidades formadas:
+868:Armas producidas:
+869:Soldados equipados:
+870:Duración del juego:
+1000:JOYMANIA ENTERTAINMENT||traduccion al español: el_gonzo||PROGRAMMING:|Peter Ohlmann||INGAME GRAPHICS:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||INGAME MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Liza Hassinger|Paul Hassinger||GAMES DIRECTOR:|Achim Heidelauf||CUTSCENES:||Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|ADDITIONAL 3D-MODELLING:|Niels Horstmann||THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+1686:Misión Cancelada
+1687:Tutorial de Construción
+1688:Tutorial de Batalla
+1689:Un Solo Jugador
+1690:Editor de mapas
+1691:Ver la última repetición
+1692:Empezar misión
+1693:Nombre
+1694:Medida
+1695:Tipo de misión:  %s
+1696:Condiciones de Victoria:  %s
+1697:Condiciones de Derrota:  %s
+1698:Alidados
+1699:Enemigos
+1701:Nueva medida de mapa
+1702:Anchura
+1703:Altura
+1704:Crear nuevo mapa
+1705:Mapa disponible
+1706:Cargar mapa
+1707:Controles:
+1708:Juego:
+1709:Sonido:
+1710:Desactivar música
+1711:Gráficos:
+1712:Brillo
+1713:Pantalla completa
+1714:Aplicar
+1715:Lenguaje:
+1716:Cargando... Por favor espera
+1717:Se ha producido un error
+1718:Cargando nueva partida local
+1719:Lisa de partidas guardadas
+1720:Nombre de archivo
+1721:Descripción
+1722:Carga
+1723:Borrar
+1724:¿Estas seguro de que quieres eliminar la partida guardada?
+1725:Eliminar
+1726:Cancelar
+1728:¡ Victoria !
+1729:Continuar Jugando
+1730:¡Victoria!
+1731:¡Has perdido!
+1732:Continuar...
+1733:Derrota
+1734:La repetición ha terminado
+1735:Continuar
+1736:Regresar al Menú
+1737:No disponible
+1738:Presiona %s para continuar el juego
+1739:Para el equipo
+1740:Informacion de jugadores
+1741:Chat
+1742:Guardar archivo existente
+1743:Sobrescribir
+1744:Salvar
+1745:Cargar
+1746:Se ha producido un error durante el juego
+1747:Por favor envia el archivo %s  del directorio KaM Remake\\Crash  a los desarrolladoes del juego, son archivos que informan de errores y puedan reparar los fallos. ¡Muchas gracias por su ayuda!
+1748:Se ha detectado una versión antigua de OpenGL, el juego puede ejecutarse lentamente y / o con defectos gráficos
+1749:Error en la red:
+1750:Error: Nombre del jugador no puede estar en blanco
+1751:Conexión fallida %s
+1752:Te has desconectado
+1753:Misión %d
+1754:El pescador no puede pescar tan lejos del agua.
+1755:El pescador no puede pescar, no hay más peces en el agua.
+1757:Usa el botón izquierdo para selecionar la mercancia a tratar
+1758:Usa el botón derecho para selecionar la mercancia a tratar
+1759:De x%d
+1760:A x%d
+1761:Editar terreno
+1762:Planificar el pueblo
+1763:Códigos visuales
+1764:Códigos globales
+1765:Menú
+1766:Estado:
+1767:Nombre de jugador
+1768:CREAR SERVIDOR
+1769:Nombre
+1770:Puerto
+1771:Crear servidor local
+1772:Crear servidor en internet
+1773:Nombre del servidor
+1774:Estado
+1775:Jugadores
+1776:Retraso
+1777:Actualizar lista de servidores.
+1778:DETALLES DEL SERVIDOR
+1779:Lista de jugadores:
+1780:Dirección
+1781:Puerta
+1782:Sala
+1783:Entrar
+1784:Conectando. por favor espera...
+1785:Cargando Anuncios...
+1786:Actualizando...
+1787:Lista de jugadores
+1788:Empezar localización
+1789:Equipo
+1791:Listo
+1792:Retraso
+1793:Exulsar
+1794:Abierto
+1795:Jugador IA
+1796:Seleccionar...
+1797:Aleatorio
+1799:Ninguno
+1802:Publicar mensaje:
+1803:Tipo de mapa
+1804:Un mapa solo
+1805:Guardar Partida
+1806:Selecciona un mapa...
+1807:Seleciona para guardar...
+1808:Información de mapa:
+1809:Jugadores: %d
+1810:Modo:
+1811:Condiciones:
+1812:Tamaño:
+1813:Salir de la sala
+1814:Listo
+1815:¡Empezar!
+1816:Esperando a los jugadores:
+1817:KaM Remake Créditos
+1818:Créditos originales Knights & Merchants
+1819:PROGRAMADOR
+1820:PROGRAMADORES ADICIONALES
+1821:GRÁFICOS ADICIONALES
+1822:TRADUCIONES ADICIONALES:
+1823:ESPECIALES GRACIAS A:
+1824:Mapas Multijugador
+1825:Mapas de un solo jugador
+1826:Velocidad de desplazamiento
+1827:Servidores no encontrados
+1828:Pistas aleatorias
+1829:Información de la partida:
+1830:-
+1831:En la Sala
+1832:Cargando
+1833:Jugando
+1834:Localización %d
+1835:Construir y Luchar
+1836:Luchar
+1837:No estoy listo
+1838:Listo
+1839:Error: Por favor seleciona un jugador para tomar el control
+1840:Error: el mapa no se puede cargar o no has seleccionado el mapa
+1841:No se puede iniciar: %s
+1842:Todos deben estar preparados para empezar
+1843:Excedes el límite de jugadores para ese mapa
+1844:Versión incorrecta: %s. Este juego utiliza la versión: %s
+1845:El servidor te ha asignado como anfitrión
+1846:Aumentar cantidad
+1847:Disminuir cantidad
+1848:Guardado el juego...
+1849:¡%s ha sido derrotado!
+1850:SONIDOS ADICIONALES
+1851:Caida de jugadores
+1852:El anfitrión dejará caer a los jugadores pasados %d segundos
+1853:El anfitrión permite la caida de estos jugadores
+1854:El Anfitrión (%s) ha abandonado la partida
+1855:La conexión con el servidor se ha perdido. Intentar volver a conectar...
+1856:¿Estás seguro que deseas salir del juego?
+1857:¿Estás seguro de que deseas expulsar de forma permantente a estos jugadores?
+1858:Cancelar
+1859:Civiles|entrenados
+1860:Civiles|Perdidos
+1861:Soldados|equipados
+1862:Soldados|perdidos
+1863:Unidades|Derrotadas
+1864:Edificios|construidos
+1865:Edificios|perdidos
+1866:Edificios|destruidos
+1867:Materiales|producidos
+1868:Armas|Produción
+1869:Comerciar este recurso no está disponible en esta misión
+1870:Planta y tala
+1871:Sólo tala
+1872:El juego a comenzado
+1873:Mapa de construcción
+1874:Mapa de lucha
+1875:Mapa cooperativo
+1876:No está permitido hacer eso en tiempos de paz.
+1877:Tiempo de paz restante: %s
+1878:El tiempo de paz se ha terminado. ¡Prepara tus armas!
+1879:Tiempo de juego:|%s
+1880:Opciones de juego:
+1881:H
+1882:L
+1883:S
+1884:Parar tropas ('%s')
+1885:Unir tropas  ('%s')
+1886:Separar tropas ('%s')
+1887:Ver Repeticiones
+1888:Ver Repetición
+1889:Tiempo de paz (en minutos)
+1890:Formato no válido %s
+1891:Versión no válida %s
+1893:iniciando
+1894:iniciando multijugador
+1895:guión
+1896:Nueva Misión
+1897:Se ha producido un error al analizar el archivo
+1898:Closed
+1899:Host does player setup
+1900:additional sprites
+1901:units
+1902:houses
+1903:trees
+1904:definitions
+1905:tileset
+2691:Cancelar
+2692:Cancelar
+2705:Por favor, actualice los controladores de gráficos para obtener un mejor rendimiento

@@ -1,0 +1,442 @@
+
+MaxID:2705
+
+0:Sågverk
+1:Järnsmedja
+2:Vapensmedja
+3:Kolgruva
+4:Järngruva
+5:Guldgruva
+6:Fiskare
+7:Bageri
+8:Bondgård
+9:Skogshuggare
+10:Rustningssmedja
+11:Förrådshus
+12:Stall
+13:Skola
+14:Stenbrott
+15:Metallurg
+16:Svingård
+17:Vakttorn
+18:Stadshus
+19:Vapenverkstad
+20:Rustningsverkstad
+21:Kasern
+22:Väderkvarn
+23:Belägringsverkstad
+24:Slaktare
+25:Garveri
+26:Träningshall
+27:Värdshus
+28:Vingård
+29:Marknad
+39:Trädstammar
+40:Stenar
+41:Träplankor
+42:Järnmalm
+43:Guldmalm
+44:Kol
+45:Järn
+46:Guld
+47:Vintunnor
+48:Säd
+49:Bröd
+50:Mjöl
+51:Läder
+52:Korvar
+53:Grisar
+54:Hudar
+55:Träsköld
+56:Järnsköld
+57:Läderrustning
+58:Järnrustning
+59:Handyxa
+60:Svärd
+61:Lans
+62:Pik
+63:Pilbåge
+64:Armborst
+65:Hästar
+66:Fisk
+69:Träl
+70:Skogshuggare
+71:Gruvarbetare
+72:Djuruppfödare
+73:Bonde
+74:Snickare
+75:Bagare
+76:Slaktare
+77:Fiskare
+78:Byggare
+79:Stenhuggare
+80:Smed
+81:Metallurg
+82:Rekryt
+83:Milisman
+84:Yxkrigare
+85:Svärdskrigare
+86:Bågskytt
+87:Armborstskytt
+88:Lansbärare
+89:Pikenerare
+90:Scout
+91:Riddare
+92:Vilde
+93:Rebell
+94:Skurk
+95:Krigare
+96:Lösdrivare
+97:Katapult
+98:Ballista
+99:Trälen transporterar|nödvändiga råmaterial |till dina byggnader.||Notera att det måste |finnas en väg mellan |byggnaderna.
+100:Skogshuggaren behövs|för att sågverket ska få|stockar att använda.||Han planterar även|träd så att skogen|aldrig dör helt.
+101:Gruvarbetaren jobbar i|kol-, järn- och |guldgruvan.
+102:Djuruppfödaren|använder säd för att|föda upp grisar på|svingården och hästar|i stallet.
+103:Bonden sår och|skördar säd på|bondgården.||Han producerar|också vin på vingården.
+104:Snickaren jobbar i sågverket,|vapenverkstaden och|rustningsverkstaden.||Han bygger också |katapulter och ballistor |i belägringsverkstaden.
+105:Bagaren maler säd|till mjöl i väderkvarnen.||Han bakar också bröd|i bageriet.
+106:Slaktaren stoppar korv|i slakteriet och garvar|läder i garveriet.
+107:Fiskaren fångar fisk|i närliggande vattendrag.
+108:Byggaren bygger|vägar och byggnader.|Han utför automatiskt|detta så fort du placerat|dem.||Han kan också reparera |skadade byggnader.
+109:För att dina byggare|ska få tillräckligt med|material för att bygga |vägar och byggnader|hugger och formar|stenhuggaren sten.
+110:Smeden smider vapen|och rustningar av järn|i respektive smedjor.
+111:Metallurgen använder|kol för att raffinera guld-|och järnmalm.
+112:Rekryten kan bli|pårustad som|soldat i kasernen.||Han bemannar också|vakttornet.
+147:Till val av byggnader
+148:Till distribution av varor
+149:Till statistik
+150:Till alternativ
+151:Tillbaka
+152:Byggnadsval
+153:Distribution|av varor
+154:Statistik
+155:Alternativ
+156:Ladda spel
+157:Spara spel
+158:Är du säker på att|du vill avsluta|detta uppdrag?
+159:Avsluta uppdrag
+160:Tillbaka
+161:Inställningar
+162:Avsluta uppdrag
+163:SFX
+164:Ändra volym
+165:Musik
+166:Musik på/av
+167:Autospara
+168:Musikspelare
+169:Föregående spår
+170:Nästa spår
+171:Riv
+172:Ta bort byggnader/selektioner
+173:Bygg väg
+174:Bygg vägar
+175:Ploga fält
+176:Ploga fält
+177:Placera vinranka
+178:Placera vinrankor
+179:Avbryt
+180:Avbryt nuvarande träning
+181:Behöver:
+182:Skick:
+183:Levererar
+184:Hus under|konstruktion
+185:Riv
+186:Vill du verkligen|förstöra denna byggnad?
+187:Riv vald byggnad
+188:Minska beställning
+189:Öka beställning
+190:Föregående soldattyp
+191:Nästa soldattyp
+192:Utrusta nuvarande soldattyp
+193:Nästa yrke
+194:Föregående yrke
+195:Lägg till kö
+196:Kostnad:
+197:Stäng av/sätt på reparering
+198:Byggnaden är ej tillgänglig just nu
+199:Skick
+200:Rotera vänster
+201:Rotera höger
+202:Attackera ('a')
+203:Lös upp trupp ('d')
+204:Ge mat till truppen
+205:Börja stormattack
+206:Lägg till linje
+207:Dra tillbaka linje
+208:Välj|grupp
+209:Avbryt
+210:Ta bort
+211:Tar bort nuvarande meddelande
+212:Gå till
+213:Hoppar till nuvarande meddelandeposition
+214:Stäng
+215:Stänger fönstret
+216:|Stenhuggaren kan inte få tag på mer sten.
+217:|En kolådra är tömd.
+218:|En järnådra är tömd.
+219:|En guldådra är tömd.
+220:|Detta hus har ingen ägare.
+221:|Truppen är utsvulten, det är bäst att de får nåt att äta snart!
+222:PAUS
+223:Ändra volym
+224:Sätt på/stäng av leveranser
+418:Spirit
+419:Busy
+420:Middle Ages Horn
+421:Spring
+422:Lute
+423:Mercenary
+424:The Princess
+425:The Queen
+426:In the Marketplace
+427:On the Battlefield
+428:Court Dance
+429:The Army
+430:In the Castle
+431:Fanfares
+432:At Court
+433:Entree
+434:Deep Blue
+435:Struggle
+847:Kampanj 'The Shattered Kingdom'
+848:Kampanj 'The Peasants Rebellion'
+849:Spela enskild karta
+850:Starta spelet
+851:Tillbaka
+852:Ladda sparat spel
+853:Flera spelare
+854:Alternativ
+855:Skapare
+856:Avsluta spelet
+857:Fortsätt
+858:Starta om uppdraget
+859:Upplösning:
+860:SEGER!
+861:FÖRLUST!
+862:Enheter förlorade:
+863:Enheter förstörda:
+864:Byggnader förlorade:
+865:Byggnader förstörda:
+866:Byggnader uppförda:
+867:Enheter tränade:
+868:Vapen konstruerade:
+869:Soldater tränade:
+870:Uppdraget slutfört på:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||SPECIAL THANKS TO:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Uppdrag avbrutet
+1687:Stadshandledning
+1688:Stridshandledning
+1689:En spelare
+1690:Kartredigerare
+1691:Spela upp senaste spelet
+1692:Starta uppdraget
+1693:Titel
+1694:Storlek
+1695:Uppdragstyp:
+1696:Vinstvillkor:
+1697:Förlustvillkor:
+1698:Allierade:
+1699:Fiender:
+1701:Ny kartstorlek
+1702:Bredd
+1703:Höjd
+1704:Skapa ny karta
+1705:Tillgängliga kartor
+1706:Ladda existerande karta
+1707:Kontroller:
+1708:Spelinställningar:
+1709:Ljud:
+1710:Ingen musik
+1711:Grafik:
+1712:Ljusstyrka
+1713:Helskärm
+1714:Bekräfta
+1715:Språk:
+1716:Laddar... Var god vänta
+1717:Ett problem uppstod!
+1718:Laddar ny lokal
+1719:Lista över sparade spel
+1720:Filnamn
+1721:Beskrivning
+1722:Ladda
+1723:Ta bort
+1724:Är du säker på att du vill ta bort det här sparade spelet?
+1725:Ta bort
+1726:Avbryt
+1728:Du vann!
+1729:Fortsätt spela
+1730:Seger!
+1731:Du förlorade!
+1732:Fortsätt titta
+1733:Förlust
+1734:Återspelningen har avslutats
+1735:Fortsätt titta
+1736:Avsluta
+1737:Ej tillgänglig
+1738:Tryck %s för att åter börja spela
+1739:Till lag
+1740:Spelarinfo
+1741:Chat
+1742:Spelet finns redan
+1743:Skriv över
+1744:Spara
+1745:Ladda
+1746:Ett fel har uppstått under spelets gång.
+1747:Var god skicka filen %s från din KaM Remake\\Crash Reports mapp till utvecklarna. Kontaktuppgifter finns i Readme-filen. Tack så mycket för hjälpen!
+1748:Gammal OpenGL version upptäckt, spelet kan köra långsamt och/eller med grafiska fel
+1749:Nätverksfel:
+1750:Error: Spelarnamnet får inte vara ingenting
+1751:Uppkoppling misslyckades: %s
+1752:Du har kopplats ner
+1753:Uppdrag %d
+1754:Din fiskares stuga är för långt från vattnet.
+1755:Din fiskare kan inte hitta nån mer fisk i de närliggande vattendragen.
+1757:Använd vänster musknapp för att välja en vara att handla med
+1758:Använd höger musknapp för att välja en vara att handla med
+1759:Från x%d
+1760:Till x%d
+1761:Terrängeditering
+1762:Byplanering
+1763:Visuella script
+1764:Globala script
+1765:Meny
+1766:Status:
+1767:Spelarnamn:
+1768:SKAPA SERVER
+1769:Servernamn
+1770:Serverport
+1771:Skapa lokalt spel
+1772:Skapa internetspel
+1773:Servernamn
+1774:Status
+1775:Spelare
+1776:Ping
+1777:Uppdatera serverlistan
+1778:SERVERDETALJER
+1779:Spelarlista:
+1780:Adress
+1781:Port
+1782:Rum
+1783:Anslut
+1784:Kopplar upp, var god vänta...
+1785:Laddar meddelanden...
+1786:Uppdaterar...
+1787:Spelarlista
+1788:Startplats
+1789:Lag
+1791:Redo
+1792:Ping
+1793:Kicka
+1794:Öppen
+1795:AI-spelare
+1796:Välj...
+1797:Slumpad
+1799:Ingen
+1802:Skicka meddelande:
+1803:Karttyp
+1804:Enskild karta
+1805:Sparat spel
+1806:Välj en karta...
+1807:Välj ett sparat spel...
+1808:Kartinfo:
+1809:Spelare:
+1810:Läge:
+1811:Villkor:
+1812:Storlek:
+1813:Avsluta sessionen
+1814:Redo
+1815:Börja!
+1816:Väntar på spelare:
+1817:KaM Remakes skapare
+1818:Original Knights & Merchants skapare
+1819:PROGRAMMERIG:
+1820:YTTERLIGARE PROGRAMMERING:
+1821:YTTERLIGARE GRAFIK:
+1822:YTTERLIGARE ÖVERSÄTTNING:
+1823:SPECIELLT TACK TILL:
+1824:Flerspelarkartor
+1825:Enkelspelarkartor
+1826:Scrollhastighet
+1827:Hittade inga servrar
+1828:Blanda spår
+1829:Spelinformation:
+1830:-
+1831:Lobby
+1832:Laddar
+1833:Spel
+1834:Plats %d
+1835:Bygg och strida
+1836:Strid
+1837:Inte redo
+1838:Redo
+1839:Fel: Sälj en spelare från sparningen att kontrollera
+1840:Fel: Kartan kunde inte laddas eller ingen karta vald
+1841:Kan inte börja: %s
+1842:Alla är inte redo att börja
+1843:Så många spelare kan inte spela på denna karta
+1844:Fel protokollversion: %s. Servern använder: %s
+1845:Servern har tilldelat dig värdrättigheter
+1846:Öka handelsmängd
+1847:Minska handelsmängd
+1848:Sparar spel...
+1849:%s besegrad!
+1850:YTTERLIGARE LJUD:
+1851:Kasta ut spelare
+1852:Värden kommer att kunna kasta ut dessa spelare efter %d sekunder
+1853:Värden kan nu kasta ut dessa spelare
+1854:Värden (%s) har gått ur spelet
+1855:Uppkopplingen till servern försvann. Försöker återansluta...
+1856:Är du säker på att du vill avsluta?
+1857:Är du säker på att du permanent vill kasta ut dessa spelare?
+1858:Avbryt
+1859:Invånare|tränade
+1860:Invånare|förlorade
+1861:Soldater|utrustade
+1862:Soldater|förlorade
+1863:Enheter|besegrade
+1864:Byggnader|konstruerade
+1865:Byggnader|förlorade
+1866:Byggnader|förstörda
+1867:Varor|producerade
+1868:Vapen|producerade
+1869:Att handla med denna vara är inte tillåtet på det här uppdraget
+1870:Plantera och hugg ner
+1871:Hugg endast ner
+1872:Spel startat
+1873:Byggkarta
+1874:Stridskarta
+1875:Samarbetskarta
+1876:Du får inte göra det under fredstiden
+1877:Fredstid kvar: %s
+1878:Fredstiden är över. Till vapen!
+1879:Speltid:|%s
+1880:Spelinställningar:
+1881:H
+1882:L
+1883:S
+1884:Gör halt ('%s')
+1885:Länka trupp ('%s')
+1886:Separera trupp ('%s')
+1887:Reprisvisare
+1888:Visa repris
+1889:Fredstid (minuter)
+1890:Inget stöd för format %s
+1891:Felaktig version %s
+1893:initierar
+1894:flerspelarinitiering
+1895:script
+1896:Nytt uppdrag
+1897:Ett fel uppstod när filen %s skulle behandlas
+1898:Stängd
+1899:Värden gör spelaruppställningen
+1900:ny grafik
+1901:enheter
+1902:hus
+1903:träd
+1904:definitioner
+1905:terrängtexturer
+2691:Avbryt
+2692:Avbryt
+2704:VARNING: Att fortsätta spela efter detta fel kan orsaka fler krascher och mer instabilitet. Vill du ta risken och spela vidare?
+2705:Var god uppdatera grafikdrivrutinerna för bättre prestanda

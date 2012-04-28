@@ -1,0 +1,458 @@
+
+MaxID:2705
+
+0:Segheria
+1:Fonderia
+2:Forgia d'armi
+3:Miniera di carbone
+4:Miniera di ferro
+5:Miniera d'oro
+6:Capanna del pescatore
+7:Forno
+8:Fattoria
+9:Capanna del boscaiolo
+10:Forgia d'armature
+11:Magazzino
+12:Stalle
+13:Scuola
+14:Cava
+15:Zecca
+16:Allevamento
+17:Torre di guardia
+18:Municipio
+19:Bottega d'armi
+20:Bottega d'armature
+21:Caserma
+22:Mulino
+23:Officina d'assedio
+24:Mattatoio
+25:Conceria
+26:Sala d'addestramento
+27:Locanda
+28:Cantina
+29:Mercato
+39:Tronchi d'albero
+40:Pietre
+41:Legname
+42:Ferro grezzo
+43:Oro grezzo
+44:Carbone
+45:Ferro
+46:Oro
+47:Barili di vino
+48:Grano
+49:Pani
+50:Farina
+51:Cuoio
+52:Salsicce
+53:Maiali
+54:Pelli
+55:Scudi di legno
+56:Scudi di ferro
+57:Maglie di cuoio
+58:Corazze
+59:Accette
+60:Spade
+61:Lance
+62:Picche
+63:Archi lunghi
+64:Balestre
+65:Cavalli
+66:Pesci
+69:Servo
+70:Boscaiolo
+71:Minatore
+72:Allevatore
+73:Contadino
+74:Carpentiere
+75:Fornaio
+76:Macellaio
+77:Pescatore
+78:Operaio
+79:Scalpellino
+80:Fabbro
+81:Fonditore
+82:Recluta
+83:Milizia
+84:Soldati con ascia
+85:Soldati con spada
+86:Arcieri
+87:Balestrieri
+88:Lancieri
+89:Picchieri
+90:Esploratori
+91:Cavalieri
+92:Barbari
+93:Ribelli
+94:Furfanti
+95:Guerrieri
+96:Vagabondi
+97:Catapulte
+98:Balliste
+99:Il servo porta ai tuoi|edifici le materie prime|necessarie.||Deve esistere una strada|di collegamento fra di|essi.
+100:Per produrre i tronchi|d'albero necessari alla|segheria ti serve il |boscaiolo, che si occupa|anche del rimboschimento.
+101:Il minatore estrae i|minerali dalle miniere|di carbone, ferro e oro.
+102:L'allevatore accudisce|e nutre con del grano|il bestiame nelle stalle|e negli allevamenti.
+103:Il contadino pianta e miete|il grano nelle fattorie.||Inoltre raccoglie l'uva dai|vigneti e si occupa della|vendemmia nella cantina.
+104:Il carpentiere lavora nella|segheria e nelle botteghe|d'armi ed armature.||Costruisce inoltre balliste|e catapulte nell'officina |d'assedio.
+105:Il fornaio cuoce il pane|nel forno.||Può anche macinare il|grano nel mulino per|ottenere la farina.
+106:Il macellaio produce|salsicce nel mattatoio e|cuoio nella conceria.
+107:Il pescatore cattura i pesci|dai vicini corsi d'acqua.
+108:L'operaio costruisce|edifici e strade. Dovrai|soltanto impartire il|comando e lui porterà|avanti automaticamente|i tuoi ordini.||Può anche riparare gli|edifici danneggiati.
+109:Per fornire ai tuoi operai|il materiale che servirà|a costruire le strade e gli|edifici, lo scalpellino taglia|e sagoma la pietra grezza.
+110:Tra il calore e le fiamme|delle forge, il fabbro crea|armi e corazze per il tuo|esercito.
+111:Il fonditore usa il carbone|per raffinare l'oro ed il |ferro grezzi.
+112:Nella caserma, la recluta|riceve l'addestramento|e l'equipaggiamento per|diventare un soldato.||Può anche presidiare le|torri di guardia.
+147:Pianificazione degli edifici
+148:Distribuzione delle risorse
+149:Statistiche
+150:Opzioni
+151:Indietro
+152:Selezione|Edifici
+153:Distribuzione|delle Risorse
+154:Statistiche
+155:Opzioni
+156:Carica Partita
+157:Salva Partita
+158:Sicuro di voler|abbandonare|la missione?
+159:Abbandona
+160:Indietro
+161:Impostazioni
+162:Abbandona
+163:SFX
+164:Cambia il volume
+165:Musica
+166:Musica sì/no
+167:Salvat. autom.
+168:Lettore musicale
+169:Traccia precedente
+170:Traccia successiva
+171:Demolisci
+172:Rimuovi edificio/oggetto selezionato
+173:Crea strade
+174:Costruisci strada
+175:Crea campo arato
+176:Ara campo
+177:Crea vigna
+178:Disponi vigna
+179:Annulla
+180:Annulla l'addestramento in corso
+181:Utilizza:
+182:Condizioni:
+183:Produce
+184:Edificio in|costruzione.
+185:Demolisci
+186:Vuoi davvero demolire|questo edificio?
+187:Demolisci l'edificio selezionato
+188:Riduci entità dell'ordine
+189:Aumenta entità dell'ordine
+190:Tipo di unità precedente
+191:Tipo di unità successivo
+192:Equipaggia questa unità
+193:Professione successiva
+194:Professione precedente
+195:Aggiungi alla coda
+196:Costo:
+197:Riparazione sì/no
+198:Edificio attualmente non disponibile
+199:Condizioni
+200:Ruota truppa verso sinistra
+201:Ruota truppa verso destra
+202:Attacca ('a')
+203:Invia truppa ('d')
+204:Invia cibo alla truppa
+205:Carica!
+206:Aggiungi una colonna
+207:Ritira una colonna
+208:Seleziona|gruppo
+209:Annulla
+210:Elimina
+211:Elimina il corrente messaggio
+212:Vai a
+213:Passa all'oggetto del corrente messaggio
+214:Chiudi
+215:Chiude la finestra
+216:|Il tuo scalpellino non riesce a procurarsi|altre pietre.
+217:|I filoni della tua miniera di carbone sono esauriti.
+218:|I filoni della tua miniera di ferro sono esauriti.
+219:|I filoni della tua miniera d'oro sono esauriti.
+220:|Questo edificio non è occupato.
+221:|Questi soldati sono molto affamati, hanno bisogno di mangiare al più presto!
+222:PAUSA
+223:Cambia il volume
+224:Consegna merci sì/no
+418:Spirito
+419:Occupato
+420:Il Corno del Medioevo
+421:Primavera
+422:Liuto
+423:Mercenari
+424:La Principessa
+425:La Regina
+426:Al Mercato
+427:Sul Campo di Battaglia
+428:Danza di Corte
+429:L'Armata
+430:Nel Castello
+431:Fanfare
+432:A Corte
+433:Entrata
+434:Profondo Blu
+435:Lotta
+436:Alloggi Reali
+437:Aristocrazia
+438:Al Porto
+439:Viaggio
+847:Campagna 'The Shattered Kingdom'
+848:Campagna 'The Peasants Rebellion'
+849:Giocatore Singolo
+850:Inizia
+851:Torna al Menu
+852:Carica partita salvata
+853:Multigiocatore
+854:Opzioni
+855:Crediti
+856:Esci dal gioco
+857:Continua
+858:Ricomincia Missione
+859:Risoluzione:
+860:VITTORIA!
+861:SCONFITTA!
+862:Unità perse:
+863:Unità uccise:
+864:Edifici persi:
+865:Edifici distrutti:
+866:Edifici costruiti:
+867:Unità addestrate:
+868:Armi forgiate:
+869:Soldati addestrati:
+870:Missione completata in:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMAZIONE:|Peter Ohlmann||GRAFICA:|Adam Sprys||LIVELLI:|Adam Sprys|Andre Quaß||EDITING E MIXING AUDIO:|Tonstudio Mannheim||MUSICHE:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRAZIONI:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUALE:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBBLICATO DA:|TopWare Interactive||CUTSCENES:||DIREZIONE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOCE:|Claus Boyen (Narratore)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ANIMAZIONE D'APERTURA:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||RINGRAZIAMENTI SPECIALI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+1686:Missione annullata
+1687:Tutorial di gestione del villaggio
+1688:Tutorial di combattimento
+1689:Giocatore Singolo
+1690:Editor di missione
+1691:Guarda l'ultimo Replay
+1692:Inizia Missione
+1693:Titolo
+1694:Tipo
+1695:Missione: %s
+1696:Vittoria: %s
+1697:Sconfitta: %s
+1698:Alleati:
+1699:Nemici:
+1701:Dimensioni della nuova mappa
+1702:Larghezza
+1703:Altezza
+1704:Crea nuova mappa
+1705:Mappe disponibili
+1706:Carica mappa esistente
+1707:Controlli:
+1708:Impostazioni di gioco:
+1709:Opzioni Audio:
+1710:Disattiva musica
+1711:Opzioni Grafiche:
+1712:Luminosità
+1713:Schermo intero
+1714:Applica
+1715:Lingua:
+1716:In caricamento...
+1717:Si è verificato un errore!
+1718:Nuova localizzazione in caricamento
+1719:Partite salvate
+1720:Nome del file
+1721:Descrizione
+1722:Carica
+1723:Elimina
+1724:Sei sicuro di voler eliminare definitivamente questo salvataggio?
+1725:Elimina
+1726:Annulla
+1728:Hai vinto!
+1729:Continua a giocare
+1730:Vittoria!
+1731:Hai perso!
+1732:Guarda la partita
+1733:Sconfitta
+1734:Replay terminato
+1735:Continua a guardare
+1736:Torna al Menu
+1737:Non disponibile
+1738:Premi %s per riprendere il gioco
+1739:Alla squadra
+1740:Info giocatori
+1741:Chat
+1742:Esiste già
+1743:Sovrascrivi
+1744:Salva
+1745:Carica
+1746:Si è verificato un errore durante il gioco.
+1747:Per favore, invia il file %s dalla cartella KaM Remake\\Crash Reports agli sviluppatori. Nel file Readme è possibile trovare le informazioni per contattarci. Grazie per il tuo cortese aiuto!
+1748:Rilevata una versione di OpenGL non aggiornata, il gioco potrebbe funzionare a rilento e/o con errori della grafica.
+1749:Errore di rete:
+1750:Errore: Il nome del giocatore non può essere vuoto
+1751:Connessione fallita: %s
+1752:Sei stato disconnesso
+1753:Missione %d
+1754:La tua capanna del pescatore è troppo lontana dalla riva.
+1755:Il tuo pescatore non riesce a trovare altri pesci nelle vicinanze.
+1757:Usa il tasto sinistro del mouse per scegliere il prodotto da scambiare
+1758:Usa il tasto destro del mouse per scegliere il prodotto da scambiare
+1759:Da  x%d
+1760:A x%d
+1761:Editor del terreno
+1762:Pianificazione del villaggio
+1763:Impostazioni giocatore
+1764:Impostazioni globali
+1765:Menu
+1766:Stato:
+1767:Nome giocatore
+1768:CRA SERVER
+1769:Nome
+1770:Porta
+1771:Crea Partita Locale
+1772:Crea Partita Internet
+1773:Nome del Server
+1774:Stato
+1775:Giocatori
+1776:Ping
+1777:Aggiorna lista dei Server
+1778:DETTAGLI DEL SERVER
+1779:Giocatori:
+1780:Indirizzo
+1781:Porta
+1782:Spazio
+1783:Entra
+1784:Connessione in corso...
+1785:Caricamento degli annunci in corso...
+1786:Aggiornamento...
+1787:Giocatori
+1788:Posizione
+1789:Squadra
+1790:Colore
+1791:Pronto
+1792:Ping
+1793:Caccia
+1794:Aperto
+1795:Giocatore IA
+1796:Seleziona...
+1797:Casuale
+1799:Nessuna
+1802:Invia messaggio:
+1803:Tipo di mappa
+1804:Giocatore singolo
+1805:Partita salvata
+1806:Mappa...
+1807:Partita salvata...
+1808:Informazioni sulla mappa:
+1809:Giocatori: %d
+1810:Tipo:
+1811:Condizioni:
+1812:Dimensioni:
+1813:Esci
+1814:Pronto
+1815:Inizia!
+1816:In attesa dei giocatori:
+1817:Crediti di KaM Remake
+1818:Crediti del Knights & Merchants originale
+1819:PROGRAMMAZIONE:
+1820:PROGRAMMAZIONE AGGIUNTIVA:
+1821:GRAFICA AGGIUNTIVA:
+1822:TRADUZIONE AGGIUNTIVA:
+1823:RINGRAZIAMENTI SPECIALI:
+1824:Multigiocatore
+1825:Giocatore singolo
+1826:Vel. scorrimento
+1827:Nessun server trovato
+1828:Riproduci a caso
+1829:Informazioni di gioco:
+1830:-
+1831:Lobby
+1832:In caricamento
+1833:Gioco
+1834:Posizione %d
+1835:Costruisci e Combatti
+1836:Battaglia
+1837:Non pronto
+1838:Pronto
+1839:Errore: Scegli una fazione da controllare.
+1840:Errore: Caricamento della mappa fallito o mappa non selezionata
+1841:Impossibile iniziare: %s
+1842:Non tutti i giocatori sono pronti per iniziare
+1843:Troppi giocatori per questa mappa
+1844:La versione del protocollo è sbagliata: %s. Il server usa: %s
+1845:Il server ci ha assegato il ruolo di host
+1846:Aumenta quantità di merce da scambiare
+1847:Diminuisci quantità di merce da scambiare
+1848:Salvataggio in corso...
+1849:%s è stato sconfitto!
+1850:SUONI AGGIUNTIVI:
+1851:Caccia Giocatori
+1852:L'host potrà cacciare questi giocatori tra %d secondi
+1853:L'host può ora cacciare questi giocatori
+1854:L'host (%s) ha abbandonato la partita
+1855:Connessione col server perduta. Tentativo di riconnessione in corso...
+1856:Sicuro di voler uscire?
+1857:Sicuro di voler cacciare permanentemente questi giocatori?
+1858:Annulla
+1859:Cittadini|addestrati
+1860:Cittadini|perduti
+1861:Soldati|equipaggiati
+1862:Soldati|persi
+1863:Unità|sconfitte
+1864:Edifici|costruiti
+1865:Edifici|perduti
+1866:Edifici|distrutti
+1867:Merci|prodotte
+1868:Armi|prodotte
+1869:In questa missione non è possibile scambiare questa risorsa
+1870:Pianta e abbatti
+1871:Abbatti solamente
+1872:Partita iniziata
+1873:Costruzione
+1874:Battaglia
+1875:Cooperativa
+1876:Non puoi farlo in tempo di pace
+1877:Tempo di pace rimanente: %s
+1878:Il tempo della pace è finito. Alle armi!
+1879:Tempo di gioco:|%s
+1880:Opzioni di gioco:
+1881:F
+1882:U
+1883:D
+1884:Ferma truppa ('%s')
+1885:Unisci truppe ('%s')
+1886:Dividi truppa ('%s')
+1887:Replay Salvati
+1888:Guarda Replay
+1889:Tempo di pace (min.)
+1890:Formato %s non supportato
+1891:Versione %s non supportata
+1893:inizializzando
+1894:inizializzando il multiplayer
+1895:script
+1896:Nuova Missione
+1897:Si è verificato un errore durante l'analisi del file %s
+1898:Chiuso
+1899:L'host configura i giocatori
+1900:sprite addizionali
+1901:unità
+1902:edifici
+1903:alberi
+1904:definizioni
+1905:tileset
+2687:Crea Server
+2688:TROVA SERVER
+2689:Connetti
+2690:Trova Server per IP
+2691:Annulla
+2692:Annulla
+2693:Non supportata
+2694:Non supportata
+2695:Errore: il nome non dev'essere più lungo di %d caratteri
+2696:Errore: il nome contiene caratteri non supportati
+2697:Qualità delle ombre:
+2698:Bassa
+2699:Alta
+2704:ATTENZIONE: Continuare la partita dopo questo errore potrebbe causare ulteriori crash ed instabilità. Vuoi comunque rischiare e continuare a giocare?
+2705:Per favore, aggiorna i tuoi driver video per migliorare le prestazioni.

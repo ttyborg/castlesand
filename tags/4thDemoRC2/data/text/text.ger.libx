@@ -1,0 +1,458 @@
+
+MaxID:2705
+
+0:Sägewerk
+1:Eisenschmelze
+2:Waffenschmiede
+3:Kohlebergwerk
+4:Eisenmine
+5:Goldmine
+6:Fischerhütte
+7:Bäckerei
+8:Bauernhof
+9:Holzfällerhütte
+10:Rüstungsschmiede
+11:Lagerhaus
+12:Ställe
+13:Schulhaus
+14:Steinbruch
+15:Goldschmelze
+16:Schweinezucht
+17:Wachturm
+18:Rathaus
+19:Waffenwerkstatt
+20:Rüstungswerkstatt
+21:Kaserne
+22:Mühle
+23:Kriegswerkstatt
+24:Metzgerei
+25:Gerberei
+26:Trainingshalle
+27:Gasthof
+28:Weingut
+29:Markthalle
+39:Baumstämme
+40:Steine
+41:Nutzholz
+42:Eisenerz
+43:Goldgestein
+44:Kohle
+45:Eisen
+46:Gold
+47:Weinfässer
+48:Korn
+49:Brote
+50:Mehl
+51:Leder
+52:Würste
+53:Schweine
+54:Häute
+55:Holzschild
+56:Eisenschild
+57:Lederrüstung
+58:Eisenrüstung
+59:Handaxt
+60:Schwert
+61:Lanze
+62:Pike
+63:Langbogen
+64:Armbrust
+65:Pferde
+66:Fische
+69:Gehilfe
+70:Holzfäller
+71:Bergmann
+72:Viehzüchter
+73:Bauer/Winzer
+74:Schreiner
+75:Bäcker/Müller
+76:Metzger/Gerber
+77:Fischer
+78:Bauarbeiter
+79:Steinmetz
+80:Schmied
+81:Schmelzer
+82:Rekrut
+83:Miliz
+84:Axtkämpfer
+85:Schwertkämpfer
+86:Bogenschützen
+87:Armbrustschützen
+88:Lanzenträger
+89:Pikenier
+90:Späher
+91:Rittergarde
+92:Barbar
+93:Rebell
+94:Knappe
+95:Krieger
+96:Vagabund
+97:Katapult
+98:Balliste
+99:Der Gehilfe versorgt Ihre|Gebäude mit den benötig-|ten Rohstoffen.||Beachten Sie dabei, dass|eine Straßenverbindung|zwischen den Häusern|bestehen muss.
+100:Um Baumstämme für|das Sägewerk zu|produzieren, benötigen|Sie den Holzfäller.||Der Holzfäller forstet|den Wald selbstständig|wieder auf.
+101:Der Bergmann fördert|Erze in der Kohlen-,|Eisen- und Goldmine.
+102:In der Schweine- und|Pferdezucht züchtet der|Viehzüchter mit Hilfe|von Korn das Vieh.
+103:Der Bauer säht und|erntet Korn in dem|Bauernhof.||Außerdem keltert er|Wein im Weingut.
+104:Der Schreiner arbeitet in|dem Sägewerk, in der|Waffen- und Rüstungs-|werkstatt, wo er Waffen|und Rüstungen aus|Holz herstellt.||Zusätzlich fertigt der|Schreiner Katapulte und|Ballisten in der Kriegs-|werkstatt an.
+105:Der Bäcker backt Brot|in der Bäckerei.||Zusätzlich verarbeitet|er Korn zu Mehl in|der Windmühle.
+106:Der Metzger produziert|Würste in der|Metzgerei und Leder|in der Gerberei.
+107:Der Fischer fängt Fische|in naheliegenden|Gewässern.
+108:Der Bauarbeiter errichtet|Gebäude und Straßen.|Setzen Sie die Markier-|ungen und er erfüllt|Ihre Aufträge auto-|matisch.||Außerdem repariert er|beschädigte Häuser.
+109:Damit Ihre Bauarbeiter|genügend Steine zum|Errichten von Straßen|und Häusern haben, baut|der Steinmetz Steine ab.
+110:Schwere Rüstungen und|Waffen werden von dem|Schmied in der Waffen-|und Rüstungsschmiede|hergestellt.
+111:Der Schmelzer|produziert aus Gold-|und Eisenerz Goldtruhen,|bzw. Eisen.
+112:Der Rekrut kann in der|Kaserne zu einem|Soldaten ausgerüstet|werden.||Außerdem besetzt er|den Wachturm.
+147:Zur Bauauswahl
+148:Zur Warenverteilung
+149:Zur Statistik
+150:Zu den Optionen
+151:Zurück
+152:Bauauswahl
+153:Waren-|verteilung
+154:Statistik
+155:Optionen
+156:Spiel laden
+157:Spiel speichern
+158:Wollen Sie|diese Mission|wirklich beenden?
+159:Mission beenden
+160:Zurück
+161:Einstellungen
+162:Mission beenden
+163:Geräusche
+164:Lautstärke ändern
+165:Musik
+166:Musik ein-/ausschalten
+167:AutoSave
+168:CD-Player
+169:Vorheriges Lied
+170:Nächstes Lied
+171:Abreissen
+172:Abreissen von Häusern/Markierungen
+173:Straße bauen
+174:Straßenbau
+175:Acker pflügen
+176:Ackerbau
+177:Weinfeld anlegen
+178:Weinfeld
+179:Abbrechen
+180:Derzeitige Ausbildung abbrechen
+181:Vorrätig:
+182:Zustand:
+183:Liefert
+184:Das Gebäude wird|derzeit noch errichtet
+185:Zerstören
+186:Wollen Sie das Gebäude|wirklich abreissen?
+187:Zerstört ausgewähltes Gebäude
+188:Bestellmenge erniedrigen
+189:Bestellmenge erhöhen
+190:Vorheriger Einheitentyp
+191:Nächster Einheitentyp
+192:Aktuellen Einheitentyp ausrüsten
+193:Nächster Beruf
+194:Vorherigen Beruf
+195:Zur Warteschlange hinzufügen
+196:Kosten:
+197:Hausreparatur ein-/ausschalten
+198:Gebäude derzeit nicht verfügbar
+199:Ausdauer
+200:Truppe linksum drehen
+201:Truppe rechtsum drehen
+202:Truppe angreifen ('a')
+203:Truppe senden ('s')
+204:Truppe mit Nahrung versorgen
+205:Sturmangriff starten
+206:Eine Reihe hinzufügen
+207:Eine Reihe abziehen
+208:Zielgruppe|wählen
+209:Abbruch
+210:Löschen
+211:Löscht die aktuelle Nachricht
+212:Gehe zu
+213:Springt zur Position der aktuellen Nachricht
+214:Schließen
+215:Fenster schließen
+216:|Euer Steinmetz erreicht keine weiteren Steinbestände.
+217:|Euer Kohlebergwerk ist erschöpft.
+218:|Euer Eisenbergwerk ist erschöpft.
+219:|Euer Goldbergwerk ist erschöpft.
+220:|Dieses Haus ist nicht bewohnt.
+221:|Diese Truppe ist sehr hungrig, sie sollte sehr bald Nahrung bekommen!
+222:PAUSE
+223:Lautstärke ändern
+224:Warenlieferung ein-/ausschalten
+418:Spirit
+419:Busy
+420:Middleage Horn
+421:Spring
+422:Middleage Guitar
+423:Landsknechte
+424:Die Prinzessin
+425:Die Königin
+426:Auf dem Markt
+427:Auf dem Felde
+428:Tanz am Hof
+429:Die Armee
+430:Im Schloss
+431:Fanfaren
+432:Am Hofe
+433:Entree
+434:Deep Blue
+435:Struggle
+436:Quartier des Königs
+437:Aristokratie
+438:Am Hafen
+439:Reise
+847:Kampagne 'The Shattered Kingdom'
+848:Kampagne 'The Peasants Rebellion'
+849:Einzelmission spielen
+850:Mission starten
+851:Zurück zum Hauptmenü
+852:Spielstand laden
+853:Multiplayerspiel
+854:Optionen
+855:Credits anschauen
+856:Programm verlassen
+857:Weiter
+858:Mission wiederholen
+859:Auflösung:
+860:MISSION GEWONNEN!
+861:MISSION VERLOREN!
+862:Verlorene Einheiten:
+863:Besiegte Einheiten:
+864:Verlorene Gebäude:
+865:Zerstörte Gebäude:
+866:Errichtete Gebäude:
+867:Ausgebildete Einheiten:
+868:Produzierte Waffen:
+869:Ausgerüstete Soldaten:
+870:Spieldauer:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMMIERUNG:|Peter Ohlmann||SPIELGRAFIK:|Adam Sprys||LEVELDESIGN:|Adam Sprys|Andre Quaß||TONSCHNITT UND -MISCHUNG:|Tonstudio Mannheim||MUSIK:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONEN:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||HANDBUCH:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|BlackStar Interactive||CUTSCENES:||LEITUNG:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||SPRECHER:|Claus Boyen (Erzähler)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||HANDBUCH SATZ+DESIGN:|Uwe Schäfer|Alexandra Constandache||HANDBUCH TEXTE:|Peter Ohlmann|Uwe Schäfer||ARTWORK:|Boleslaw Kasza|Adam Sprys||ERÖFFNUNGSANIMATION:|Uwe Schäfer|Christian Bigalk|Zusätzliches 3D-Modelling:|Niels Horstmann||BESONDEREN DANK AN:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer
+1686:Mission abgebrochen
+1687:Aufbaututorial
+1688:Kampftutorial
+1689:Einzelspieler
+1690:Karteneditor
+1691:Letzten Replay anzeigen
+1692:Mission starten
+1693:Bezeichnung
+1694:Größe
+1695:Missionstyp: %s
+1696:Siegbedingung: %s
+1697:Niederlagebedingung: %s
+1698:Verbündete:
+1699:Gegner:
+1701:Neue Kartengröße
+1702:Breite
+1703:Höhe
+1704:Neue Karte erstellen
+1705:Verfügbare Karten
+1706:Vorhandene Karte öffnen
+1707:Steuerung:
+1708:Spieleinstellungen:
+1709:Sound:
+1710:Keine Musik
+1711:Grafik:
+1712:Helligkeit
+1713:Vollbild
+1714:Übernehmen
+1715:Sprache:
+1716:Lade... Bitte warten
+1717:Ein Fehler ist aufgetreten!
+1718:Neue Lokalisierung laden
+1719:Gespeicherte Spielstände
+1720:Name
+1721:Beschreibung
+1722:Laden
+1723:Löschen
+1724:Spielstand wirklich löschen?
+1725:Löschen
+1726:Abbrechen
+1728:Spiel gewonnen!
+1729:Weiterspielen
+1730:Spiel beenden
+1731:Spiel verloren!
+1732:Weiterspielen
+1733:Spiel beenden
+1734:Replay beendet
+1735:Weiter betrachten
+1736:Zurück zum Menü
+1737:Nicht verfügbar
+1738:%s drücken zum weiterspielen.
+1739:Ans Team senden
+1740:Spielerinfo
+1741:Chat
+1742:Name schon vorhand.
+1743:Ersetzen
+1744:Speichern
+1745:Laden
+1746:Während des Spielens ist ein Fehler aufgetreten.
+1747:Bitte die Datei %s aus dem Verzeichnis KaM Remake\\Crash Reports an die Entwickler senden. Die Kontaktinformationen stehen in der ReadMe-Datei. Vielen Dank für die Hilfe!
+1748:Alte OpenGL Version ermittelt! Das Spiel könnte langsam und/oder mit Grafikfehlern laufen.
+1749:Netzwerkfehler:
+1750:Fehler: Bitte Spielername eingeben
+1751:Verbindung fehlgeschlagen: %s
+1752:Du bist nicht verbunden.
+1753:Mission %d
+1754:Diese Fischerhütte ist zu weit vom Wasser entfernt!
+1755:Dieser Fischer erreicht keine weiteren Fischbestände mehr!
+1757:Benutze die linke Maustaste um die Ware auszuwählen, die getauscht werden soll.
+1758:Benutze die rechte Maustaste um die Ware auszuwählen, die getauscht werden soll.
+1759:Von x%d
+1760:Zu x%d
+1761:Gelände bearbeiten
+1762:Häuser bearbeiten
+1763:Optische Skripte
+1764:Globale Skripte
+1765:Menü
+1766:Status:
+1767:Spielername
+1768:ERSTELLE SERVER
+1769:Name
+1770:Port
+1771:Erstelle lokalen Server
+1772:Erstelle Internet Server
+1773:Servername
+1774:Status
+1775:Spieler
+1776:Ping
+1777:Aktualisiere Serverliste
+1778:SERVERDETAILS
+1779:Spielerliste:
+1780:Adresse
+1781:Port
+1782:Raum
+1783:Beitreten
+1784:Verbinde, bitte warten...
+1785:Lade Ankündigung...
+1786:Aktualisiere...
+1787:Spieler
+1788:Startposition
+1789:Team
+1790:Farbe
+1791:Bereit
+1792:Ping
+1793:Kick
+1794:Öffnen
+1795:Computer
+1796:Wähle...
+1797:Zufällig
+1799:Keine Info vorhanden.
+1802:Nachricht:
+1803:Typ:
+1804:Einzelkarte
+1805:Spielstand laden
+1806:Wähle eine Karte...
+1807:Spielstand wählen...
+1808:Karteninfo:
+1809:Spieler: %d
+1810:Modus:
+1811:Bedingungen:
+1812:Größe:
+1813:Lobby verlassen
+1814:Bereit!
+1815:Start!
+1816:Warte auf Spieler:
+1817:KaM Remake Credits
+1818:Ursprünglichel Knights & Merchants Credits
+1819:PROGRAMMIERUNG:
+1820:WEITERE PROGRAMMIERUNG:
+1821:WEITERE GRAFIKEN:
+1822:ZUSÄTZLICHE ÜBERSETZUNGEN:
+1823:BESONDERER DANK AN:
+1824:Mehrspieler Karten
+1825:Einzelspieler Karten
+1826:Scrollgeschw.
+1827:Keinen Server gefunden.
+1828:Lieder zufällig
+1829:Spielinfo:
+1830:-
+1831:Lobby
+1832:Laden
+1833:Spiel
+1834:Standort %d
+1835:Aufbau & Gefecht
+1836:Gefecht
+1837:Nicht bereit
+1838:Bereit
+1839:Fehler: Bitte übernimm einen Spieler aus dem Spielstand!
+1840:Fehler: Karte konnte nicht geladen werden oder keine Karte ausgewählt!
+1841:Kann nicht starten: %s.
+1842:Es ist noch nicht jeder bereit zu starten.
+1843:Die Spieleranzahl hat die Grenze erreicht.
+1844:Falsche Version des Protokolls: %s. Benötigt wird: %s!
+1845:Der Server hat dir die Hostingrechte übertragen.
+1846:Erhöhe Warenanzahl
+1847:Verringere Warenanzahl
+1848:Spiel wird gespeichert...
+1849:%s wurde besiegt!
+1850:ZUSÄTZLICHE SOUNDEFFEKTE:
+1851:Spieler entfernen
+1852:Der Host kann diese Spieler nach %d Sekunden trennen.
+1853:Der Host darf diese Spieler nicht trennen
+1854:Der Host (%s) hat das Spiel verlassen.
+1855:Die Verbindung zum Server ist unterbrochen. Versuche neu zu verbinden...
+1856:Wirklich beenden?
+1857:Soll dieser Spieler dauerhaft entfernt werden?
+1858:Abbrechen
+1859:Bürger|ausgebildet
+1860:Bürger|verloren
+1861:Soldaten|ausgehoben
+1862:Soldaten|verloren
+1863:Einheiten|besiegt
+1864:Gebäude|errichtet
+1865:Gebäude|verloren
+1866:Gebäude|zerstört
+1867:Waren|produziert
+1868:Waffen|produziert
+1869:Mit dieser Ware kann in dieser Mission nicht gehandelt werden.
+1870:Pflanzen & Fällen
+1871:Nur fällen
+1872:Spiel gestartet
+1873:Aufbau
+1874:Gefecht
+1875:Koop-Modus
+1876:Aktion während der Friedenszeit nicht möglich.
+1877:Friedenszeit verbleibend: %s
+1878:Der Frieden ist vorüber. Zu den Waffen!
+1879:Spieldauer:|%s
+1880:Optionen:
+1881:H
+1882:V
+1883:S
+1884:Truppe anhalten ('%s')
+1885:Truppen verbinden ('%s')
+1886:Truppe trennen ('%s')
+1887:Replays
+1888:Replay anzeigen
+1889:Friedenszeit (Min.):
+1890:Nicht unterstütztes Format %s!
+1891:Nicht unterstützte Version %s!
+1893:Initialisierung
+1894:Multiplayer Initialisierung
+1895:Skript
+1896:Neue Mission
+1897:Ein Fehler trat während der Syntaxanalyse in Datei %s auf.
+1898:Geschlossen
+1899:Host übernimmt Spieler Setup.
+1900:Zusätzliche Grafiken
+1901:Einheiten
+1902:Gebäude
+1903:Bäume
+1904:Definitionen
+1905:Texturen
+2687:Erstelle Server
+2688:FINDE SERVER
+2689:Verbinde
+2690:Finde Server über IP
+2691:Abbrechen
+2692:Abbrechen
+2693:Nicht unterstützt
+2694:Nicht unterstützt
+2695:Fehler: Der Spielername muss länger sein als %d Zeichen.
+2696:Fehler: Spielername enthält nicht erlaubte Zeichen.
+2697:Schatten Qualität:
+2698:Niedrig
+2699:Hoch
+2704:WARNUNG: Wenn du weiterspielst riskierst du weitere Abstürze oder Fehler. Willst du auf eigene Gefahr weiterspielen?
+2705:Bitte Grafikkartentreiber aktualisieren!

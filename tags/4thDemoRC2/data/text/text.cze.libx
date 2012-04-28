@@ -1,0 +1,458 @@
+
+MaxID:2705
+
+0:Pila
+1:Hu na elezo
+2:Kovárna zbraní
+3:Uhelnı dùl
+4:eleznı dùl
+5:Zlatı dùl
+6:Rybárna
+7:Pekárna
+8:Farma
+9:Døevorubeckı srub
+10:Kovárna brnìní
+11:Skladištì
+12:Stáje
+13:Škola
+14:Kameníkova chıše
+15:Zlatnická hu
+16:Vepøín
+17:Vì
+18:Radnice
+19:Vırobna zbraní
+20:Vırobna brnìní
+21:Hrad
+22:Mlın
+23:Vırobna obléhacích strojù
+24:Øeznictví
+25:Koeluna
+26:Vıcviková hala
+27:Hostinec
+28:Vinice
+29:Trištì
+39:Kmeny stromù
+40:Kamení
+41:Prkna
+42:elezná ruda
+43:Zlatá ruda
+44:Uhlí
+45:elezo
+46:Zlato
+47:Víno
+48:Obilí
+49:Bochníky
+50:Mouka
+51:Kùe
+52:Klobásy
+53:Prasata
+54:Usnì
+55:Døevìné štíty
+56:elezné štíty
+57:Koená brnìní
+58:elezná brnìní
+59:Sekery
+60:Meèe
+61:Kopí
+62:Halapartny
+63:Luky
+64:Kuše
+65:Konì
+66:Ryby
+69:Nevolník
+70:Døevorubec
+71:Horník
+72:Chovatel zvíøat
+73:Farmáø
+74:Tesaø
+75:Pekaø
+76:Øezník
+77:Rybáø
+78:Dìlník
+79:Kameník
+80:Kováø
+81:Hutník
+82:Rekrut
+83:Domobrana
+84:Sekerník
+85:Bojovník s meèem
+86:Luèišník
+87:Støelec z kuše
+88:Kopiník
+89:Halapartník
+90:Zvìd
+91:Rytíø
+92:Barbar
+93:Rebel
+94:Støelec z praku
+95:Bojovník
+96:Tulák
+97:Katapult
+98:Balista
+99:Nevolníci zásobují|vaše budovy |nezbytnımi surovinami.||Mezi budovami |musí existovat cesty.
+100:Døevorubec produkuje|kmeny stromù, které se|dále zpracovávají v pile|na prkna.||Døevorubec se také stará|o opìtovné zalesnìní.
+101:Horník tìí uhlí,|elezo nebo zlato|v pøíslušném dole.
+102:Chovatel zvíøat chová|prasata nebo konì.|Krmí je obilím.
+103:Farmáøi sází a sklízejí|obilí a hrozny na|farmách a vinicích.
+104:Tesaø pracuje na pile,|ve vırobnì zbraní|a vırobnì brnìní.||Staví také katapulty|a balisty ve vırobnì|obléhacích strojù.
+105:Pekaø mele obilí|na mouku ve mlınì|a peèe chleba|v pekárnì.
+106:Øezník vyrábí|klobásy v øeznictví|a kùi v koelunì.
+107:Rybáø chytá ryby|v øekách a moøích.||Pozor, ne kadá|voda je plná ryb.
+108:Dìlník staví budovy|a cesty. Jednoduše|zadejte co má postavit|a vše vykoná|automaticky.||Také opravuje|poškozené budovy.
+109:Kameník láme a otesává|surovı kámen na kámen|vhodnı ke stavbám|budov a cest.
+110:Kováø vyrábí zbranì|a zbroje v kovárnách|zbraní a brnìní.
+111:Slévaè pouívá uhlí|k vırobì zlata a eleza|z rud.
+112:Pomocí hradu mùete|vycvièit z rekrutù|hlavní typy vojákù.||Nebo obsluhuje vìe.
+147:Ke stavbì budov
+148:K distribuci materiálu
+149:Ke statistikám
+150:K nastavení
+151:Zpìt
+152:Vıbìr|Budov
+153:Distribuce|Materiálu
+154:Statistika
+155:Nastavení
+156:Nahrát hru
+157:Uloit hru
+158:Jste si jistı, e|chcete opustit|tuto misi?
+159:Opustit Misi
+160:Zpìt
+161:Nastavení
+162:Opustit Misi
+163:SFX
+164:Zmìnit hlasitost
+165:Hudba
+166:Hudba zapnuta/vypnuta
+167:Auto ukládání
+168:Pøehrávaè hudby
+169:Pøedchozí skladba
+170:Další skladba
+171:Zbourat
+172:Zbourat budovu
+173:Postavit cestu
+174:Postavit pole
+175:Zorat pole
+176:Pole
+177:Zaloit vinici
+178:Vinné pole
+179:Zpìt
+180:Zrušit souèasnı vıcvik
+181:Potøeby:
+182:Stav:
+183:Dodávka
+184:Budova ve|vıstavbì
+185:Znièit
+186:Chcete opravdu|zbourat tuto budovu?
+187:Zbourat vybranou budovu
+188:Zmenšit poèet
+189:Zvıšit poèet
+190:Pøedchozí typ vojáka
+191:Následující typ vojáka
+192:Vybavit aktuální typ vojáka
+193:Další profese
+194:Pøedchozí profese
+195:Pøidat do fronty
+196:Cena:
+197:Vypnout/Zapnout opravu budovy
+198:Budova je aktuálnì nedostupná
+199:Stav
+200:Otoèit vlevo
+201:Otoèit vpravo
+202:Útok ('a')
+203:Poslat ('d')
+204:Nakrmit
+205:Náhlı útok
+206:Pøidat sloupec
+207:Ubrat sloupec
+208:Zvolit|skupinu
+209:Zrušit
+210:Smazat
+211:Smazat aktuální zprávu
+212:Jít na
+213:Jít na aktuální pozici zprávy
+214:Zavøít
+215:Zavøit okno
+216:|Váš kameník nemùe sehnat další zásoby kamení
+217:|Váš uhelnı dùl se zdá bıt vyèerpanı.
+218:|Váš eleznı dùl se zdá bıt vyèerpanı.
+219:|Váš zlatı dùl se zdá bıt vyèerpanı.
+220:|Tato budova není obydlena.
+221:|Tito vojáci jsou hladoví, mìli by dostat co nejrychleji nìco k jídlu!
+222:PAUZE
+223:Zmìnit hlasitost
+224:Vypnout/Zapnout dodávku zboí
+418:Pøízrak
+419:Rušnı
+420:Støedovìkı roh
+421:Jaro
+422:Flétna
+423:oldák
+424:Princezna
+425:Královna
+426:Na trišti
+427:Na bojišti
+428:Dvorní tanec
+429:Armáda
+430:Na hradì
+431:Fanfáry
+432:Na dvoøe
+433:Hlavní pochod
+434:Tmavì modrá
+435:Zápas
+436:Na zámku
+437:U šlechty
+438:V pøístavu
+439:Na cestì
+847:Kampaò 'The Shattered Kingdom'
+848:Kampaò 'The Peasants Rebellion'
+849:Hrát samostatnou mapu
+850:Start
+851:Zpìt do menu
+852:Nahrát uloenou hru
+853:Hra pro více hráèù
+854:Nastavení
+855:Autoøi
+856:Konec hry
+857:Pokraèovat
+858:Restart mise
+859:Rozlišení:
+860:VÍTÌZSTVÍ!
+861:PROHRA!
+862:Ztraceno jednotek:
+863:Znièeno jednotek:
+864:Ztraceno budov:
+865:Znièeno budov:
+866:Postaveno budov:
+867:Vytrénováno jednotek:
+868:Vyrobeno zbraní:
+869:Vytrénováno vojákù:
+870:Mise dokonèena za:
+1000:JOYMANIA ENTERTAINMENT||PROGRAMOVÁNÍ:|Peter Ohlmann||GRAFIKA HRY:|Adam Sprys||NÁVRH MISÍ:|Adam Sprys|Andre Quaß||EDITACE ZVUKU A MIXOVÁNÍ:|Tonstudio Mannheim||HUDBA:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILUSTRACE:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCENT:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTOVÁNÍ:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||HERNÍ REISÉR:|Achim Heidelauf||PUBLIKOVÁNO:|TopWare Interactive||VIDEA:||REIE:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||DABING:|Claus Boyen (Vypravìè)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||ÚVODNÍ VIDEO:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||PODÌKOVÁNÍ:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt||1.60 PATCH|'SERVICE RELEASE 3'||KOORDINACE:|Tommi Räsänen (Litude)||PROGRAMOVÁNÍ:|Lewin Hodgman|Stephen Hodgman|Tommi Räsänen (Litude)||ÚPRAVA MISÍ:|Joost Bandsma (The Dark Lord)|Lewin Hodgman|Tommi Räsänen (Litude)||ÚPRAVA GRAFIKY:|Harold Aptroot||ZVUKOVÉ EFEKTY:|Lewin Hodgman|Mitchell Hodgman||OPRAVY TEXTÙ:|Jakub Z. (kuba11100)|Jeroen Bos (JBSnorro)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|Lewin Hodgman|Tommi Räsänen (Litude)||PØEKLAD:|Alexander B. (AZA)|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Joost Bandsma (The Dark Lord)|Lars Stienen (Thunderwolf)|'Merchator'|'Nick'|'M4RC0'||BETA TESTOVÁNÍ:|Attila Arnold (The Knight)|Jakub Z. (kuba11100)|Lars Stienen (Thunderwolf)|'Michailoff'
+1686:Mise ukonèena
+1687:Vıuka stavby
+1688:Vıuka boje
+1689:Hra pro jednoho hráèe
+1690:Editor mapy
+1691:Zhlédnout poslední záznam
+1692:Zaèít misi
+1693:Název
+1694:Velikost
+1695:Typ mise: %s
+1696:Podmínky vítìzství: %s
+1697:Podmínky poráky: %s
+1698:Spojenci:
+1699:Nepøátelé:
+1701:Velikost nové mapy
+1702:Šíøka
+1703:Vıška
+1704:Vytvoøit novou mapu
+1705:Dostupné mapy
+1706:Naèíst existující mapu
+1707:Ovládání:
+1708:Hra:
+1709:Zvuk:
+1710:Vypnout hudbu
+1711:Grafika:
+1712:Jas
+1713:Celá obrazovka
+1714:Pouít
+1715:Jazyk:
+1716:Nahrávám... Prosím èekejte
+1717:Došlo k chybì!
+1718:Nahrávám novou lokalizaci
+1719:Seznam uloenıch her
+1720:Jméno souboru
+1721:Popis
+1722:Naèíst
+1723:Odstranit
+1724:Opravdu chcete odstranit tuto uloenou hru?
+1725:Odstranit
+1726:Storno
+1728:Zvítìzil jste!
+1729:Pokraèovat ve høe
+1730:Vítìzství!
+1731:Prohrál jste!
+1732:Pokraèovat
+1733:Poráka
+1734:Pøehrávání skonèilo
+1735:Pokraèovat
+1736:Zpìt do menu
+1737:Nedostupné
+1738:Stisknìte %s pro pokraèování ve høe
+1739:Tımu
+1740:Informace o hráèích
+1741:Chat
+1742:Uloená hra ji existuje
+1743:Pøepsat
+1744:Uloit
+1745:Naèíst
+1746:Bìhem hry došlo k chybì.
+1747:Prosím pošlete soubor %s z vašecho adresáe KaM Remake\\Crash Reports vıvojáøùm. Kontaktní údaje najdete v Readme. Dìkujeme za vaši pomoc!
+1748:Detekována stará verze OpenGL, hra mùe bìet pomalu a/nebo s grafickımi chybami
+1749:Síová chyba:
+1750:Chyba: Musíte zadat svoje jméno
+1751:Spojení se nezdaøilo: %s
+1752:Byl jste odpojen
+1753:Mise %d
+1754:Váš rybáø je pøíliš daleko od vody.
+1755:Váš rybáø nemùe chytit ádné další ryby ve vodì, kterou má poblí.
+1757:Pouijte levé tlaèítko myši pro vıbìr zboí
+1758:Pouijte pravé tlaèítko myši k vıbìru zboí
+1759:Dám x%d
+1760:Chci x%d
+1761:Editace terénu
+1762:Plánování vesnice
+1763:Vizualní skripty
+1764:Všeobecné skriptování
+1765:Menu
+1766:Status:
+1767:Jméno hráèe
+1768:VYTVOØIT SERVER
+1769:Jméno
+1770:Port
+1771:Vytvoøit lokální server
+1772:Vytvoøit internetovı server
+1773:Jméno serveru
+1774:Stav
+1775:Hráèi
+1776:Ping
+1777:Obnovit seznam serverù
+1778:DETAILY SERVERU
+1779:Seznam hráèù:
+1780:IP Adresa
+1781:Port
+1782:Místnost:
+1783:Pøipojit
+1784:Pøipojuji se, prosím èekejte...
+1785:Naèítám...
+1786:Obnovuji...
+1787:Seznam hráèù
+1788:Pozice
+1789:Tım
+1790:Barva
+1791:Pøipraven
+1792:Ping
+1793:Pryè
+1794:Otevøeno
+1795:Poèítaè
+1796:Vybrat...
+1797:Náhodné
+1799:Prázdné
+1802:Odeslat zprávu:
+1803:Typ mapy
+1804:Samostatná mapa
+1805:Uloená hra
+1806:Vyberte mapu...
+1807:Vyberte uloenou hru...
+1808:Info o mapì:
+1809:Hráèi: %d
+1810:Mód:
+1811:Podmínky vítìzství:
+1812:Velikost:
+1813:Opustit nabídku
+1814:Pøipraven
+1815:Zaèít!
+1816:Èekám na ostatní hráèe:
+1817:KaM Remake Autoøi
+1818:Autoøi Knights & Merchants
+1819:PROGRAMOVÁNÍ:
+1820:DALŠÍ PROGRAMOVÁNÍ:
+1821:DALŠÍ GRAFIKA:
+1822:DALŠÍ PØEKLAD:
+1823:SPECIÁLNÍ PODÌKOVÁNÍ:
+1824:Multiplayerové mapy
+1825:Singelplayerové mapy
+1826:Rychlost obrazu
+1827:Nenalezeny ádné servery
+1828:Pøeházet skladby
+1829:Info o høe:
+1830:-
+1831:Lobby
+1832:Naèítání
+1833:Hra
+1834:Pozice %d
+1835:Stavìní & Bojování
+1836:Bojování
+1837:Není pøipraven
+1838:Pøipraven
+1839:Chyba: Vyberte, prosím, hráèe z uloené hry
+1840:Chyba: Mapa nelze naèíst nebo nebyla vybrána
+1841:Nelze zaèít: %s
+1842:Nìkdo není pøipraven ke startu
+1843:Poèet hráèù pøekraèuje maximální poèet danı mapou
+1844:Odlišná verze: %s. Server pouívá: %s
+1845:Server vám pøiøadil hostovací práva
+1846:Zvıšit mnoství
+1847:Sníit mnoství
+1848:Ukládám hru...
+1849:%s byl poraen!
+1850:OSTATNÍ ZVUKY
+1851:Vyhodit hráèe
+1852:Hostitel bude moci vyhodit tyto hráèe za %d sekund
+1853:Hostitel nyní mùe vyhodit tyto hráèe
+1854:Hostitel (%s) se odpojil
+1855:Spojení se serverem bylo ztraceno. Pokouším se opìt navázat spojení...
+1856:Opravdu chcete skonèit?
+1857:Jste si jistı, e chcete vyhodit tyto hráèe ze hry?
+1858:Storno
+1859:Vycvièeno|obèanù
+1860:Ztraceno|obèanù
+1861:Vycvièeno|vojákù
+1862:Ztraceno|vojákù
+1863:Poraeno|jednotek
+1864:Vyrobeno|budov
+1865:Ztraceno|budov
+1866:Znièeno|budov
+1867:Vytvoøeno|produktù
+1868:Vyrobeno|zbraní
+1869:Obchodování s tímto zboím není moné v této misi.
+1870:Sázet a kácet
+1871:Pouze kácet
+1872:Hra ji zaèala
+1873:Stavìní
+1874:Bojování
+1875:Kooperace
+1876:V období míru je toto zakázáno!
+1877:Konec období míru za: %s
+1878:Konec období míru. Do zbranì!
+1879:Èas hry:|%s
+1880:Nastavení hry:
+1881:Z
+1882:S
+1883:R
+1884:Zastavit oddíl  ('%s')
+1885:Spojit oddíl ('%s')
+1886:Samostatnı voják ('%s')
+1887:Záznamy ze hry
+1888:Ukázat záznam
+1889:Doba míru (minuty)
+1890:Nepodporovanı formát %s
+1891:Nepodporovaná verze %s
+1893:inicializuje se
+1894:inicializace hry pro více hráèù
+1895:skript
+1896:Nová mise
+1897:Nastala chyba pøi analıze souboru %s
+1898:Zavøeno
+1899:Hostitel urèuje nastavení hráèe
+1900:další grafika
+1901:jednotky
+1902:domy
+1903:stromy
+1904:skripty
+1905:textury terénu
+2687:Zaloit Server
+2688:NAJÍT SERVER
+2689:Pøipojit se
+2690:Pøipojit se pomocí IP
+2691:Cancel
+2692:Cancel
+2693:Není podporováno
+2694:Není podporována
+2695:Chyba: Jméno hráèe nesmí mít více ne %d znakù
+2696:Chyba: Jméno hráèe obsahuje nepovolené znaky
+2697:Kvalita stínù:
+2698:Nízká
+2699:Vysoká
+2704:VAROVÁNÍ: Pokraèování ve høe mùe zpùsobit další nestabilitu a pád celé hry. Chcete to risknout a pokraèovat ve høe?
+2705:Prosím aktualizujte svoje ovladaèe pro dosaení lepšího vıkonu.
