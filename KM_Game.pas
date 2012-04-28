@@ -200,7 +200,7 @@ begin
   fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
-    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL])), 'Warning', MB_OK or MB_ICONWARNING);
+    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2])), 'Warning', MB_OK or MB_ICONWARNING);
 
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
@@ -393,7 +393,7 @@ begin
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
   //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and (fGameState <> gsNoGame)
-  and (fActiveInterface.MyControls.CtrlOver = nil) then
+  and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
@@ -803,7 +803,7 @@ begin
   FreeAndNil(MyZip); //Free the memory
 
   if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile]),
+    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile])+eol+eol+fTextLibrary[TX_GAME_ERROR_WARNING_CONTINUE],
     mtWarning, [mbYes, mbNo], 0) <> mrYes then
 
     Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
@@ -984,14 +984,14 @@ begin
                         fCampaigns.UnlockNextMap;
                     end;
       gr_Defeat,
-      gr_Cancel,
-      gr_ReplayEnd: if fMultiplayerMode then
+      gr_Cancel:    if fMultiplayerMode then
                       fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
                     else
                       fMainMenuInterface.ShowScreen(msResults, '', Msg);
       gr_Error:     fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Disconnect:fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Silent:    ;//Used when loading new savegame from gameplay UI
+      gr_ReplayEnd: fMainMenuInterface.ShowScreen(msMain);
       gr_MapEdEnd:  fMainMenuInterface.ShowScreen(msMain);
     end;
   finally

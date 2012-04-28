@@ -100,14 +100,14 @@ type
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
 
-    procedure Menu_Save_RefreshList(Sender: TObject);
-    procedure Menu_Save_ListChange(Sender: TObject);
-    procedure Menu_Save_EditChange(Sender: TObject);
-    procedure Menu_Save_CheckboxChange(Sender: TObject);
-    procedure Menu_Save_Click(Sender: TObject);
-    procedure Menu_Load_RefreshList(Sender: TObject);
-    procedure Menu_Load_ListClick(Sender: TObject);
-    procedure Menu_Load_Click(Sender: TObject);
+    procedure Save_RefreshList(Sender: TObject);
+    procedure Save_ListChange(Sender: TObject);
+    procedure Save_EditChange(Sender: TObject);
+    procedure Save_CheckboxChange(Sender: TObject);
+    procedure Save_Click(Sender: TObject);
+    procedure Load_RefreshList(Sender: TObject);
+    procedure Load_ListClick(Sender: TObject);
+    procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -430,7 +430,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
   begin
@@ -444,7 +444,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_EditChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_EditChange(Sender: TObject);
 begin
   if (Sender <> fSaves) then
   begin
@@ -460,13 +460,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_CheckboxChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_CheckboxChange(Sender: TObject);
 begin
   Button_Save.Enabled := CheckBox_SaveExists.Checked;
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_RefreshList(Sender: TObject);
+procedure TKMGamePlayInterface.Save_RefreshList(Sender: TObject);
 var i:integer;
 begin
   List_Save.Clear;
@@ -480,9 +480,9 @@ begin
   end;
 
   if (Sender = fSaves) then
-    Menu_Save_EditChange(fSaves)
+    Save_EditChange(fSaves)
   else
-    Menu_Save_EditChange(nil);
+    Save_EditChange(nil);
 
   if (Sender = fSaves) then
     for i:=0 to fSaves.Count-1 do
@@ -492,10 +492,8 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
-  if (fGame.GameState = gsReplay) then Exit;
-
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
   if fGame.MultiplayerMode then
     //Don't tell everyone in the game that we are saving yet, as the command hasn't been processed
@@ -508,7 +506,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
+procedure TKMGamePlayInterface.Load_ListClick(Sender: TObject);
 begin
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
@@ -520,15 +518,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
-  if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then exit;
+  if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
+
+  if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_RefreshList(Sender: TObject);
+procedure TKMGamePlayInterface.Load_RefreshList(Sender: TObject);
 var i:integer;
 begin
   List_Load.Clear;
@@ -541,7 +541,7 @@ begin
 
   List_Load.ItemIndex := fSave_Selected;
 
-  Menu_Load_ListClick(nil);
+  Load_ListClick(nil);
 end;
 
 
@@ -624,15 +624,16 @@ begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
+    Button_Menu_Load.Enabled := not fGame.MultiplayerMode; //No loading during multiplayer games
   end else
 
   if Sender = Button_Menu_Save then begin
     fSave_Selected := -1;
     //Stop current now scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
-    Menu_Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
+    Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Save_RefreshList, fGame.MultiplayerMode);
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
@@ -642,9 +643,9 @@ begin
     fSave_Selected := -1;
     //Stop current now scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
-    Menu_Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
+    Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Load_RefreshList, fGame.MultiplayerMode);
     Panel_Load.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
@@ -947,26 +948,25 @@ begin
   end;
 
   //Chat and Allies setup should be accessible only in Multiplayer
-  if not fGame.MultiplayerMode then
-  begin
+  if not fGame.MultiplayerMode then begin
     Image_MPChat.Hide;
     Label_MPChatUnread.Hide;
     Image_MPAllies.Hide;
   end;
 end;
 
-  //todo: Allow to select all players units and houses in Replay
-  //todo: Disable unit voices on selection and orders in Replay
-  //todo: Disable build menu in Replay
-  //todo: Disable chat/alliances in Replay
-  //todo: Show peacetime information in MP replays
-
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
 begin
   Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
-  Panel_Replay.Hide; //Initially hidden
+
+    //Block all clicks except MinimapArea
+    //We add one pixel to each side to make sure there are no gaps
+    with TKMShape.Create(Panel_Replay, -1+196, -1, Panel_Main.Width+2-196, 196+2, $00000000) do
+      Anchors := [akLeft, akTop, akRight];
+    with TKMShape.Create(Panel_Replay, -1, -1+196, Panel_Main.Width+2, Panel_Main.Height+2-196, $00000000) do
+      Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
@@ -983,6 +983,7 @@ begin
       Button_ReplayExit.OnClick    := ReplayClick;
       Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
+  Panel_Replay.Hide; //Initially hidden
 end;
 
 
@@ -1324,17 +1325,17 @@ begin
   Panel_Save := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
     List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 220, fnt_Metal);
-    List_Save.OnChange := Menu_Save_ListChange;
+    List_Save.OnChange := Save_ListChange;
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 235, 170, 20, fnt_Metal);
     Edit_Save.AllowedChars := acFileName;
-    Edit_Save.OnChange := Menu_Save_EditChange;
+    Edit_Save.OnChange := Save_EditChange;
     Label_SaveExists := TKMLabel.Create(Panel_Save,12,260,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,280,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
-    CheckBox_SaveExists.OnClick := Menu_Save_CheckboxChange;
+    CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
     Button_Save := TKMButton.Create(Panel_Save,12,300,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
-    Button_Save.OnClick := Menu_Save_Click;
+    Button_Save.OnClick := Save_Click;
 end;
 
 
@@ -1344,13 +1345,13 @@ begin
   Panel_Load := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
     List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 260, fnt_Metal);
-    List_Load.OnChange := Menu_Load_ListClick;
+    List_Load.OnChange := Load_ListClick;
 
     Label_Load_Description := TKMLabel.Create(Panel_Load,12,265,170,40,'',fnt_Grey,taLeft);
     Label_Load_Description.AutoWrap := true;
 
     Button_Load := TKMButton.Create(Panel_Load,12,300,170,30,fTextLibrary[TX_GAMEPLAY_LOAD],fnt_Metal, bsMenu);
-    Button_Load.OnClick := Menu_Load_Click;
+    Button_Load.OnClick := Load_Click;
 end;
 
 
@@ -2455,7 +2456,6 @@ end;
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
-  //todo: Block the "Restart" button when quitting from replay?
   fGame.Stop(fGame.PlayOnState);
 end;
 
@@ -2762,11 +2762,6 @@ end;
 
 procedure TKMGamePlayInterface.Menu_Fill(Sender:TObject);
 begin
-  //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fGame.MultiplayerMode and (fGame.GameState <> gsReplay);
-  Button_Menu_Save.Enabled := (fGame.GameState <> gsReplay);
-  Button_Menu_Quit.Enabled := (fGame.GameState <> gsReplay);
-
   if fGame.GlobalSettings.MusicOff then
     Label_Menu_Track.Caption := '-'
   else
@@ -2787,7 +2782,7 @@ begin
     Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[i]);
     Stat_HouseQty[i].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
     Stat_HouseWip[i].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
-    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp > 0) then
+    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID := fResource.HouseDat[StatHouse[i]].GUIIcon;
       Stat_HousePic[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
@@ -3246,7 +3241,7 @@ var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
   inherited;
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) or (fMyControls.CtrlOver <> nil) then exit;
+  if (fGame.GameState <> gsRunning) or (fMyControls.CtrlOver <> nil) then exit;
 
   if SelectingTroopDirection then
   begin
@@ -3310,18 +3305,10 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  {if fGame.GameState = gsReplay then
-  begin
+  if fGame.GameState = gsReplay then
     fGame.UpdateGameCursor(X,Y,Shift); //To show coords in status bar
-    if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)
-    or (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then
-      fResource.Cursors.Cursor := kmc_Info;
 
-    Exit;
-  end;}
-
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if (fGame.GameState <> gsRunning) then exit;
 
   if SelectingTroopDirection then
   begin
@@ -3449,8 +3436,7 @@ begin
     Exit;
   end;
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if fGame.GameState <> gsRunning then exit;
 
   P := GameCursor.Cell; //It's used in many places here
 
@@ -3462,9 +3448,9 @@ begin
     ReleaseDirectionSelector;
 
   //Attack or Walk
-  if (Button = mbRight) and (not fJoiningGroups) and (fShownUnit is TKMUnitWarrior)
+  if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
     and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-    and (fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
+    and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
   begin
     //Try to Attack unit
     U := fTerrain.UnitsHitTest(P.X, P.Y);

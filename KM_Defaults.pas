@@ -11,6 +11,7 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
+  //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 100;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
@@ -30,7 +31,7 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3252';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r3311';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '4th Multiplayer Demo Release Candidate ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -47,7 +48,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiplae games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
@@ -58,7 +59,7 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
-  DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game resultst screen
+  DISPLAY_CHARTS_RESULT :Boolean = False; //Show charts in game resultst screen
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
@@ -242,7 +243,6 @@ const
   WEAPON_MAX = rt_Arbalet;
   WARFARE_MAX = rt_Horse;
 
-  //Resources colors for Results charts
   ResourceColor: array [TResourceType] of Cardinal = (
     $FF00FF,
     $804000, $BFBFBF, $BF8000, $4040BF, $FFFF00,
@@ -263,17 +263,17 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TResourceType = (
-    (rt_None,   rt_Wood), //rt_Shield
-    (rt_Coal,  rt_Steel), //rt_MetalShield
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
+    (rt_None,rt_Wood),    //rt_Shield
+    (rt_Coal,rt_Steel),   //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor
-    (rt_Coal,  rt_Steel), //rt_MetalArmor
-    (rt_Wood,   rt_Wood), //rt_Axe
-    (rt_Coal,  rt_Steel), //rt_Sword
-    (rt_Wood,   rt_Wood), //rt_Pike
-    (rt_Coal,  rt_Steel), //rt_Hallebard
-    (rt_Wood,   rt_Wood), //rt_Bow
-    (rt_Coal,  rt_Steel)  //rt_Arbalet
+    (rt_Coal,rt_Steel),   //rt_MetalArmor
+    (rt_Wood,rt_Wood),    //rt_Axe
+    (rt_Coal,rt_Steel),   //rt_Sword
+    (rt_Wood,rt_Wood),    //rt_Pike
+    (rt_Coal,rt_Steel),   //rt_Hallebard
+    (rt_Wood,rt_Wood),    //rt_Bow
+    (rt_Coal,rt_Steel)    //rt_Arbalet
   );
 
 { Terrain }
@@ -294,7 +294,6 @@ type
   );
 
 const
-  //todo: Replace with GetEnumName
   PassabilityStr: array [TPassability] of string = (
     'CanWalk',      // General passability of tile for any walking units
     'CanWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
