@@ -38,7 +38,7 @@ uses KM_PlayersCollection, KM_Units_Warrior, KM_Log;
 { TTaskDeliver }
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toHouse:TKMHouse; Res:TResourceType; aID:integer);
 begin
-  inherited Create(aSerf);
+  Inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toHouse<>nil) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
@@ -59,7 +59,7 @@ end;
 
 constructor TTaskDeliver.Create(aSerf:TKMUnitSerf; aFrom:TKMHouse; toUnit:TKMUnit; Res:TResourceType; aID:integer);
 begin
-  inherited Create(aSerf);
+  Inherited Create(aSerf);
   fTaskName := utn_Deliver;
 
   Assert((aFrom<>nil) and (toUnit<>nil) and ((toUnit is TKMUnitWarrior) or (toUnit is TKMUnitWorker)) and (Res <> rt_None), 'Serf '+inttostr(fUnit.ID)+': invalid delivery task');
@@ -75,7 +75,7 @@ end;
 
 constructor TTaskDeliver.Load(LoadStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   LoadStream.Read(fFrom, 4);
   LoadStream.Read(fToHouse, 4);
   LoadStream.Read(fToUnit, 4);
@@ -87,7 +87,7 @@ end;
 
 procedure TTaskDeliver.SyncLoad;
 begin
-  inherited;
+  Inherited;
   fFrom    := fPlayers.GetHouseByID(cardinal(fFrom));
   fToHouse := fPlayers.GetHouseByID(cardinal(fToHouse));
   fToUnit  := fPlayers.GetUnitByID(cardinal(fToUnit));
@@ -108,7 +108,7 @@ begin
   fPlayers.CleanUpHousePointer(fFrom);
   fPlayers.CleanUpHousePointer(fToHouse);
   fPlayers.CleanUpUnitPointer(fToUnit);
-  inherited;
+  Inherited;
 end;
 
 
@@ -280,7 +280,7 @@ end;
 
 procedure TTaskDeliver.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fFrom <> nil then
     SaveStream.Write(fFrom.ID) //Store ID, then substitute it with reference on SyncLoad
   else

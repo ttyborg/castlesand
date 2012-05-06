@@ -11,6 +11,7 @@ const
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
   CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
+  //GAME_LOGIC_PACE       = 100;          //Game logic should be updated each 100ms
   TERRAIN_PACE          = 100;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
 
@@ -30,7 +31,7 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3252';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r3374';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = '4th Multiplayer Demo Release Candidate ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
@@ -47,7 +48,7 @@ var
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
   CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiplae games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple games at once (to prevent MP cheating)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
@@ -58,8 +59,7 @@ var
   CUSTOM_RANDOM         :Boolean = True; //Use our custom random number generator or the built in "Random()"
   KAM_WATER_DRAW        :Boolean = True; //Render underwater sand
   //Not fully implemented yet
-  DISPLAY_CHARTS_RESULT :Boolean = True; //Show charts in game results screen
-  USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
+  DISPLAY_CHARTS_RESULT :Boolean = False; //Show charts in game resultst screen
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
 
@@ -171,9 +171,12 @@ const
 {Cursors}
 type
   TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
-                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units); //MapEditor
+                  cm_Height, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
+  MAPED_HEIGHT_CIRCLE = 0;
+  MAPED_HEIGHT_SQUARE = 1;
+
   MAPED_TILES_COLS = 6;
   MAPED_TILES_ROWS = 8;
 
@@ -240,15 +243,15 @@ const
   WEAPON_MAX = rt_Arbalet;
   WARFARE_MAX = rt_Horse;
 
-  //Resources colors for Results charts
-  //Made by naospor from kamclub.ru
-  ResourceColor: array [WARE_MIN..WARE_MAX] of Cardinal = (
-    $004080, $BFBFBF, $0080BF, $BF4040, $00FFFF,
-    $606060, $BF0000, $00BFFF, $FF40FF, $80FFFF,
-    $80BFFF, $FFFFFF, $4040BF, $0000FF, $0040BF,
-    $008080, $00BF00, $00FF7F, $FFBF00, $BF0080,
-    $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
-    $FF00BF, $0080FF, $FFBF00);
+  ResourceColor: array [TResourceType] of Cardinal = (
+    $FF00FF,
+    $804000, $BFBFBF, $BF8000, $4040BF, $FFFF00,
+    $606060, $0000BF, $FFBF00, $FF8000, $FFFF80,
+    $FFBF80, $FFFFFF, $BF4040, $FF0000, $BF4000,
+    $808000, $00BF00, $7FFF00, $00BFFF, $400000,
+    $4000FF, $40FF00, $40FFFF, $8000FF, $80FFFF,
+    $BF00FF, $FF8000, $00BFFF,
+    $FF00FF, $FF00FF, $FF00FF);
 
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
@@ -260,17 +263,17 @@ const //Using shortints instead of bools makes it look much neater in code-view
   0,0,0);
 
 const {Aligned to right to use them in GUI costs display as well}
-  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX, 1..2]of TResourceType = (
-    (rt_None,   rt_Wood), //rt_Shield
-    (rt_Coal,  rt_Steel), //rt_MetalShield
+  WarfareCosts: array[WEAPON_MIN..WEAPON_MAX,1..2]of TResourceType = (
+    (rt_None,rt_Wood),    //rt_Shield
+    (rt_Coal,rt_Steel),   //rt_MetalShield
     (rt_None,rt_Leather), //rt_Armor
-    (rt_Coal,  rt_Steel), //rt_MetalArmor
-    (rt_Wood,   rt_Wood), //rt_Axe
-    (rt_Coal,  rt_Steel), //rt_Sword
-    (rt_Wood,   rt_Wood), //rt_Pike
-    (rt_Coal,  rt_Steel), //rt_Hallebard
-    (rt_Wood,   rt_Wood), //rt_Bow
-    (rt_Coal,  rt_Steel)  //rt_Arbalet
+    (rt_Coal,rt_Steel),   //rt_MetalArmor
+    (rt_Wood,rt_Wood),    //rt_Axe
+    (rt_Coal,rt_Steel),   //rt_Sword
+    (rt_Wood,rt_Wood),    //rt_Pike
+    (rt_Coal,rt_Steel),   //rt_Hallebard
+    (rt_Wood,rt_Wood),    //rt_Bow
+    (rt_Coal,rt_Steel)    //rt_Arbalet
   );
 
 { Terrain }
@@ -291,7 +294,6 @@ type
   );
 
 const
-  //todo: Replace with GetEnumName
   PassabilityStr: array [TPassability] of string = (
     'CanWalk',      // General passability of tile for any walking units
     'CanWalkRoad',  // Type of passability for Serfs when transporting goods, only roads have it
@@ -395,12 +397,6 @@ const //Corresponding indices in units.rx
 
   UNIT_OFF_X = -0.5;
   UNIT_OFF_Y = -0.4;
-
-  //TileCursors
-  TC_BLOCK = 479;
-  TC_BLOCK_MINE = 480;
-  TC_ENTRANCE = 481;
-  TC_BLOCK_ENTRANCE = 482;
 
 type
   TUnitTaskName = ( utn_Unknown, //Uninitialized task to detect bugs
@@ -563,7 +559,7 @@ type
         tlRoadWork  // -        X         X       X          -     X      -
         );
 
-  TBorderType = (bt_None, bt_Field, bt_Wine, bt_HousePlan, bt_HouseBuilding);
+  TBorderType = (bt_None=0, bt_Field=1, bt_Wine=2, bt_HousePlan=3, bt_HouseBuilding=4);
 
 
   TKMVertexUsage = (vu_None=0,  //Nobody is on this vertex
@@ -572,22 +568,22 @@ type
 
 const
   //Chopable tree, Chopdown animation,
-  //Age1, Age2, Age3, Age4, Falling, Stomp
-  ChopableTrees: array [1..13, 1..6] of byte = (
+  //Grow1, Grow2, Grow3, Grow4, Chop, Remainder
+  ChopableTrees:array[1..13,1..6]of byte = (
   //For grass
-  (  88,  89,  90,  90,  91,  37), //These two are very look alike
-  (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
+  (  88,  89,  90,  90,  91,  37), //duplicate
+  (  97,  98,  99, 100, 101,  41),
   ( 102, 103, 104, 105, 106,  45),
   ( 107, 108, 109, 110, 111,  41),
-  ( 112, 113, 114, 114, 115,  25), //These two are very look alike
-  ( 116, 117, 118, 119, 120,  25), //yet different in small detail and fall direction
+  ( 112, 113, 114, 114, 115,  25), //duplicate
+  ( 116, 117, 118, 119, 120,  25),
   //For grass and yellow
   (  92,  93,  94,  95,  96,  49),
   //For yellow soil only
   ( 121, 122, 123, 124, 125,  64),
   //For dirt (pine trees)
-  ( 149, 150, 151, 151, 152,  29),
-  ( 153, 154, 155, 155, 156,  29),
+  ( 149, 150, 151, 151, 152,  29), //duplicate
+  ( 153, 154, 155, 155, 156,  29), //duplicate
   ( 157, 158, 159, 160, 161,  33),
   ( 162, 163, 164, 165, 166,  33),
   ( 167, 168, 169, 170, 171,  33));
@@ -606,6 +602,8 @@ const
   WINE_AGE_FULL = 64; //Wine ready to be harvested
 
 
+
+
 //The frame shown when a unit is standing still in ua_Walk. Same for all units!
 const
   UnitStillFrames: array [TKMDirection] of byte = (0,3,2,2,1,6,7,6,6);
@@ -615,7 +613,7 @@ type
   TProjectileType = (pt_Arrow, pt_Bolt, pt_SlingRock, pt_TowerRock); {pt_BallistaRock, }
 
 const //Corresponding indices in units.rx //pt_Arrow, pt_Bolt are unused
-  ProjectileBounds: array [TProjectileType, 1..2] of word = ((0,0), (0,0), (0,0), (4186,4190));
+  ProjectileBounds:array[TProjectileType,1..2] of word = ( (0,0),(0,0),(0,0),(4186,4190) );
 
 
 
@@ -725,20 +723,18 @@ const
 
 
 var
-  ExeDir: string;
+  ExeDir:string;
 
   GameCursor: record
-    Float: TKMPointF;    //Precise cursor position in map coords
-    Cell: TKMPoint;      //Cursor position cell
-    SState: TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
-    Mode: TCursorMode;   //Modes used in game (building, unit, road, etc..)
-    Tag1: Byte;    //Tag to know building type, unit type etc.
-
-    MapEdDir: Byte;
-    MapEdShape: (hsCircle, hsSquare);
-    MapEdSlope: Byte;
-    MapEdSize: Byte;
+    Float:TKMPointF;    //Precise cursor position in map coords
+    Cell:TKMPoint;      //Cursor position cell
+    SState:TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
+    Mode:TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Tag1:byte;          //Tag to know building type, unit type, brush size
+    Tag2:byte;          //Additional tag for MapEd (brush shape)
   end;
+
+
 
   //Trees and other terrain elements properties
   MapElemQty:integer=254; //Default qty
@@ -757,6 +753,20 @@ var
     DontPlantNear:longbool;                 //This object can't be planted within one tile of
     Stump:shortint;                         //95 Tree stump
     CanBeRemoved:longbool;                  //99 //Can be removed in favor of building house
+  end;
+
+  //Unused by KaM Remake
+  PatternDAT:array[1..256]of packed record
+    MinimapColor:byte;
+    Walkable:byte;  //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    Buildable:byte; //This looks like a bitfield, but everything besides <>0 seems to have no logical explanation
+    TileType:byte;  //This looks like a 0..31 bitfield, --||--
+    u1:byte; //Boolean IsTransitionTile?
+    u2:byte;
+  end;
+  TileTable:array[1..30,1..30]of packed record
+    Tile1,Tile2,Tile3:byte;
+    b1,b2,b3,b4,b5,b6,b7:boolean;
   end;
 
 

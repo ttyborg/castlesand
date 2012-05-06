@@ -5,8 +5,8 @@ uses
   {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, FileUtil, {$ENDIF}
   {$IFDEF WDC} MPlayer, {$ENDIF}
-  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, Zippit,
-  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils,
+  Forms, Controls, Classes, Dialogs, ExtCtrls, SysUtils, KromUtils, Math, TypInfo, MadExcept,
+  KM_CommonClasses, KM_CommonEvents, KM_Defaults, KM_Utils, KM_Exceptions,
   KM_Networking,
   KM_MapEditor, KM_Campaigns, KM_EventProcess,
   KM_GameInputProcess, KM_PlayersCollection, KM_Render, KM_RenderAux, KM_RenderPool, KM_TextLibrary,
@@ -36,7 +36,7 @@ type
     fGameSpeedMultiplier: Word; //how many ticks are compressed in one
     fGameState:TGameState;
     fMultiplayerMode:boolean;
-    fReplayMode: Boolean; //Separate flag since Replay can change fGameState
+    fReplayMode:boolean;
     fReplayFile:string;
     fWaitingForNetwork:boolean;
     fGameOptions:TKMGameOptions;
@@ -105,7 +105,6 @@ type
 
     procedure GameMPPlay(Sender:TObject);
     procedure GameMPReadyToPlay(Sender:TObject);
-    procedure GameError(aLoc: TKMPoint; aText: string); //Stop the game because of an error
     procedure SetGameState(aNewState:TGameState);
     procedure GameHold(DoHold:boolean; Msg:TGameResultMsg); //Hold the game to ask if player wants to play after Victory/Defeat/ReplayEnd
     procedure RequestGameHold(Msg:TGameResultMsg);
@@ -133,7 +132,7 @@ type
     property GameTickCount:cardinal read fGameTickCount;
     property GameName:string read fGameName;
     property MultiplayerMode:boolean read fMultiplayerMode;
-    property ReplayMode: Boolean read fReplayMode;
+    property ReplayMode:boolean read fReplayMode;
     property FormPassability:integer read fFormPassability write fFormPassability;
     property IsExiting:boolean read fIsExiting;
     property MissionMode:TKMissionMode read fMissionMode write fMissionMode;
@@ -159,6 +158,8 @@ type
 
     procedure Save(const aFileName: string);
     procedure PrintScreen;
+    procedure AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
+    procedure ReplayInconsistancy;
 
     procedure Render;
     procedure UpdateGame(Sender: TObject);
@@ -180,7 +181,7 @@ uses
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
 constructor TKMGame.Create(aHandle: HWND; aScreenX,aScreenY:integer; aVSync:boolean; aLS:TEvent; aLT:TStringEvent; NoMusic:boolean=false);
 begin
-  inherited Create;
+  Inherited Create;
   fScreenX := aScreenX;
   fScreenY := aScreenY;
   fAdvanceFrame := false;
@@ -200,10 +201,11 @@ begin
   fRender         := TRender.Create(aHandle, fScreenX, fScreenY, aVSync);
   //Show the message if user has old OpenGL drivers (pre-1.4)
   if fRender.IsOldGLVersion then
-    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL])), 'Warning', MB_OK or MB_ICONWARNING);
+    Application.MessageBox(PChar(String(fTextLibrary[TX_GAME_ERROR_OLD_OPENGL]+eol+eol+fTextLibrary[TX_GAME_ERROR_OLD_OPENGL_2])), 'Warning', MB_OK or MB_ICONWARNING);
 
   fRenderAux        := TRenderAux.Create;
   fTextLibrary      := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fExceptions.LoadTranslation;
   fSoundLib         := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
   fMusicLib         := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
@@ -276,7 +278,7 @@ begin
   FreeAndNil(fGameInputProcess);
   FreeAndNil(fGameOptions);
   fPerfLog.Free;
-  inherited;
+  Inherited;
 end;
 
 
@@ -299,6 +301,7 @@ begin
   FreeAndNil(fSoundLib);
   FreeAndNil(fTextLibrary);
   fTextLibrary := TTextLibrary.Create(ExeDir+'data\text\', fGameSettings.Locale);
+  fExceptions.LoadTranslation;
   fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
   fSoundLib.OnFadeMusic := fMusicLib.FadeMusic;
   fSoundLib.OnUnfadeMusic := fMusicLib.UnfadeMusic;
@@ -393,7 +396,7 @@ begin
   //todo: allow to zoom in Replay (remove overlay panels and allow to "read-only" mode for everything)
   //Eventually it would be cool if you could view the contents of storehouses, barracks, watchtowers, etc. in replays (read only of course)
   if MOUSEWHEEL_ZOOM_ENABLE and (fGameState <> gsNoGame)
-  and (fActiveInterface.MyControls.CtrlOver = nil) then
+  and ((fActiveInterface.MyControls.CtrlOver = nil) or (fGameState = gsReplay)) then
   begin
     UpdateGameCursor(X, Y, Shift); //Make sure we have the correct cursor position to begin with
     PrevCursor := GameCursor.Float;
@@ -420,6 +423,7 @@ begin
   PlayOnState := gr_Cancel;
   SkipReplayEndCheck := False; //Reset before each mission
   fMultiplayerMode := aMultiplayerMode;
+  fWaitingForNetwork := False; //Must get reset between games
   //Reset the game options from the last game
   fGameOptions.Free;
   fGameOptions := TKMGameOptions.Create;
@@ -454,7 +458,6 @@ var I:Integer;
 begin
   Stop(gr_Silent); //Stop everything silently
 
-  fReplayMode := False;
   fCampaigns.SetActive(aCampaign, aMap);
 
   GameInit(false);
@@ -476,7 +479,6 @@ begin
 
   GameInit(false);
   GameStart(aMissionFile, aGameName);
-  fReplayMode := False;
 
   //Market needs to be blocked for e.g. tutorials
   if aBlockMarket then
@@ -494,8 +496,7 @@ begin
   GameInit(false);
   Load(aFileName);
   SetGameState(gsRunning);
-  fReplayMode := False;
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
+  fReplayMode := false;
 end;
 
 
@@ -557,12 +558,13 @@ begin
   fViewport.Position := KMPointF(MyPlayer.CenterScreen);
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
 
+  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
   fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
   SetGameState(gsRunning);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  fReplayMode := false;
 
   fGameInputProcess := TGameInputProcess_Single.Create(gipRecording);
   BaseSave;
@@ -590,7 +592,6 @@ begin
 
   //Load mission file
   fGameName := aFileName;
-  fReplayMode := False;
 
   GameLoadingStep(fTextLibrary[TX_MENU_LOADING_SCRIPT]);
 
@@ -643,7 +644,6 @@ begin
 
   GameInit(true);
   Load(aFileName);
-  fReplayMode := False;
   fGamePlayInterface.LastSaveName := aFileName; //Next time they go to save it will have this name entered
 
   MultiplayerRig;
@@ -705,12 +705,13 @@ begin
   fViewport.ResetZoom; //This ensures the viewport is centered on the map
   Render;
 
+  fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic);
   fGamePlayInterface.UpdateMapSize(fTerrain.MapX, fTerrain.MapY);
 
   fLog.AppendLog('Gameplay initialized', true);
 
   SetGameState(gsRunning);
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, False);
+  fReplayMode := false;
 
   fNetworking.OnPlay           := GameMPPlay;
   fNetworking.OnReadyToPlay    := GameMPReadyToPlay;
@@ -766,52 +767,48 @@ begin
 end;
 
 
-{ Set viewport and save command log }
-procedure TKMGame.GameError(aLoc: TKMPoint; aText: string);
-var
-  PreviousState: TGameState;
-  MyZip: TZippit;
-  CrashFile: string;
-  i: integer;
-begin
-  //Handle duplicate calls for GameError
-  if fGameState = gsNoGame then exit;
+procedure TKMGame.AttachCrashReport(const ExceptIntf: IMEException; aZipFile:string);
 
-  PreviousState := GameState; //Could be running, replay, map editor, etc.
-  SetGameState(gsPaused);
-  if not KMSamePoint(aLoc, KMPoint(0,0)) then
+  procedure AttachFile(const aFile:string);
   begin
-    fViewport.Position := KMPointF(aLoc);
-    SHOW_UNIT_ROUTES := True;
-    SHOW_UNIT_MOVEMENT := True;
+    if (aFile = '') or not FileExists(aFile) then Exit;
+    ExceptIntf.AdditionalAttachments.Add(aFile, '', aZipFile);
   end;
 
-  fLog.AppendLog('Gameplay Error: "' + aText + '" at location ' + TypeToString(aLoc));
+var I: Integer;
+begin
+  fLog.AppendLog('Creating crash report...');
 
   if (fGameInputProcess <> nil) and (fGameInputProcess.ReplayState = gipRecording) then
     fGameInputProcess.SaveToFile(SaveName('basesave', 'rpl')); //Save replay data ourselves
 
-  MyZip := TZippit.Create;
-  //Include in the bug report:
-  MyZip.AddFiles(SaveName('basesave', '*')); //Replay files
-  MyZip.AddFile(fLog.LogPath); //Log file
-  MyZip.AddFile(fMissionFile); //Mission script
-  for I := 1 to AUTOSAVE_COUNT do
-    MyZip.AddFiles(SaveName('autosave' + Int2Fix(I, 2), '*')); //All autosaves
+  AttachFile(SaveName('basesave', 'rpl'));
+  AttachFile(SaveName('basesave', 'bas'));
+  AttachFile(SaveName('basesave', 'sav'));
 
-  //Save it as: KaM Crash r1830 2007-12-23 15-24-33.zip
-  CrashFile := 'KaM Crash ' + GAME_REVISION + ' ' + FormatDateTime('yyyy-mm-dd hh-nn-ss', Now) + '.zip';
-  CreateDir(ExeDir + 'Crash Reports');
-  MyZip.SaveToFile(ExeDir + 'Crash Reports\' + CrashFile);
-  FreeAndNil(MyZip); //Free the memory
+  AttachFile(fMissionFile);
 
-  if MessageDlg(
-    fTextLibrary[TX_GAME_ERROR_CAPTION]+eol+aText+eol+eol+Format(fTextLibrary[TX_GAME_ERROR_SEND_REPORT],[CrashFile]),
-    mtWarning, [mbYes, mbNo], 0) <> mrYes then
+  for I := 1 to AUTOSAVE_COUNT do //All autosaves
+  begin
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'rpl'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'bas'));
+    AttachFile(SaveName('autosave' + Int2Fix(I, 2), 'sav'));
+  end;
 
-    Stop(gr_Error, StringReplace(aText, eol, '|', [rfReplaceAll]) )
+  fLog.AppendLog('Crash report created');
+end;
+
+
+//Occasional replay inconsistencies are a known bug, we don't need reports of it
+procedure TKMGame.ReplayInconsistancy;
+var PreviousState: TGameState;
+begin
+  PreviousState := GameState;
+  SetGameState(gsPaused); //Stop game from executing while the user views the message
+  fLog.AppendLog('Replay failed a consistency check at tick '+IntToStr(fGameTickCount));
+  if MessageDlg(fTextLibrary[TX_REPLAY_FAILED], mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    Stop(gr_Error, '')
   else
-    //If they choose to play on, start the game again because the player cannot tell that the game is paused
     SetGameState(PreviousState);
 end;
 
@@ -943,16 +940,16 @@ begin
 
   fIsExiting := True;
   try
+    SetGameState(gsNoGame);
+
     if fMultiplayerMode and not fReplayMode then
     begin
       if fNetworking.Connected then fNetworking.AnnounceDisconnect;
       fNetworking.Disconnect;
     end;
 
-    SetGameState(gsNoGame);
-
     //Take results from MyPlayer before data is flushed
-    if Msg in [gr_Win, gr_Defeat, gr_Cancel, gr_ReplayEnd] then
+    if Msg in [gr_Win, gr_Defeat, gr_Cancel] then
       if fMultiplayerMode then
         fMainMenuInterface.ResultsMP_Fill
       else
@@ -987,14 +984,14 @@ begin
                         fCampaigns.UnlockNextMap;
                     end;
       gr_Defeat,
-      gr_Cancel,
-      gr_ReplayEnd: if fMultiplayerMode then
+      gr_Cancel:    if fMultiplayerMode then
                       fMainMenuInterface.ShowScreen(msResultsMP, '', Msg)
                     else
                       fMainMenuInterface.ShowScreen(msResults, '', Msg);
       gr_Error:     fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Disconnect:fMainMenuInterface.ShowScreen(msError, TextMsg);
       gr_Silent:    ;//Used when loading new savegame from gameplay UI
+      gr_ReplayEnd: fMainMenuInterface.ShowScreen(msMain);
       gr_MapEdEnd:  fMainMenuInterface.ShowScreen(msMain);
     end;
   finally
@@ -1018,8 +1015,7 @@ begin
 
   SetKaMSeed(4); //Every time MapEd will be the same as previous. Good for debug.
   SetGameSpeed(1); //In case it was set in last run mission
-  fMultiplayerMode := False;
-  fReplayMode := False;
+  fMultiplayerMode := false;
 
   //Load the resources if necessary
   fMainMenuInterface.ShowScreen(msLoading, '');
@@ -1088,6 +1084,8 @@ begin
   fLog.AppendLog('Gameplay initialized', True);
 
   fGameTickCount := 0; //Restart counter
+
+  fReplayMode := false;
 end;
 
 
@@ -1204,10 +1202,11 @@ end;
 procedure TKMGame.StartReplay(const aSaveName: string; aMultiplayer: boolean);
 begin
   Stop(gr_Silent);
+  fReplayMode := true;
 
   GameInit(aMultiplayer);
 
-  Load(aSaveName, True); //We load what was saved right before starting Recording
+  Load(aSaveName,true); //We load what was saved right before starting Recording
 
   FreeAndNil(fGameInputProcess); //Override GIP from savegame
   fGameInputProcess := TGameInputProcess_Single.Create(gipReplaying);
@@ -1215,8 +1214,7 @@ begin
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
   SetGameState(gsReplay);
-  fReplayMode := True;
-  fGamePlayInterface.UpdateMenuState(fMissionMode = mm_Tactic, fReplayMode);
+  fReplayMode := true;
   fReplayFile := aSaveName;
 end;
 
@@ -1520,6 +1518,8 @@ begin
     if not aReplay then
       CopyFile(PChar(SaveName(aFileName,'bas')), PChar(SaveName('basesave','bas')), false); //replace Replay base savegame
 
+    fGamePlayInterface.MenuIconsEnabled(fMissionMode <> mm_Tactic); //Preserve disabled icons
+
     fPlayers.SyncLoad; //Should parse all Unit-House ID references and replace them with actual pointers
     fTerrain.SyncLoad; //IsUnit values should be replaced with actual pointers
 
@@ -1553,7 +1553,6 @@ begin
     gsOnHold:   ; //Don't exit here as there is code afterwards to execute (e.g. play next music track)
     gsNoGame:   ;
     gsRunning:  if not fMultiplayerMode or (fNetworking.NetGameState <> lgs_Loading) then
-                try //Catch exceptions during update state
                   for I := 1 to fGameSpeedMultiplier do
                   begin
                     if fGameInputProcess.CommandsConfirmed(fGameTickCount+1) then
@@ -1563,8 +1562,8 @@ begin
                       if fWaitingForNetwork then GameWaitingForNetwork(false); //No longer waiting for players
                       inc(fGameTickCount); //Thats our tick counter for gameplay events
                       if fMultiplayerMode then fNetworking.LastProcessedTick := fGameTickCount;
-                      //Tell the master server about our game on the specific tick
-                      if fMultiplayerMode and (
+                      //Tell the master server about our game on the specific tick (host only)
+                      if fMultiplayerMode and fNetworking.IsHost and (
                          ((fMissionMode = mm_Normal) and (fGameTickCount = ANNOUNCE_BUILD_MAP)) or
                          ((fMissionMode = mm_Tactic) and (fGameTickCount = ANNOUNCE_BATTLE_MAP))) then
                         fNetworking.ServerQuery.SendMapInfo(fGameName, fNetworking.NetPlayers.GetConnectedCount);
@@ -1599,21 +1598,7 @@ begin
                     end;
                     fGameInputProcess.UpdateState(fGameTickCount); //Do maintenance
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E: ELocError do
-                  begin
-                    GameError(E.Loc, E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                  on E: Exception do
-                  begin
-                    GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                    Exit; //Exit because the game could have been stopped
-                  end;
-                end;
-    gsReplay:   try //Catch exceptions during update state
-                  for I := 1 to fGameSpeedMultiplier do
+    gsReplay:     for I := 1 to fGameSpeedMultiplier do
                   begin
                     Inc(fGameTickCount); //Thats our tick counter for gameplay events
                     fTerrain.UpdateState;
@@ -1635,11 +1620,6 @@ begin
                     //Break the for loop (if we are using speed up)
                     if DoGameHold then break;
                   end;
-                except
-                  //Trap the exception and show the user. Note: While debugging, Delphi will still stop execution for the exception, but normally the dialouge won't show.
-                  on E : ELocError do GameError(E.Loc, E.ClassName+': '+E.Message);
-                  on E : Exception do GameError(KMPoint(0,0), E.ClassName+': '+E.Message);
-                end;
     gsEditor:   begin
                   fTerrain.IncAnimStep;
                   fPlayers.IncAnimStep;

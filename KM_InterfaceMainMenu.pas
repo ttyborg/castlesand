@@ -473,15 +473,13 @@ begin
                     gr_Win:       Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
                     gr_Defeat:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    gr_ReplayEnd: Label_Results.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_Results.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
 
-                  Button_ResultsRepeat.Visible := aMsg <> gr_ReplayEnd;
                   Button_ResultsRepeat.Enabled := aMsg in [gr_Defeat, gr_Cancel];
 
                   //Even if the campaign is complete Player can now return to it's screen to replay any of the maps
-                  Button_ResultsContinue.Visible := (fGame.Campaigns.ActiveCampaign <> nil) and (aMsg <> gr_ReplayEnd);
+                  Button_ResultsContinue.Visible := fGame.Campaigns.ActiveCampaign <> nil;
                   Button_ResultsContinue.Enabled := aMsg = gr_Win;
 
                   SwitchMenuPage(Panel_Results);
@@ -491,7 +489,6 @@ begin
                     gr_Win:       Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_VICTORY];
                     gr_Defeat:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_DEFEAT];
                     gr_Cancel:    Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
-                    gr_ReplayEnd: Label_ResultsMP.Caption := fTextLibrary[TX_MENU_MISSION_CANCELED];
                     else          Label_ResultsMP.Caption := '<<<LEER>>>'; //Thats string used in all Synetic games for missing texts =)
                   end;
                   SwitchMenuPage(Panel_ResultsMP);
@@ -2034,6 +2031,7 @@ begin
   Button_MP_CreateWAN.Enabled := not aBusy;
 
   //Toggle server joining
+  Button_MP_FindServer.Enabled := not aBusy;
   Button_MP_FindServerIP.Enabled := not aBusy;
   Button_MP_FindCancel.Enabled := not aBusy;
   Button_MP_GetIn.Enabled := MP_GetInEnabled;
@@ -2784,15 +2782,20 @@ end;
 
 //Post what user has typed
 procedure TKMMainMenuInterface.Lobby_PostKey(Sender: TObject; Key: Word);
+var ChatMessage: string;
 begin
   if (Key <> VK_RETURN) or (Trim(Edit_LobbyPost.Text) = '') then exit;
-
+  ChatMessage := Edit_LobbyPost.Text;
   //Check for console commands
-  if (Length(Edit_LobbyPost.Text) > 1) and (Edit_LobbyPost.Text[1] = '/')
-  and (Edit_LobbyPost.Text[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
-    fGame.Networking.ConsoleCommand(Edit_LobbyPost.Text)
+  if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/')
+  and (ChatMessage[2] <> '/') then //double slash is the escape to place a slash at the start of a sentence
+    fGame.Networking.ConsoleCommand(ChatMessage)
   else
-    fGame.Networking.PostMessage(Edit_LobbyPost.Text, True);
+  begin
+    if (Length(ChatMessage) > 1) and (ChatMessage[1] = '/') and (ChatMessage[2] = '/') then
+      Delete(ChatMessage, 1, 1); //Remove one of the /'s
+    fGame.Networking.PostMessage(ChatMessage, True);
+  end;
 
   Edit_LobbyPost.Text := '';
 end;

@@ -35,7 +35,6 @@ type
     function GetClosestHouse(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType; aOnlyCompleted: Boolean = True): TKMHouse;
     function GetHouseByID(aID: Integer): TKMHouse;
     function GetUnitByID(aID: Integer): TKMUnit;
-    function HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
     procedure SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
     function GetUnitCount:integer;
     function FindPlaceForUnit(PosX,PosY:integer; aUnitType:TUnitType; out PlacePoint: TKMPoint; RequiredWalkConnect:byte):Boolean;
@@ -68,7 +67,7 @@ uses KM_Game, KM_Log, KM_Resource;
 {TKMAllPlayers}
 constructor TKMPlayersCollection.Create;
 begin
-  inherited Create;
+  Inherited Create;
 
   fPlayerAnimals := TKMPlayerAnimals.Create(PLAYER_ANIMAL); //Always create Animals
 end;
@@ -84,7 +83,7 @@ begin
 
   MyPlayer := nil;
   Selected := nil;
-  inherited;
+  Inherited;
 end;
 
 
@@ -254,48 +253,42 @@ end;
 //Houses have priority over units, so you can't select an occupant
 //Selection priority is as follows:
 //BuiltHouses > Units > IncompleteHouses
-function TKMPlayersCollection.HitTest(X,Y: Integer; aOnlyMyPlayer: Boolean): TObject;
+procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
 var
   H: TKMHouse;
   U: TKMUnit;
+  OldSelected: TObject;
 begin
+  OldSelected := Selected;
   if aOnlyMyPlayer then
   begin
     H := MyPlayer.HousesHitTest(X,Y);
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Result := H
+      Selected := H
     else begin
       U := MyPlayer.UnitsHitTest(X,Y);
       if (U <> nil) and (not U.IsDeadOrDying) then
-        Result := U
+        Selected := U
       else
-        Result := H;
+        Selected := H;
     end
   end
   else
   begin
     H := HousesHitTest(X,Y);
     if (H <> nil) and (H.BuildingState in [hbs_Stone, hbs_Done]) then
-      Result := H
+      Selected := H
     else begin
       U := UnitsHitTest(X,Y);
       if (U <> nil) and (not U.IsDeadOrDying) then
-        Result := U
+        Selected := U
       else
-        Result := H;
+        Selected := H;
     end;
   end;
-end;
 
-
-procedure TKMPlayersCollection.SelectHitTest(X,Y: Integer; aOnlyMyPlayer: Boolean);
-var
-  Obj: TObject;
-begin
-  Obj := HitTest(X, Y, aOnlyMyPlayer);
-
-  if Obj <> nil then
-    Selected := Obj;
+  if Selected = nil then
+    Selected := OldSelected;
 end;
 
 

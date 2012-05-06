@@ -29,7 +29,7 @@ uses KM_PlayersCollection, KM_Sound, KM_Resource;
 { TUnitActionStay }
 constructor TUnitActionStay.Create(aUnit: TKMUnit; aTimeToStay:integer; aActionType:TUnitActionType; aStayStill:boolean; aStillFrame:byte; aLocked:boolean);
 begin
-  inherited Create(aUnit, aActionType, aLocked);
+  Inherited Create(aUnit, aActionType, aLocked);
   StayStill   := aStayStill;
   TimeToStay  := aTimeToStay;
   StillFrame  := aStillFrame;
@@ -38,7 +38,7 @@ end;
 
 constructor TUnitActionStay.Load(LoadStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   LoadStream.Read(StayStill);
   LoadStream.Read(TimeToStay);
   LoadStream.Read(StillFrame);
@@ -121,7 +121,7 @@ end;
 
 procedure TUnitActionStay.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(StayStill);
   SaveStream.Write(TimeToStay);
   SaveStream.Write(StillFrame);

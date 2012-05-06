@@ -5,9 +5,13 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
-if($Rev == "r3252")
+if(($Rev == "r3252") || ($Rev == "r3311"))
 {
-  die('[$B700FF]KaM[] [$4040F0]R[$40F0F0]e[$40F040]m[$F0F040]a[$F04040]k[$F040F0]e[]: Now in [$0000E0]COLOR[]!||Hello playtesters,|Thanks for downloading the Release Candidate :)|Please report any issues.');
+  die('[$0000FF]THIS RELEASE CANDIDATE IS OLD AND BUGGY.[]||There is a new release candidate r3374 available, please contact Lewin if I have\'t sent it to you already.');
+}
+if($Rev == "r3374")
+{
+  die('[$FF6699]Welcome to the [$00D00]THIRD[$FF6699] release candidate.[] We now have a new system to report crashes, which should speed up the bug fixes.|Enjoy, and please keep those bug reports coming!||Thank you for your help.');
 }
 
 //First see if they are up to date
@@ -16,6 +20,9 @@ if($Rev != $MAIN_VERSION)
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|";
 	switch($Lang)
 	{
+		case 'ukr':
+			echo "Ваша ".$Rev." версія KaM Remake застаріла! Завантажте нову ".$MAIN_VERSION." модифікацію на сайті: www.kamremake.com";
+			break;
 		case 'rom':
 			echo "Versiunea ta de KaM Remake este expiratг! Acum rulezi ".$Rev." dar cea mai recentг versiune este ".$MAIN_VERSION.".||Te rugгm sг descarci update-ul de la www.kamremake.com";
 			break;
@@ -80,7 +87,8 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo "We will hopefully be releasing an update to the KaM Remake soon! (around 29th of April if testing goes well)||Check the news story on our website for more information: www.kamremake.com";
+	echo "The new release has been delayed by some bugs/crashes found in the release candidate. We will be releasing the new version as soon as they are fixed.";
+	//echo "We will hopefully be releasing an update to the KaM Remake soon! (around 29th of April if testing goes well)||Check the news story on our website for more information: www.kamremake.com";
 	//echo "The recent '500 Internal Server Errors' seem to be resolved, it was a problem at the hosting provider.|Please let us know if you have problems refreshing the server list or these announcements.||Thanks for your patience :)";
 	//echo "We're getting some '500 Internal Server Errors' on our master server which we will try to fix as soon as possible.||If you can't see any servers in the list, please press Refresh Server List to try again.||Updated 19/02/2012.";
 	//echo "Happy New Year! :-)";

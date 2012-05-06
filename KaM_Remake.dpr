@@ -2,6 +2,10 @@ program KaM_Remake;
 {$I KaM_Remake.inc}
 
 uses
+  madExcept,
+  madLinkDisAsm,
+  madListHardware,
+  madListModules,
   {$IFDEF UNIX} cthreads, {$ENDIF} //Required for thread support on Unix/Linux
   //{$IFDEF WDC} FastMM4, {$ENDIF} //Can be used only in Delphi, not Lazarus
   Forms,
@@ -21,6 +25,7 @@ uses
   KM_Defaults in 'KM_Defaults.pas',
   KM_DeliverQueue in 'KM_DeliverQueue.pas',
   KM_EventProcess in 'KM_EventProcess.pas',
+  KM_Exceptions in 'KM_Exceptions.pas',
   KM_FogOfWar in 'KM_FogOfWar.pas',
   KM_Houses in 'KM_Houses.pas',
   KM_InterfaceDefaults in 'KM_InterfaceDefaults.pas',
@@ -63,7 +68,6 @@ uses
   KM_Render in 'KM_Render.pas',
   KM_RenderAux in 'KM_RenderAux.pas',
   KM_RenderPool in 'KM_RenderPool.pas',
-  KM_RenderTerrain in 'KM_RenderTerrain.pas',
   KM_RenderUI in 'KM_RenderUI.pas',
   KM_Resolutions in 'KM_Resolutions.pas',
   KM_Resource in 'KM_Resource.pas',

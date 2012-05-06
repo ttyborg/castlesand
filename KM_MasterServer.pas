@@ -44,7 +44,7 @@ implementation
 
 constructor TKMMasterServer.Create(const aMasterServerAddress:string);
 begin
-  inherited Create;
+  Inherited Create;
   fHTTPClient := TKMHTTPClient.Create;
   fHTTPAnnouncementsClient := TKMHTTPClient.Create;
   fHTTPMapsClient := TKMHTTPClient.Create;
@@ -59,7 +59,7 @@ begin
   fHTTPClient.Free;
   fHTTPAnnouncementsClient.Free;
   fHTTPMapsClient.Free;
-  inherited;
+  Inherited;
 end;
 
 

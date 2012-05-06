@@ -76,7 +76,6 @@ type
     function GetPoint(aIndex: Integer): TKMPoint;
     procedure SetPoint(aIndex: Integer; const aValue: TKMPoint); //1..Count
   public
-    AllowDuplicates: Boolean; //Sometimes we want duplicates
     constructor Create;
 
     property Count: Integer read fCount;
@@ -141,7 +140,7 @@ uses KM_Utils;
 { ELocError }
 constructor ELocError.Create(const Msg: string; aLoc:TKMPoint);
 begin
-  inherited Create(Msg);
+  Inherited Create(Msg);
   Loc := aLoc;
 end;
 
@@ -206,7 +205,7 @@ begin
     TObject(Items[i]).Free;
     Items[i]:=nil;
   end;
-  inherited;
+  Inherited;
 end;
 
 
@@ -295,25 +294,25 @@ begin
 end;
 
 function TKMemoryStream.Read(out Value:TKMDirection): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:TKMPoint): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:TKMPointF): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:single): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:integer): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:cardinal): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:byte): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:boolean): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:word): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 function TKMemoryStream.Read(out Value:shortint): Longint;
-begin Result := inherited Read(Value, SizeOf(Value)); end;
+begin Result := Inherited Read(Value, SizeOf(Value)); end;
 
 
 procedure TKMemoryStream.ReadAssert(const Value: string);
@@ -344,9 +343,6 @@ end;
 
 procedure TKMPointList.AddEntry(aLoc: TKMPoint);
 begin
-  //Detect duplicate entries when they are added (not just when removing) so we can detect bugs reliably
-  Assert(AllowDuplicates or not Contains(aLoc));
-
   if fCount >= Length(fItems) then
     SetLength(fItems, fCount + 32);
   fItems[fCount] := aLoc;
@@ -363,11 +359,8 @@ begin
 
   //Scan whole list to detect duplicate entries
   for I := 0 to fCount - 1 do
-  if KMSamePoint(fItems[I], aLoc) then
-  begin
-    Assert(AllowDuplicates or (Result = -1), 'Duplicate points in list');
-    Result := I;
-  end;
+    if KMSamePoint(fItems[I], aLoc) then
+      Result := I;
 
   //Remove found entry
   if (Result <> -1) then

@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
-  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_RenderTerrain, KM_ResourceSprites, KM_Points, KM_Terrain;
+  KM_Defaults, KM_CommonClasses, KM_Pics, KM_Render, KM_ResourceSprites, KM_Points, KM_Terrain;
 
 type
   TRenderList = class
@@ -48,7 +48,7 @@ type
     fRender: TRender;
     rPitch,rHeading,rBank: Integer;
     fRenderList: TRenderList;
-    fRenderTerrain: TRenderTerrain;
+    procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
     procedure RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
     procedure RenderSpriteAlphaTest(aRX: TRXType; aID: Word; Param: Single; pX,pY: Single; aFOW: Byte);
     procedure RenderTerrainMarkup(aLocX, aLocY: Word; aFieldType: TFieldType);
@@ -59,6 +59,7 @@ type
 
     //Terrain rendering sub-class
     procedure RenderTerrain;
+    procedure RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
     procedure RenderTerrainFieldBorders(aRect: TKMRect);
     procedure RenderTerrainObjects(aRect: TKMRect; AnimStep: Cardinal);
 
@@ -66,7 +67,7 @@ type
 
     //Terrain overlay cursors rendering (incl. sprites highlighting)
     procedure RenderCursors;
-    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
+    procedure RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
     procedure RenderCursorWireQuad(P: TKMPoint; Col: TColor4);
     procedure RenderCursorWireHousePlan(P: TKMPoint; aHouseType: THouseType);
   public
@@ -114,14 +115,12 @@ begin
 
   fRender := aRender;
   fRenderList := TRenderList.Create;
-  fRenderTerrain := TRenderTerrain.Create;
 end;
 
 
 destructor TRenderPool.Destroy;
 begin
   fRenderList.Free;
-  fRenderTerrain.Free;
   inherited;
 end;
 
@@ -178,6 +177,188 @@ begin
 end;
 
 
+procedure TRenderPool.RenderTerrainTiles(aRect: TKMRect; AnimStep: Integer);
+  procedure LandLight(A: Single);
+  begin
+    glColor4f(A / 1.5 + 0.5, A / 1.5 + 0.5, A / 1.5 + 0.5, Abs(A * 2)); // Balanced looks
+    //glColor4f(a*2,a*2,a*2,Abs(a*2)); //Deeper shadows
+  end;
+
+//   1      //Select road tile and rotation
+//  8*2     //depending on surrounding tiles
+//   4      //Bitfield
+const
+  RoadsConnectivity: array [0..15, 1..2] of Byte = (
+    (248,0),(248,0),(248,1),(250,3),
+    (248,0),(248,0),(250,0),(252,0),
+    (248,1),(250,2),(248,1),(252,3),
+    (250,1),(252,2),(252,1),(254,0));
+var
+  i,k,iW: Integer;
+  ID,rd,Rot: Byte;
+  xt,A: Integer;
+  FOW: TKMFogOfWar;
+  TexC: array[1..4,1..2]of GLfloat; //Texture UV coordinates
+  TexO: array[1..4]of byte;         //order of UV coordinates, for rotations
+begin
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+
+  //With depth test we can render all terrain tiles and then apply light/shadow without worrying about
+  //foothills shadows going over mountain tops. Each tile strip is rendered an next Z plane.
+  //Means that Z-test on gpu will take care of clipping the foothill shadows
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  for iW:=1 to 1+3*byte(MAKE_ANIM_TERRAIN) do begin //Each new layer inflicts 10% fps drop
+    case iW of
+      1: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
+      2: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextW[AnimStep mod 8 + 1]);
+      3: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextS[AnimStep mod 24 div 8 + 1]); //These should be unsynced later on
+      4: glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextF[AnimStep mod 5 + 1]);
+    end;
+    glBegin(GL_QUADS);
+      with fTerrain do
+      for i := aRect.Top to aRect.Bottom do
+      for k := aRect.Left to aRect.Right do
+      if (iW=1) or (MyPlayer.FogOfWar.CheckTileRevelation(k,i,true) > FOG_OF_WAR_ACT) then //No animation in FOW
+      begin
+        xt := fTerrain.Land[i,k].Terrain;
+
+        TexC[1,1]:=(xt mod 16  )/16; TexC[1,2]:=(xt div 16  )/16;
+        TexC[2,1]:=(xt mod 16  )/16; TexC[2,2]:=(xt div 16+1)/16;
+        TexC[3,1]:=(xt mod 16+1)/16; TexC[3,2]:=(xt div 16+1)/16;
+        TexC[4,1]:=(xt mod 16+1)/16; TexC[4,2]:=(xt div 16  )/16;
+
+        TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+
+        if fTerrain.Land[i,k].Rotation and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+        if fTerrain.Land[i,k].Rotation and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+
+        glColor4f(1,1,1,1);
+        if RENDER_3D then begin
+          glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+          glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+        end else begin
+
+          glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+          glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
+
+          if KAM_WATER_DRAW and (iW=1) and fTerrain.TileIsWater(KMPoint(k,i)) then
+          begin
+            xt := 32;
+            TexC[1,1] := (xt mod 16  )/16; TexC[1,2] := (xt div 16  )/16;
+            TexC[2,1] := (xt mod 16  )/16; TexC[2,2] := (xt div 16+1)/16;
+            TexC[3,1] := (xt mod 16+1)/16; TexC[3,2] := (xt div 16+1)/16;
+            TexC[4,1] := (xt mod 16+1)/16; TexC[4,2] := (xt div 16  )/16;
+            TexO[1] := 1; TexO[2] := 2; TexO[3] := 3; TexO[4] := 4;
+
+            LandLight(Land[i  ,k  ].Light);
+            glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
+            LandLight(Land[i+1,k  ].Light);
+            glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
+            LandLight(Land[i+1,k+1].Light);
+            glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+            LandLight(Land[i  ,k+1].Light);
+            glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
+          end;
+        end;
+      end;
+    glEnd;
+  end;
+
+  glColor4f(1,1,1,1);
+
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
+  begin
+    case fTerrain.Land[i,k].TileOverlay of
+      to_Dig1: RenderTile(249,k,i,0);
+      to_Dig2: RenderTile(251,k,i,0);
+      to_Dig3: RenderTile(253,k,i,0);
+      to_Dig4: RenderTile(255,k,i,0);
+      to_Wall: fRenderAux.Quad(k,i, $80000080); //We don't have graphics yet
+    end;
+
+    if fTerrain.Land[i,k].TileOverlay=to_Road then
+    begin
+      rd := 0;
+      if fTerrain.TileInMapCoords(k  ,i-1) then rd:=rd+byte(fTerrain.Land[i-1,k  ].TileOverlay=to_Road) shl 0;
+      if fTerrain.TileInMapCoords(k+1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k+1].TileOverlay=to_Road) shl 1;
+      if fTerrain.TileInMapCoords(k  ,i+1) then rd:=rd+byte(fTerrain.Land[i+1,k  ].TileOverlay=to_Road) shl 2;
+      if fTerrain.TileInMapCoords(k-1,i  ) then rd:=rd+byte(fTerrain.Land[i  ,k-1].TileOverlay=to_Road) shl 3;
+      ID  := RoadsConnectivity[rd,1];
+      Rot := RoadsConnectivity[rd,2];
+      RenderTile(ID,k,i,Rot);
+    end;
+  end;
+
+  glColor4f(1,1,1,1);
+  //Render highlights
+  glBlendFunc(GL_DST_COLOR, GL_ONE);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextL);
+  glBegin(GL_QUADS);
+  with fTerrain do
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
+    if RENDER_3D then begin
+      glTexCoord1f(Land[i  ,k  ].Light); glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k  ].Light); glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i+1,k+1].Light); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(Land[i  ,k+1].Light); glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
+      glTexCoord1f(Land[i  ,k  ].Light); glVertex3f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i+1,k  ].Light); glVertex3f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i+1,k+1].Light); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(Land[i  ,k+1].Light); glVertex3f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV, -i);
+    end;
+  glEnd;
+
+  //Render shadows and FOW at once
+  FOW := MyPlayer.FogOfWar;
+  glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextD);
+  glBegin(GL_QUADS);
+    with fTerrain do
+    for i := aRect.Top to aRect.Bottom do
+    for k := aRect.Left to aRect.Right do
+    if RENDER_3D then begin
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k  ].Light,1-FOW.CheckVerticeRevelation(k-1,i-1,true)/255));
+      glVertex3f(k-1,i-1,-Land[i  ,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k  ].Light,1-FOW.CheckVerticeRevelation(k-1,i,true)/255));
+      glVertex3f(k-1,i  ,-Land[i+1,k  ].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(kromutils.max(0,-Land[i+1,k+1].Light,1-FOW.CheckVerticeRevelation(k,i,true)/255));
+      glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord1f(kromutils.max(0,-Land[i  ,k+1].Light,1-FOW.CheckVerticeRevelation(k,i-1,true)/255));
+      glVertex3f(k  ,i-1,-Land[i  ,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
+      glTexCoord1f(max(-Land[i  ,k  ].Light, 1-FOW.CheckVerticeRevelation(k-1,i-1,true)/255));
+      glVertex3f(k-1,i-1-Land[i  ,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(max(-Land[i+1,k  ].Light, 1-FOW.CheckVerticeRevelation(k-1,i,true)/255));
+      glVertex3f(k-1,i  -Land[i+1,k  ].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(max(-Land[i+1,k+1].Light, 1-FOW.CheckVerticeRevelation(k,i,true)/255));
+      glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord1f(max(-Land[i  ,k+1].Light, 1-FOW.CheckVerticeRevelation(k,i-1,true)/255));
+      glVertex3f(k  ,i-1-Land[i  ,k+1].Height/CELL_HEIGHT_DIV, -i);
+    end;
+  glEnd;
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  if SHOW_WALK_CONNECT then
+  for i := aRect.Top to aRect.Bottom do
+  for k := aRect.Left to aRect.Right do
+  with fTerrain.Land[i,k] do
+    fRenderAux.Quad(k, i, WalkConnect[wcWalk] * 32 + (WalkConnect[wcRoad] * 32) shl 8 or $80000000);
+
+  glPopAttrib;
+end;
+
+
 procedure TRenderPool.RenderTerrainFieldBorders(aRect: TKMRect);
 var
   I,K: Integer;
@@ -188,10 +369,10 @@ begin
   for K := aRect.Left to aRect.Right do
   with fTerrain do
   begin
-    if Land[I,K].BorderSide and 1 = 1 then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
-    if Land[I,K].BorderSide and 2 = 2 then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
-    if Land[I,K].BorderSide and 4 = 4 then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
-    if Land[I,K].BorderSide and 8 = 8 then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
+    if Land[I,K].BorderTop then RenderTerrainBorder(Land[I,K].Border, dir_N, K, I);
+    if Land[I,K].BorderLeft then RenderTerrainBorder(Land[I,K].Border, dir_E, K, I);
+    if Land[I,K].BorderRight then RenderTerrainBorder(Land[I,K].Border, dir_W, K, I);
+    if Land[I,K].BorderBottom then RenderTerrainBorder(Land[I,K].Border, dir_S, K, I);
   end;
 
   //@Lewin: Since plans are per-player now, what do we do about allies that:
@@ -203,7 +384,6 @@ begin
 
   //Fieldplans
   FieldsList := TKMPointTagList.Create;
-  FieldsList.AllowDuplicates := True; //During replay enemies can build over each other's plans
   MyPlayer.GetFieldPlans(FieldsList, aRect, True, fGame.ReplayMode); //Include fake field plans for painting
   for i := 0 to FieldsList.Count - 1 do
     RenderTerrainMarkup(FieldsList[i].X, FieldsList[i].Y, TFieldType(FieldsList.Tag[i]));
@@ -218,7 +398,6 @@ begin
 
   //Tablets
   TabletsList := TKMPointTagList.Create;
-  TabletsList.AllowDuplicates := True; //During replay enemies can build over each other's plans
   MyPlayer.GetPlansTablets(TabletsList, aRect, fGame.ReplayMode);
   for i := 0 to TabletsList.Count - 1 do
     AddHouseTablet(THouseType(TabletsList.Tag[i]), TabletsList[i]);
@@ -748,6 +927,45 @@ begin
 end;
 
 
+{Render one terrian cell}
+procedure TRenderPool.RenderTile(Index: Byte; pX,pY,Rot: Integer);
+var k,i,a: Integer;
+  TexC:array[1..4,1..2]of GLfloat; //Texture UV coordinates
+  TexO:array[1..4]of byte;         //order of UV coordinates, for rotations
+begin
+  if not fTerrain.TileInMapCoords(pX,pY) then exit;
+
+  glColor4f(1,1,1,1);
+  glBindTexture(GL_TEXTURE_2D, fResource.Tileset.TextT);
+
+  TexC[1,1] := (Index mod 16  )/16; TexC[1,2]:=(Index div 16  )/16;
+  TexC[2,1] := (Index mod 16  )/16; TexC[2,2]:=(Index div 16+1)/16;
+  TexC[3,1] := (Index mod 16+1)/16; TexC[3,2]:=(Index div 16+1)/16;
+  TexC[4,1] := (Index mod 16+1)/16; TexC[4,2]:=(Index div 16  )/16;
+  TexO[1]:=1; TexO[2]:=2; TexO[3]:=3; TexO[4]:=4;
+
+  if Rot and 1 = 1 then begin a:=TexO[1]; TexO[1]:=TexO[2]; TexO[2]:=TexO[3]; TexO[3]:=TexO[4]; TexO[4]:=a; end; // 90 2-3-4-1
+  if Rot and 2 = 2 then begin a:=TexO[1]; TexO[1]:=TexO[3]; TexO[3]:=a; a:=TexO[2]; TexO[2]:=TexO[4]; TexO[4]:=a; end; // 180 3-4-1-2
+
+  k:=pX; i:=pY;
+  glBegin(GL_QUADS);
+  with fTerrain do
+    if RENDER_3D then begin
+      glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1,-Land[i,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  ,-Land[i+1,k].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  ,-Land[i+1,k+1].Height/CELL_HEIGHT_DIV);
+      glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1,-Land[i,k+1].Height/CELL_HEIGHT_DIV);
+    end else begin
+      glTexCoord2fv(@TexC[TexO[1]]); glVertex3f(k-1,i-1-Land[i,k].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[2]]); glVertex3f(k-1,i  -Land[i+1,k].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[3]]); glVertex3f(k  ,i  -Land[i+1,k+1].Height/CELL_HEIGHT_DIV, -i);
+      glTexCoord2fv(@TexC[TexO[4]]); glVertex3f(k  ,i-1-Land[i,k+1].Height/CELL_HEIGHT_DIV, -i);
+    end;
+  glEnd;
+  glBindTexture(GL_TEXTURE_2D, 0);
+end;
+
+
 procedure TRenderPool.RenderSprite(aRX: TRXType; aID: Word; pX,pY: Single; Col: TColor4; aFOW: Byte; HighlightRed: Boolean = False);
 var
   Lay, TopLay: Byte;
@@ -848,8 +1066,7 @@ var
 begin
   Rect := fGame.Viewport.GetClip;
 
-  fRenderTerrain.Render(Rect, fTerrain.AnimStep, MyPlayer.FogOfWar);
-
+  RenderTerrainTiles(Rect, fTerrain.AnimStep);
   RenderTerrainFieldBorders(Rect);
 
   if fGame.AllowDebugRendering then
@@ -1001,7 +1218,7 @@ begin
 end;
 
 
-procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer = TC_BLOCK);
+procedure TRenderPool.RenderCursorBuildIcon(aLoc: TKMPoint; aID: Integer=479);
 begin
   if fTerrain.TileInMapCoords(aLoc.X, aLoc.Y) then
     RenderSprite(rxGui, aID, aLoc.X - 0.8, aLoc.Y - 0.2 -
@@ -1016,7 +1233,6 @@ var
   MarksList: TKMPointTagList;
 begin
   MarksList := TKMPointTagList.Create;
-  MarksList.AllowDuplicates := True; //Enterance can have duplicates: cyan quad + door icon
   MyPlayer.GetHouseMarks(P, aHouseType, MarksList);
 
   for I := 0 to MarksList.Count - 1 do
@@ -1105,34 +1321,33 @@ begin
                 else
                   RenderCursorBuildIcon(P);       //Red X
     cm_Houses:  RenderCursorWireHousePlan(P, THouseType(GameCursor.Tag1)); //Cyan quads and red Xs
-    cm_Tiles:   if GameCursor.MapEdDir in [0..3] then
-                  fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.MapEdDir)
+    cm_Tiles:   if GameCursor.Tag2 in [0..3] then
+                  RenderTile(GameCursor.Tag1, P.X, P.Y, GameCursor.Tag2)
                 else
-                  fRenderTerrain.RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
+                  RenderTile(GameCursor.Tag1, P.X, P.Y, (fTerrain.AnimStep div 5) mod 4); //Spin it slowly so player remembers it is on randomized
     cm_Objects: begin
                   //If there's object below - paint it in Red
                   RenderObjectOrQuad(fTerrain.Land[P.Y,P.X].Obj+1, fTerrain.AnimStep, P.X, P.Y, true, true);
                   RenderObjectOrQuad(GameCursor.Tag1+1, fTerrain.AnimStep, P.X, P.Y, true);
                 end;
-    cm_Elevate,
-    cm_Equalize:begin
-                  Rad := GameCursor.MapEdSize;
-                  Slope := GameCursor.MapEdSlope;
+    cm_Height:  begin
+                  Rad := (GameCursor.Tag1 AND $F) div 2; //Low bits
+                  Slope := GameCursor.Tag1 SHR 4; //High bits
                   for I := Max((Trunc(F.Y) - Rad), 1) to Min((Ceil(F.Y) + Rad), fTerrain.MapY) do
                   for K := Max((Trunc(F.X) - Rad), 1) to Min((Ceil(F.X) + Rad), fTerrain.MapX) do
                   begin
-                    case GameCursor.MapEdShape of
-                      hsCircle: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
-                      hsSquare: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
+                    case GameCursor.Tag2 of
+                      MAPED_HEIGHT_CIRCLE: Tmp := 1 - GetLength(I-F.Y, K-F.X) / Rad;
+                      MAPED_HEIGHT_SQUARE: Tmp := 1 - Math.max(abs(I-F.Y), abs(K-F.X)) / Rad;
                       else                 Tmp := 0;
                     end;
                     Tmp := Power(Abs(Tmp), (Slope + 1) / 6) * Sign(Tmp); //Modify slopes curve
                     Tmp := EnsureRange(Tmp * 1.5, 0, 1); //*1.5 makes dots more visible
                     fRenderAux.DotOnTerrain(K, I, $FF or (Round(Tmp*255) shl 24));
                   end;
-                  case GameCursor.MapEdShape of
-                    hsCircle: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
-                    hsSquare: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
+                  case GameCursor.Tag2 of
+                    MAPED_HEIGHT_CIRCLE: fRenderAux.CircleOnTerrain(F.X, F.Y, Rad, $00000000,  $FFFFFFFF);
+                    MAPED_HEIGHT_SQUARE: fRenderAux.SquareOnTerrain(F.X - Rad, F.Y - Rad, F.X + Rad, F.Y + Rad, $00000000,  $FFFFFFFF);
                   end;
                 end;
     cm_Units:   if CanPlaceUnit(P, TUnitType(GameCursor.Tag1)) then

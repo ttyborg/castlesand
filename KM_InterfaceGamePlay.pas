@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_InterfaceDefaults, KM_MapView, KM_Terrain, KM_Pics,
-  KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
+  KM_Controls, KM_Houses, KM_Units, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
 const MAX_VISIBLE_MSGS = 32;
@@ -65,7 +65,7 @@ type
     procedure Create_Barracks_Page;
     procedure Create_Woodcutter_Page;
 
-    procedure Army_ActivateControls(aCommander: TKMUnitWarrior);
+    procedure Army_ActivateControls(aActive:boolean);
     procedure Army_HideJoinMenu(Sender:TObject);
     procedure Army_Issue_Order(Sender:TObject);
     procedure Unit_Dismiss(Sender:TObject);
@@ -100,14 +100,14 @@ type
     procedure Minimap_Update(Sender: TObject; const X,Y:integer);
     procedure Minimap_RightClick(Sender: TObject; const X,Y:integer);
 
-    procedure Menu_Save_RefreshList(Sender: TObject);
-    procedure Menu_Save_ListChange(Sender: TObject);
-    procedure Menu_Save_EditChange(Sender: TObject);
-    procedure Menu_Save_CheckboxChange(Sender: TObject);
-    procedure Menu_Save_Click(Sender: TObject);
-    procedure Menu_Load_RefreshList(Sender: TObject);
-    procedure Menu_Load_ListClick(Sender: TObject);
-    procedure Menu_Load_Click(Sender: TObject);
+    procedure Save_RefreshList(Sender: TObject);
+    procedure Save_ListChange(Sender: TObject);
+    procedure Save_EditChange(Sender: TObject);
+    procedure Save_CheckboxChange(Sender: TObject);
+    procedure Save_Click(Sender: TObject);
+    procedure Load_RefreshList(Sender: TObject);
+    procedure Load_ListClick(Sender: TObject);
+    procedure Load_Click(Sender: TObject);
     procedure SwitchPage(Sender: TObject);
     procedure SwitchPage_Ratios(Sender: TObject);
     procedure RatiosChange(Sender: TObject);
@@ -325,7 +325,7 @@ type
     procedure ShowHouseInfo(Sender:TKMHouse; aAskDemolish:boolean=false);
     procedure ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
     procedure MessageIssue(aKind: TKMMessageKind; aText: string; aLoc: TKMPoint);
-    procedure UpdateMenuState(aTactic, aReplay: Boolean);
+    procedure MenuIconsEnabled(NewValue:boolean);
     procedure UpdateMapSize(X,Y:integer);
     procedure ShowClock(aSpeed: Word);
     procedure ShowPlayMore(DoShow:boolean; Msg:TGameResultMsg);
@@ -359,7 +359,7 @@ type
 
 
 implementation
-uses KM_Main, KM_GameInputProcess, KM_GameInputProcess_Multi,
+uses KM_Main, KM_Units_Warrior, KM_GameInputProcess, KM_GameInputProcess_Multi,
   KM_PlayersCollection, KM_RenderPool, KM_TextLibrary, KM_Game, KM_Utils, KM_Locales,
   KM_Sound, KM_Resource, KM_Log, KM_ResourceUnit, KM_ResourceCursors, KM_ResourceSprites;
 
@@ -430,7 +430,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_ListChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_ListChange(Sender: TObject);
 begin
   if InRange(TKMListBox(Sender).ItemIndex, 0, fSaves.Count-1) then
   begin
@@ -444,7 +444,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_EditChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_EditChange(Sender: TObject);
 begin
   if (Sender <> fSaves) then
   begin
@@ -460,13 +460,13 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_CheckboxChange(Sender: TObject);
+procedure TKMGamePlayInterface.Save_CheckboxChange(Sender: TObject);
 begin
   Button_Save.Enabled := CheckBox_SaveExists.Checked;
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_RefreshList(Sender: TObject);
+procedure TKMGamePlayInterface.Save_RefreshList(Sender: TObject);
 var i:integer;
 begin
   List_Save.Clear;
@@ -480,9 +480,9 @@ begin
   end;
 
   if (Sender = fSaves) then
-    Menu_Save_EditChange(fSaves)
+    Save_EditChange(fSaves)
   else
-    Menu_Save_EditChange(nil);
+    Save_EditChange(nil);
 
   if (Sender = fSaves) then
     for i:=0 to fSaves.Count-1 do
@@ -492,7 +492,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Save_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Save_Click(Sender: TObject);
 begin
   LastSaveName := Edit_Save.Text; //Do this before saving so it is included in the save
   if fGame.MultiplayerMode then
@@ -506,7 +506,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_ListClick(Sender: TObject);
+procedure TKMGamePlayInterface.Load_ListClick(Sender: TObject);
 begin
   Button_Load.Enabled := InRange(List_Load.ItemIndex, 0, fSaves.Count-1)
                          and fSaves[List_Load.ItemIndex].IsValid;
@@ -518,15 +518,17 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_Click(Sender: TObject);
+procedure TKMGamePlayInterface.Load_Click(Sender: TObject);
 begin
-  if not InRange(List_Load.ItemIndex, 0, fSaves.Count-1) then exit;
+  if fGame.MultiplayerMode then Exit; //Loading disabled during multiplayer gameplay. It is done from the lobby
+
+  if not InRange(List_Load.ItemIndex,0,fSaves.Count-1) then exit;
   fSaves.TerminateScan; //stop scan as it is no longer needed
   fGame.StartSingleSave(fSaves[List_Load.ItemIndex].FileName);
 end;
 
 
-procedure TKMGamePlayInterface.Menu_Load_RefreshList(Sender: TObject);
+procedure TKMGamePlayInterface.Load_RefreshList(Sender: TObject);
 var i:integer;
 begin
   List_Load.Clear;
@@ -539,7 +541,7 @@ begin
 
   List_Load.ItemIndex := fSave_Selected;
 
-  Menu_Load_ListClick(nil);
+  Load_ListClick(nil);
 end;
 
 
@@ -622,15 +624,16 @@ begin
     Menu_Fill(Sender); //Make sure updating happens before it is shown
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_TAB_OPTIONS];
     Panel_Menu.Show;
+    Button_Menu_Load.Enabled := not fGame.MultiplayerMode; //No loading during multiplayer games
   end else
 
   if Sender = Button_Menu_Save then begin
     fSave_Selected := -1;
     //Stop current now scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
-    Menu_Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
+    Save_RefreshList(nil); //need to call it at last one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Save_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Save_RefreshList, fGame.MultiplayerMode);
     Panel_Save.Show;
     fMyControls.CtrlFocus := Edit_Save;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_SAVE_GAME];
@@ -640,9 +643,9 @@ begin
     fSave_Selected := -1;
     //Stop current now scan so it can't add a save after we clear the list
     fSaves.TerminateScan;
-    Menu_Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
+    Load_RefreshList(nil); //need to call it at least one time to setup GUI even if there are no saves
     //Initiate refresh and process each new save added
-    fSaves.Refresh(Menu_Load_RefreshList, fGame.MultiplayerMode);
+    fSaves.Refresh(Load_RefreshList, fGame.MultiplayerMode);
     Panel_Load.Show;
     Label_MenuTitle.Caption := fTextLibrary[TX_MENU_LOAD_GAME];
   end else
@@ -943,14 +946,27 @@ begin
     Image_Message[I].Tag := I;
     Image_Message[I].OnClick := Message_Click;
   end;
+
+  //Chat and Allies setup should be accessible only in Multiplayer
+  if not fGame.MultiplayerMode then begin
+    Image_MPChat.Hide;
+    Label_MPChatUnread.Hide;
+    Image_MPAllies.Hide;
+  end;
 end;
 
-  //todo: Show peacetime information in MP replays
 
 procedure TKMGamePlayInterface.Create_Replay_Page;
 begin
   Panel_Replay := TKMPanel.Create(Panel_Main, 0, 0, 1024, 768);
   Panel_Replay.Stretch;
+
+    //Block all clicks except MinimapArea
+    //We add one pixel to each side to make sure there are no gaps
+    with TKMShape.Create(Panel_Replay, -1+196, -1, Panel_Main.Width+2-196, 196+2, $00000000) do
+      Anchors := [akLeft, akTop, akRight];
+    with TKMShape.Create(Panel_Replay, -1, -1+196, Panel_Main.Width+2, Panel_Main.Height+2-196, $00000000) do
+      Anchors := [akLeft, akTop, akRight, akBottom];
 
     Panel_ReplayCtrl := TKMPanel.Create(Panel_Replay, 320, 8, 160, 60);
       PercentBar_Replay     := TKMPercentBar.Create(Panel_ReplayCtrl, 0, 0, 160, 20);
@@ -967,6 +983,7 @@ begin
       Button_ReplayExit.OnClick    := ReplayClick;
       Button_ReplayStep.Disable; //Initial state
       Button_ReplayResume.Disable; //Initial state
+  Panel_Replay.Hide; //Initially hidden
 end;
 
 
@@ -1308,17 +1325,17 @@ begin
   Panel_Save := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
     List_Save := TKMListBox.Create(Panel_Save, 12, 4, 170, 220, fnt_Metal);
-    List_Save.OnChange := Menu_Save_ListChange;
+    List_Save.OnChange := Save_ListChange;
 
     Edit_Save := TKMEdit.Create(Panel_Save, 12, 235, 170, 20, fnt_Metal);
     Edit_Save.AllowedChars := acFileName;
-    Edit_Save.OnChange := Menu_Save_EditChange;
+    Edit_Save.OnChange := Save_EditChange;
     Label_SaveExists := TKMLabel.Create(Panel_Save,12,260,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_EXISTS],fnt_Outline,taLeft);
     CheckBox_SaveExists := TKMCheckBox.Create(Panel_Save,12,280,170,20,fTextLibrary[TX_GAMEPLAY_SAVE_OVERWRITE], fnt_Metal);
-    CheckBox_SaveExists.OnClick := Menu_Save_CheckboxChange;
+    CheckBox_SaveExists.OnClick := Save_CheckboxChange;
 
     Button_Save := TKMButton.Create(Panel_Save,12,300,170,30,fTextLibrary[TX_GAMEPLAY_SAVE_SAVE],fnt_Metal, bsMenu);
-    Button_Save.OnClick := Menu_Save_Click;
+    Button_Save.OnClick := Save_Click;
 end;
 
 
@@ -1328,13 +1345,13 @@ begin
   Panel_Load := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
 
     List_Load := TKMListBox.Create(Panel_Load, 12, 2, 170, 260, fnt_Metal);
-    List_Load.OnChange := Menu_Load_ListClick;
+    List_Load.OnChange := Load_ListClick;
 
     Label_Load_Description := TKMLabel.Create(Panel_Load,12,265,170,40,'',fnt_Grey,taLeft);
     Label_Load_Description.AutoWrap := true;
 
     Button_Load := TKMButton.Create(Panel_Load,12,300,170,30,fTextLibrary[TX_GAMEPLAY_LOAD],fnt_Metal, bsMenu);
-    Button_Load.OnClick := Menu_Load_Click;
+    Button_Load.OnClick := Load_Click;
 end;
 
 
@@ -1370,7 +1387,8 @@ end;
 procedure TKMGamePlayInterface.Create_Quit_Page;
 begin
   Panel_Quit := TKMPanel.Create(Panel_Controls, 0, 44, 196, 342);
-    TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter);
+    with TKMLabel.Create(Panel_Quit, 100, 30, 180, 70, fTextLibrary[TX_MENU_QUIT_QUESTION], fnt_Outline, taCenter) do
+      AutoWrap := True;
     Button_Quit_Yes := TKMButton.Create(Panel_Quit, 8, 100, 180, 30, fTextLibrary[TX_MENU_QUIT_MISSION], fnt_Metal);
     Button_Quit_No := TKMButton.Create(Panel_Quit, 8, 140, 180, 30, fTextLibrary[TX_MENU_DONT_QUIT_MISSION], fnt_Metal);
     Button_Quit_Yes.Hint := fTextLibrary[TX_MENU_QUIT_MISSION];
@@ -1488,6 +1506,7 @@ begin
     Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
+    Label_House_Demolish.AutoWrap := True;
     Button_House_DemolishYes := TKMButton.Create(Panel_House,8,185,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_YES],fnt_Metal);
     Button_House_DemolishNo  := TKMButton.Create(Panel_House,8,220,180,30,fTextLibrary[TX_HOUSE_DEMOLISH_NO],fnt_Metal);
     Button_House_DemolishYes.Hint := fTextLibrary[TX_HOUSE_DEMOLISH_YES_HINT];
@@ -1831,7 +1850,7 @@ begin
   //Reset cursor and see if it needs to be changed
   GameCursor.Mode := cm_None;
   GameCursor.Tag1 := 0;
-
+  GameCursor.Tag2 := 0;
   Label_BuildCost_Wood.Caption  := '-';
   Label_BuildCost_Stone.Caption := '-';
   Label_Build.Caption := '';
@@ -2098,7 +2117,7 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.ShowUnitInfo(Sender: TKMUnit; aAskDismiss: Boolean = False);
+procedure TKMGamePlayInterface.ShowUnitInfo(Sender:TKMUnit; aAskDismiss:boolean=false);
 var Commander: TKMUnitWarrior;
 begin
   fShownUnit  := Sender;
@@ -2111,39 +2130,61 @@ begin
   end;
 
   SwitchPage(Panel_Unit);
+  Label_UnitName.Caption:= fResource.UnitDat[Sender.UnitType].UnitName;
+  Image_UnitPic.TexID:=fResource.UnitDat[Sender.UnitType].GUIScroll;
+  Image_UnitPic.FlagColor := fPlayers[Sender.GetOwner].FlagColor;
+  ConditionBar_Unit.Position:=EnsureRange(round(Sender.Condition / UNIT_MAX_CONDITION * 100),-10,110);
+  Label_UnitTask.Caption:='Task: '+Sender.GetUnitTaskText;
 
-  //Common properties
-  Label_UnitName.Caption      := fResource.UnitDat[Sender.UnitType].UnitName;
-  Image_UnitPic.TexID         := fResource.UnitDat[Sender.UnitType].GUIScroll;
-  Image_UnitPic.FlagColor     := fPlayers[Sender.GetOwner].FlagColor;
-  ConditionBar_Unit.Position  := EnsureRange(Round(Sender.Condition / UNIT_MAX_CONDITION * 100), -10, 110);
-  Label_UnitTask.Caption      := 'Task: ' + Sender.GetUnitTaskText;
-
-  //While selecting target to join we could get attacked
-  //Then we must cancel the dialog
   if Sender is TKMUnitWarrior then
   begin
+    Label_UnitDescription.Hide;
+    if fAskDismiss then
+    begin
+      Panel_Army.Hide;
+      Panel_Army_JoinGroups.Hide;
+      Panel_Unit_Dismiss.Show;
+      Button_Unit_Dismiss.Hide;
+      exit;
+    end;
+    Panel_Unit_Dismiss.Hide;
+    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
     Commander := TKMUnitWarrior(Sender).GetCommander;
     if not Commander.ArmyCanTakeOrders then
       Army_HideJoinMenu(nil); //Cannot be joining while in combat/charging
-  end;
-
-  Label_UnitDescription.Visible := not (Sender is TKMUnitWarrior);
-  Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and not fAskDismiss and not fJoiningGroups;
-  Panel_Army.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and not fJoiningGroups;
-  Panel_Army_JoinGroups.Visible := (Sender is TKMUnitWarrior) and not fAskDismiss and fJoiningGroups;
-  Panel_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON and fAskDismiss and not fJoiningGroups;
-
-  //Update army controls if required
-  if Panel_Army.Visible then
-  begin
-    Commander := TKMUnitWarrior(Sender).GetCommander;
-    ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
-    Army_ActivateControls(Commander);
-  end;
-
-  if not (Sender is TKMUnitWarrior) then
+    if fJoiningGroups then
+    begin
+      Panel_Army_JoinGroups.Show;
+      Panel_Army.Hide;
+    end
+    else
+    begin
+      Panel_Army.Show;
+      ImageStack_Army.SetCount(Commander.GetMemberCount + 1, Commander.UnitsPerRow, Commander.UnitsPerRow div 2 + 1); //Count+commander, Columns
+      Panel_Army_JoinGroups.Hide;
+      Army_ActivateControls(Commander.ArmyCanTakeOrders);
+    end;
+    Button_Army_Storm.Enabled := (UnitGroups[Sender.UnitType] = gt_Melee) and Commander.ArmyCanTakeOrders; //Only melee groups may charge
+    Button_Army_Split.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
+    Button_Army_ForUp.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
+    Button_Army_ForDown.Enabled := (Commander.GetMemberCount > 0) and Commander.ArmyCanTakeOrders;
+  end
+  else
+  begin //Citizen specific
+    Panel_Army.Hide;
+    Panel_Army_JoinGroups.Hide;
+    if fAskDismiss then
+    begin
+      Panel_Unit_Dismiss.Show;
+      Button_Unit_Dismiss.Hide;
+      Label_UnitDescription.Hide;
+      exit;
+    end;
+    Panel_Unit_Dismiss.Hide;
+    Button_Unit_Dismiss.Visible := SHOW_DISMISS_BUTTON;
     Label_UnitDescription.Caption := fResource.UnitDat[Sender.UnitType].Description;
+    Label_UnitDescription.Show;
+  end;
 end;
 
 
@@ -2413,7 +2454,7 @@ begin
 end;
 
 
-//Quit the mission and return to main menu
+{Quit the mission and return to main menu}
 procedure TKMGamePlayInterface.Menu_QuitMission(Sender:TObject);
 begin
   //Show outcome depending on actual situation. By default PlayOnState is gr_Cancel, if playing on after victory/defeat it changes
@@ -2421,16 +2462,8 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); 
-begin
-  fGame.MusicLib.PlayNextTrack;
-end;
-
-
-procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject);
-begin
-  fGame.MusicLib.PlayPreviousTrack;
-end;
+procedure TKMGamePlayInterface.Menu_NextTrack(Sender:TObject); begin fGame.MusicLib.PlayNextTrack; end;
+procedure TKMGamePlayInterface.Menu_PreviousTrack(Sender:TObject); begin fGame.MusicLib.PlayPreviousTrack; end;
 
 
 procedure TKMGamePlayInterface.Army_Issue_Order(Sender:TObject);
@@ -2497,7 +2530,6 @@ begin
   end;
 end;
 
-
 procedure TKMGamePlayInterface.Unit_Dismiss(Sender:TObject);
 begin
   if fPlayers.Selected = nil then exit;
@@ -2514,8 +2546,7 @@ begin
     end;
 end;
 
-
-procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender: TObject);
+procedure TKMGamePlayInterface.Army_HideJoinMenu(Sender:TObject);
 begin
   fJoiningGroups := false;
   if fResource.Cursors.Cursor in [kmc_JoinYes, kmc_JoinNo] then //Do not override non-joining cursors
@@ -2738,8 +2769,6 @@ begin
   else
     Label_Menu_Track.Caption := fGame.MusicLib.GetTrackTitle;
 
-  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME], [FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
-
   Label_Menu_Track.Enabled      := not fGame.GlobalSettings.MusicOff;
   Button_Menu_TrackUp.Enabled   := not fGame.GlobalSettings.MusicOff;
   Button_Menu_TrackDown.Enabled := not fGame.GlobalSettings.MusicOff;
@@ -2755,7 +2784,7 @@ begin
     Tmp2 := MyPlayer.Stats.GetHouseWip(StatHouse[i]);
     Stat_HouseQty[i].Caption := IfThen(Tmp =0, '-', inttostr(Tmp));
     Stat_HouseWip[i].Caption := IfThen(Tmp2=0, '', '+'+inttostr(Tmp2));
-    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp > 0) then
+    if MyPlayer.Stats.GetCanBuild(StatHouse[i]) or (Tmp>0) then
     begin
       Stat_HousePic[i].TexID := fResource.HouseDat[StatHouse[i]].GUIIcon;
       Stat_HousePic[i].Hint := fResource.HouseDat[StatHouse[i]].HouseName;
@@ -2778,42 +2807,27 @@ begin
 end;
 
 
-procedure TKMGamePlayInterface.Army_ActivateControls(aCommander: TKMUnitWarrior);
-var AcceptOrders: Boolean;
+procedure TKMGamePlayInterface.Army_ActivateControls(aActive:boolean);
 begin
-  AcceptOrders := aCommander.ArmyCanTakeOrders and not fGame.ReplayMode;
-
-  //Button_Army_GoTo.Enabled    := AcceptOrders;
-  Button_Army_Stop.Enabled    := AcceptOrders;
-  //Button_Army_Attack.Enabled  := AcceptOrders;
-  Button_Army_RotCW.Enabled   := AcceptOrders;
-  Button_Army_Storm.Enabled   := AcceptOrders and (UnitGroups[aCommander.UnitType] = gt_Melee);
-  Button_Army_RotCCW.Enabled  := AcceptOrders;
-  Button_Army_ForUp.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
-  Button_Army_ForDown.Enabled := AcceptOrders and (aCommander.GetMemberCount > 0);
-  Button_Army_Split.Enabled   := AcceptOrders and (aCommander.GetMemberCount > 0);
-  Button_Army_Join.Enabled    := AcceptOrders;
-  Button_Army_Feed.Enabled    := AcceptOrders;
+  //Button_Army_GoTo.Enabled := aActive;
+  Button_Army_Stop.Enabled := aActive;
+  //Button_Army_Attack.Enabled := aActive;
+  Button_Army_RotCW.Enabled := aActive;
+  Button_Army_Storm.Enabled := aActive;
+  Button_Army_RotCCW.Enabled := aActive;
+  Button_Army_ForUp.Enabled := aActive;
+  Button_Army_ForDown.Enabled := aActive;
+  Button_Army_Split.Enabled := aActive;
+  Button_Army_Join.Enabled := aActive;
+  Button_Army_Feed.Enabled := aActive;
 end;
 
 
-procedure TKMGamePlayInterface.UpdateMenuState(aTactic, aReplay: Boolean);
+procedure TKMGamePlayInterface.MenuIconsEnabled(NewValue:boolean);
 begin
-  Button_Main[1].Enabled := not aTactic and not aReplay;
-  Button_Main[2].Enabled := not aTactic and not aReplay;
-  Button_Main[3].Enabled := not aTactic;
-
-  //No loading during multiplayer games
-  Button_Menu_Load.Enabled := not fGame.MultiplayerMode and not aReplay;
-  Button_Menu_Save.Enabled := not aReplay;
-  Button_Menu_Quit.Enabled := not aReplay;
-
-  //Chat and Allies setup should be accessible only in Multiplayer
-  Image_MPChat.Visible       := fGame.MultiplayerMode and not aReplay;
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and not aReplay;
-  Image_MPAllies.Visible     := fGame.MultiplayerMode and not aReplay;
-
-  Panel_Replay.Visible := aReplay;
+  Button_Main[1].Enabled := NewValue;
+  Button_Main[2].Enabled := NewValue;
+  Button_Main[3].Enabled := NewValue;
 end;
 
 
@@ -3072,7 +3086,10 @@ begin
     if fGame.Networking.NetPlayers[i+1].LangCode <> '' then
       Image_AlliesLang[i].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[i+1].LangCode).FlagSpriteID
     else
-      Image_AlliesLang[i].TexID := 0;
+      if fGame.Networking.NetPlayers[i+1].IsComputer then
+        Image_AlliesLang[I].TexID := 22 //PC icon
+      else
+        Image_AlliesLang[i].TexID := 0;
 
     Label_AlliesPlayer[i].Caption := fGame.Networking.NetPlayers[i+1].Nikname;
     Label_AlliesPlayer[i].FontColor := fPlayers[fGame.Networking.NetPlayers[i+1].PlayerIndex.PlayerIndex].FlagColor;
@@ -3225,15 +3242,11 @@ end;
 //1. Process Controls
 //2. Show SelectingTroopDirection
 procedure TKMGamePlayInterface.MouseDown(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var
-  U: TKMUnit;
-  H: TKMHouse;
-  MyRect: TRect;
+var U:TKMUnit; H:TKMHouse; MyRect:TRect;
 begin
   inherited;
 
-  if (fGame.GameState <> gsRunning) or (fMyControls.CtrlOver <> nil) then
-    Exit;
+  if (fGame.GameState <> gsRunning) or (fMyControls.CtrlOver <> nil) then exit;
 
   if SelectingTroopDirection then
   begin
@@ -3297,8 +3310,10 @@ begin
   else
     DisplayHint(nil); //Clear shown hint
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if fGame.GameState = gsReplay then
+    fGame.UpdateGameCursor(X,Y,Shift); //To show coords in status bar
+
+  if (fGame.GameState <> gsRunning) then exit;
 
   if SelectingTroopDirection then
   begin
@@ -3363,7 +3378,7 @@ begin
     end;
   end;
 
-  if GameCursor.Mode <> cm_None then
+  if GameCursor.Mode<>cm_None then
   begin
     //Use the default cursor while placing roads, don't become stuck on c_Info or others
     if not fGame.Viewport.Scrolling then
@@ -3386,15 +3401,15 @@ begin
     Exit;
   end;
 
-  if fPlayers.HitTest(GameCursor.Cell.X, GameCursor.Cell.Y, not fGame.ReplayMode) <> nil then
-  begin
+  if (MyPlayer.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil)or
+     (MyPlayer.UnitsHitTest(GameCursor.Cell.X, GameCursor.Cell.Y)<>nil) then begin
     fResource.Cursors.Cursor := kmc_Info;
     Exit;
   end;
 
-  if (fShownUnit is TKMUnitWarrior) and not fGame.ReplayMode then
+  if fShownUnit is TKMUnitWarrior then
   begin
-    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false) > 0) then
+    if (MyPlayer.FogOfWar.CheckTileRevelation(GameCursor.Cell.X, GameCursor.Cell.Y, false)>0) then
     begin
       U := fTerrain.UnitsHitTest (GameCursor.Cell.X, GameCursor.Cell.Y);
       H := fPlayers.HousesHitTest(GameCursor.Cell.X, GameCursor.Cell.Y);
@@ -3414,11 +3429,7 @@ end;
 
 
 procedure TKMGamePlayInterface.MouseUp(Button: TMouseButton; Shift: TShiftState; X,Y: Integer);
-var
-  P: TKMPoint;
-  U: TKMUnit;
-  H: TKMHouse;
-  OldSelected: TObject;
+var P:TKMPoint; U:TKMUnit; H:TKMHouse; OldSelected: TObject;
 begin
   inherited;
 
@@ -3430,138 +3441,133 @@ begin
     Exit;
   end;
 
-  if not (fGame.GameState in [gsRunning, gsReplay]) then
-    Exit;
+  if fGame.GameState <> gsRunning then exit;
 
   P := GameCursor.Cell; //It's used in many places here
 
-  case Button of
-    mbLeft:   begin
-                //Process groups joining
-                if fJoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
-                begin
-                  U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
-                  if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
-                     (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
-                     (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
-                  begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
-                    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Join);
-                    Army_HideJoinMenu(nil);
-                  end;
-                  exit;
-                end;
+  if (Button = mbMiddle) and DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
+    fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
 
-                //Only allow placing of roads etc. with the left mouse button
-                if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) = 0 then
+  //Select direction
+  if Button = mbRight then
+    ReleaseDirectionSelector;
+
+  //Attack or Walk
+  if (Button = mbRight) and (not fJoiningGroups) and(fShownUnit is TKMUnitWarrior)
+    and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
+    and(fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
+  begin
+    //Try to Attack unit
+    U := fTerrain.UnitsHitTest(P.X, P.Y);
+    if (U <> nil) and (not U.IsDeadOrDying) and
+    (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
+    begin
+      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
+      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
+    end
+    else
+    begin //If there's no unit - try to Attack house
+      H := fPlayers.HousesHitTest(P.X, P.Y);
+      if (H <> nil) and (not H.IsDestroyed) and
+      (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
+      begin
+        fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
+        fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
+      end
+      else //If there's no house - Walk to spot
+        if fShownUnit.CanWalkTo(P, 0) then
+        begin
+          fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
+          fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
+        end;
+    end;
+  end;
+
+  //Cancel join
+  if (Button = mbRight) then begin
+    if Panel_Build.Visible then
+      SwitchPage(Button_Main[5]);
+    if fJoiningGroups then
+      Army_HideJoinMenu(nil);
+  end;
+
+  if Button = mbLeft then
+  if fJoiningGroups and (fShownUnit <> nil) and (fShownUnit is TKMUnitWarrior) then
+  begin
+    U  := MyPlayer.UnitsHitTest(P.X, P.Y); //Scan only teammates
+    if (U is TKMUnitWarrior) and (not U.IsDeadOrDying) and
+       (not TKMUnitWarrior(U).IsSameGroup(TKMUnitWarrior(fShownUnit))) and
+       (UnitGroups[U.UnitType] = UnitGroups[fShownUnit.UnitType]) then
+    begin
+      fGame.GameInputProcess.CmdArmy(gic_ArmyLink, TKMUnitWarrior(fShownUnit), U);
+      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Join);
+      Army_HideJoinMenu(nil);
+    end;
+    exit;
+  end;
+
+  if Button = mbLeft then //Only allow placing of roads etc. with the left mouse button
+  if MyPlayer.FogOfWar.CheckTileRevelation(P.X, P.Y, False) > 0 then
+  begin
+  case GameCursor.Mode of
+    cm_None:  begin
+                OldSelected := fPlayers.Selected;
+                //You cannot select nil (or unit/house from other team) simply by clicking on the terrain
+                fPlayers.SelectHitTest(P.X, P.Y, True);
+
+                if (fPlayers.Selected is TKMHouse) then
+                  ShowHouseInfo(TKMHouse(fPlayers.Selected));
+
+                if (fPlayers.Selected is TKMUnit) then
                 begin
-                  if GameCursor.Mode in [cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses] then
-                    fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
+                  ShowUnitInfo(TKMUnit(fPlayers.Selected));
+                  if OldSelected <> fPlayers.Selected then
+                  begin
+                    if fPlayers.Selected is TKMUnitWarrior then
+                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
+                    else
+                      fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
+                  end;
+                end;
+              end;
+    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
+    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
+    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
+    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
+    cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
+              begin
+                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
+                Build_ButtonClick(Button_BuildRoad);
+              end
+              else
+                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+    cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
+              begin
+                H := MyPlayer.HousesHitTest(P.X, P.Y);
+                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
+                if H <> nil then
+                begin
+                  fPlayers.Selected := H; //Select the house irregardless of unit below/above
+                  ShowHouseInfo(H, True);
+                  fSoundLib.Play(sfx_Click);
                 end
                 else
-                  case GameCursor.Mode of
-                    cm_None:  begin
-                                //Remember previous selection to play sound if it changes
-                                OldSelected := fPlayers.Selected;
-
-                                //Allow to select any players assets in replay
-                                fPlayers.SelectHitTest(P.X, P.Y, not fGame.ReplayMode);
-
-                                if (fPlayers.Selected is TKMHouse) then
-                                  ShowHouseInfo(TKMHouse(fPlayers.Selected));
-
-                                if (fPlayers.Selected is TKMUnit) then
-                                begin
-                                  ShowUnitInfo(TKMUnit(fPlayers.Selected));
-                                  if (OldSelected <> fPlayers.Selected) and not fGame.ReplayMode then
-                                  begin
-                                    if fPlayers.Selected is TKMUnitWarrior then
-                                      fSoundLib.PlayWarrior(TKMUnit(fPlayers.Selected).UnitType, sp_Select)
-                                    else
-                                      fSoundLib.PlayCitizen(TKMUnit(fPlayers.Selected).UnitType, sp_Select);
-                                  end;
-                                end;
-                              end;
-                    cm_Road:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Road);
-                    cm_Field: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Corn);
-                    cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
-                    cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
-                    cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                              begin
-                                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
-                                Build_ButtonClick(Button_BuildRoad);
-                              end
-                              else
-                                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
-                    cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
-                              begin
-                                H := MyPlayer.HousesHitTest(P.X, P.Y);
-                                //Ask wherever player wants to destroy own house (don't ask about houses that are not started, they are removed below)
-                                if H <> nil then
-                                begin
-                                  fPlayers.Selected := H; //Select the house irregardless of unit below/above
-                                  ShowHouseInfo(H, True);
-                                  fSoundLib.Play(sfx_Click);
-                                end
-                                else
-                                begin
-                                  //Now remove houses that are not started
-                                  if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
-                                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
-                                  else
-                                    if MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None then
-                                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
-                                    else
-                                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
-                                end;
-                              end;
-                  end
-              end;
-    mbRight:  begin
-                //Select direction
-                ReleaseDirectionSelector;
-
-                //Attack or Walk
-                if not fGame.ReplayMode and not fJoiningGroups and (fShownUnit is TKMUnitWarrior)
-                and TKMUnitWarrior(fShownUnit).GetCommander.ArmyCanTakeOrders //Can't give orders to busy warriors
-                and (fShownUnit.GetOwner = MyPlayer.PlayerIndex) then
                 begin
-                  //Try to Attack unit
-                  U := fTerrain.UnitsHitTest(P.X, P.Y);
-                  if (U <> nil) and (not U.IsDeadOrDying) and
-                  (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, U.GetOwner) = at_Enemy) then
-                  begin
-                    fGame.GameInputProcess.CmdArmy(gic_ArmyAttackUnit, TKMUnitWarrior(fShownUnit).GetCommander, U);
-                    fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
-                  end
+                  //Now remove houses that are not started
+                  if MyPlayer.BuildList.HousePlanList.HasPlan(P) then
+                    fGame.GameInputProcess.CmdBuild(gic_BuildRemoveHousePlan, P)
                   else
-                  begin //If there's no unit - try to Attack house
-                    H := fPlayers.HousesHitTest(P.X, P.Y);
-                    if (H <> nil) and (not H.IsDestroyed) and
-                    (fPlayers.CheckAlliance(MyPlayer.PlayerIndex, H.GetOwner) = at_Enemy) then
-                    begin
-                      fGame.GameInputProcess.CmdArmy(gic_ArmyAttackHouse, TKMUnitWarrior(fShownUnit).GetCommander, H);
-                      fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Attack);
-                    end
-                    else //If there's no house - Walk to spot
-                      if fShownUnit.CanWalkTo(P, 0) then
-                      begin
-                        fGame.GameInputProcess.CmdArmy(gic_ArmyWalk, TKMUnitWarrior(fShownUnit), P, SelectedDirection);
-                        fSoundLib.PlayWarrior(fShownUnit.UnitType, sp_Move);
-                      end;
-                  end;
+                    if MyPlayer.BuildList.FieldworksList.HasFakeField(P) <> ft_None then
+                      fGame.GameInputProcess.CmdBuild(gic_BuildRemoveFieldPlan, P) //Remove plans
+                    else
+                      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Otherwise there is nothing to erase
                 end;
-
-                //Cancel build/join
-                if Panel_Build.Visible then
-                  SwitchPage(Button_Main[5]);
-                if fJoiningGroups then
-                  Army_HideJoinMenu(nil);
-
               end;
-    mbMiddle: if DEBUG_CHEATS and (MULTIPLAYER_CHEATS or not fGame.MultiplayerMode) then
-                fGame.GameInputProcess.CmdTemp(gic_TempAddScout, P);
   end;
+  end
+  else //CheckTileRevelation
+    if GameCursor.Mode in [cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses] then
+      fSoundLib.Play(sfx_CantPlace,P,false,4.0); //Can't place noise when clicking on unexplored areas
 
   LastDragPoint := KMPoint(0,0);
 end;
@@ -3616,69 +3622,41 @@ end;
 procedure TKMGamePlayInterface.UpdateState(aTickCount: Cardinal);
 var I: Integer; S: string;
 begin
-  //Update minimap every 1000ms
+  //Every 1000ms
   if aTickCount mod 10 = 0 then
     if (fGame.GameState in [gsRunning, gsReplay]) then
       fMapView.Update(False);
 
-  //Minimap viewport gets updated eact tick
   Minimap.ViewArea := fGame.Viewport.GetMinimapClip;
 
-  //Update unit/house information
-  if fShownUnit <> nil then
-    ShowUnitInfo(fShownUnit,fAskDismiss)
-  else
-  begin
-    fJoiningGroups := False;
-    if fShownHouse <> nil then
-      ShowHouseInfo(fShownHouse,fAskDemolish);
-  end;
+  if fShownUnit<>nil then ShowUnitInfo(fShownUnit,fAskDismiss) else
+  if fShownHouse<>nil then ShowHouseInfo(fShownHouse,fAskDemolish);
 
-  //Update peacetime counter
+  Label_GameTime.Caption := Format(fTextLibrary[TX_GAME_TIME],[FormatDateTime('h:nn:ss', fGame.GetMissionTime)]);
   if fGame.GameOptions.Peacetime <> 0 then
     Label_PeacetimeRemaining.Caption := Format(fTextLibrary[TX_MP_PEACETIME_REMAINING],
                                                [FormatDateTime('h:nn:ss', fGame.GetPeacetimeRemaining)])
   else Label_PeacetimeRemaining.Caption := '';
 
-  //Update replay counters
-  if fGame.ReplayMode then
+  if fShownUnit=nil then fJoiningGroups := false;
+
+  if fGame.GameInputProcess.ReplayState = gipReplaying then
   begin
+    Panel_Replay.Show;
     PercentBar_Replay.Position := EnsureRange(Round(fGame.GameTickCount / fGame.GameInputProcess.GetLastTick * 100), 0, 100);
     Label_Replay.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime) + ' / ' +
                             FormatDateTime('hh:nn:ss', fGame.GameInputProcess.GetLastTick/24/60/60/10);
-  end;
+  end else
+    Panel_Replay.Hide;
 
-  //Update speedup clocks
   if Image_Clock.Visible then begin
     Image_Clock.TexID := ((Image_Clock.TexID - 556) + 1) mod 16 + 556;
     Label_Clock.Caption := FormatDateTime('hh:nn:ss', fGame.GetMissionTime);
   end;
 
-  //Keep on updating these menu pages as game data keeps on changing
   if Panel_Build.Visible then Build_Fill(nil);
   if Panel_Stats.Visible then Stats_Fill(nil);
   if Panel_Menu.Visible then Menu_Fill(nil);
-
-  //Flash unread message display
-  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
-  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
-  Image_MPAllies.Highlight := Panel_Allies.Visible;
-
-  //Update info on awaited players
-  if Panel_NetWait.Visible then
-  begin
-    if fGame.Networking.IsReconnecting then
-      Label_NetDropPlayersDelay.Caption := ''
-    else
-    begin
-      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
-      if i > 0 then
-        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
-      else
-        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
-      Button_NetDropPlayers.Enabled := i = 0;
-    end;
-  end;
 
   //Debug info
   if SHOW_SPRITE_COUNT then
@@ -3699,13 +3677,33 @@ begin
   if DISPLAY_SOUNDS then
     Label_SoundsCount.Caption := inttostr(fSoundLib.ActiveCount)+' sounds playing';
 
-  //Temporary inteface (by @Crow)
+  // Temporary inteface (By @Crow)
   if SHOW_ARMYEVALS then begin
     S := '';
     for i := 0 to fPlayers.Count-1 do
     if i <> MyPlayer.PlayerIndex then
       S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
     Label_VictoryChance.Caption := S;
+  end;
+
+  //Flash unread message display
+  Label_MPChatUnread.Visible := fGame.MultiplayerMode and (Label_MPChatUnread.Caption <> '') and not (aTickCount mod 10 < 5);
+  Image_MPChat.Highlight := Panel_Chat.Visible or (Label_MPChatUnread.Visible and (Label_MPChatUnread.Caption <> ''));
+  Image_MPAllies.Highlight := Panel_Allies.Visible;
+
+  if Panel_NetWait.Visible then
+  begin
+    if fGame.Networking.IsReconnecting then
+      Label_NetDropPlayersDelay.Caption := ''
+    else
+    begin
+      i := NET_DROP_PLAYER_MIN_WAIT - EnsureRange((GetTickCount-fNetWaitDropPlayersDelayStarted) div 1000, 0, NET_DROP_PLAYER_MIN_WAIT);
+      if i > 0 then
+        Label_NetDropPlayersDelay.Caption := Format(fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_DELAY], [i])
+      else
+        Label_NetDropPlayersDelay.Caption := fTextLibrary[TX_GAMEPLAY_DROP_PLAYERS_ALLOWED];
+      Button_NetDropPlayers.Enabled := i = 0;
+    end;
   end;
 end;
 

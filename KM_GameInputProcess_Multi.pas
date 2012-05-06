@@ -110,7 +110,7 @@ end;
 function TCommandsPack.CRC:cardinal;
 var i:integer;
 begin
-  Result := 0;
+  Result := 0;    
   for i:=1 to fCount do
     Result := Result xor Adler32CRC(@fItems[i], SizeOf(fItems[i]))
 end;
@@ -140,7 +140,7 @@ end;
 constructor TGameInputProcess_Multi.Create(aReplayState:TGIPReplayState; aNetworking:TKMNetworking);
 var i:integer; k:TPlayerIndex;
 begin
-  inherited Create(aReplayState);
+  Inherited Create(aReplayState);
   fNetworking := aNetworking;
   fNetworking.OnCommands := RecieveCommands;
   fNetworking.OnResyncFromTick := ResyncFromTick;
@@ -156,14 +156,11 @@ end;
 
 
 destructor TGameInputProcess_Multi.Destroy;
-var
-  I: integer;
-  K: TPlayerIndex;
+var i:integer; k:TPlayerIndex;
 begin
-  for I := 0 to MAX_SCHEDULE - 1 do
-    for K := 0 to MAX_PLAYERS - 1 do
-      fSchedule[I, K].Free;
-  inherited;
+  for i:=0 to MAX_SCHEDULE-1 do for k:=0 to MAX_PLAYERS-1 do
+    fSchedule[i,k].Free;
+  Inherited;
 end;
 
 
@@ -221,9 +218,9 @@ end;
 
 procedure TGameInputProcess_Multi.AdjustDelay;
 begin
-  //Half of the maximum round trip is a good guess for delay.
-  //This could be improved by averaging the latency rather than using the instantanious measurement
-  SetDelay( Ceil((fNetworking.NetPlayers.GetMaxHighestRoundTripLatency+20)/200) );
+  //Half of the maximum round trip is a good guess for delay. +60 is our safety net to account
+  //for processing the packet
+  SetDelay( Ceil((fNetworking.NetPlayers.GetMaxHighestRoundTripLatency+60)/200) );
 end;
 
 

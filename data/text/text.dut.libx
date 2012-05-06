@@ -1,5 +1,5 @@
 
-MaxID:2703
+MaxID:2727
 
 0:Houtzagerij
 1:IJzersmelterij
@@ -135,14 +135,14 @@ MaxID:2703
 176:Akkerbouw
 177:Wijngaard bouwen
 178:Wijngaard
-179:Afbreken
+179:Annuleren
 180:Huidige opleiding afbreken
 181:Voorradig:
 182:Toestand:
 183:Levert
 184:Huis in aanbouw
 185:Vernietigen
-186:Wilt u het gebouw|werkelijk afbreken?
+186:Wilt u het gebouw|werkelijk vernietigen?
 187:Vernietig gekozen gebouw
 188:Bestellingen verlagen
 189:Bestellingen verhogen
@@ -454,3 +454,9 @@ MaxID:2703
 2697:Schaduw kwaliteit:
 2698:Laag
 2699:Hoog
+2700:Kaart niet gevonden: %s
+2701:Kaartbestanden zijn niet gelijk aan die van de host: %s
+2702:Opgeslagen spel niet gevonden: %s
+2703:Opgeslagen bestand is niet gelijk aan dat van de host: %s
+2704:WAARSCHUWING: Doorspelen na deze fout  kan leiden tot crashes en instabiliteit. Weet je zeker dat je deze risico's wilt nemen?
+2705:Update A.U.B de drivers voor betere prestaties.

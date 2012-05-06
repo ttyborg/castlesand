@@ -114,7 +114,7 @@ constructor TUnitActionWalkTo.Create( aUnit: TKMUnit;
                                       aUseExactTarget: boolean=true);
 var RouteBuilt:boolean; //Check if route was built, otherwise return nil
 begin
-  inherited Create(aUnit, aActionType, False);
+  Inherited Create(aUnit, aActionType, False);
 
   if not fTerrain.TileInMapCoords(aLocB.X, aLocB.Y) then
     raise ELocError.Create('Invalid Walk To for '+fResource.UnitDat[aUnit.UnitType].UnitName,aLocB);
@@ -229,7 +229,7 @@ begin
   LoadStream.Read(fInteractionStatus, SizeOf(fInteractionStatus));
 
   LoadStream.Read(fVertexOccupied);
-  NodeList := TKMPointList.Create;
+  NodeList := TKMPointList.Create; //AllowDuplicates will be loaded from the stream
   NodeList.LoadFromStream(LoadStream);
   LoadStream.Read(NodePos);
 end;
@@ -237,7 +237,7 @@ end;
 
 procedure TUnitActionWalkTo.SyncLoad;
 begin
-  inherited;
+  Inherited;
   fTargetUnit   := fPlayers.GetUnitByID(cardinal(fTargetUnit));
   fTargetHouse  := fPlayers.GetHouseByID(cardinal(fTargetHouse));
 end;
@@ -264,7 +264,7 @@ begin
 
   fPlayers.CleanUpUnitPointer(fTargetUnit);
   fPlayers.CleanUpHousePointer(fTargetHouse);
-  inherited;
+  Inherited;
 end;
 
 
@@ -1114,7 +1114,7 @@ end;
 
 procedure TUnitActionWalkTo.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   SaveStream.Write(fWalkFrom);
   SaveStream.Write(fWalkTo);
   SaveStream.Write(fNewWalkTo);
