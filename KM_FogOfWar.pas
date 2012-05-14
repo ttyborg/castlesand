@@ -46,7 +46,7 @@ uses KM_Defaults, KM_Game;
 //Init with Terrain size only once on creation as terrain size never change during the game
 constructor TKMFogOfWar.Create(X,Y: Word);
 begin
-  inherited Create;
+  Inherited Create;
   SetMapSize(X,Y);
 end;
 
@@ -127,6 +127,14 @@ begin
     Result := 255;
     exit;
   end;
+
+  if (X < 1) or (X >= MapX)
+  or (Y < 1) or (Y >= MapY) then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   //Check all four corners and choose max
   Result := CheckVerticeRevelation(X-1,Y-1,aSkipForReplay);
   if Result = 255 then exit;

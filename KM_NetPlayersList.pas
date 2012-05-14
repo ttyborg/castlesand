@@ -227,7 +227,7 @@ end;
 constructor TKMPlayersList.Create;
 var i:integer;
 begin
-  inherited;
+  Inherited;
   for i:=1 to MAX_PLAYERS do
     fPlayers[i] := TKMPlayerInfo.Create;
 end;
@@ -238,7 +238,7 @@ var i:integer;
 begin
   for i:=1 to MAX_PLAYERS do
     fPlayers[i].Free;
-  inherited;
+  Inherited;
 end;
 
 

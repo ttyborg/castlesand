@@ -49,7 +49,7 @@ uses KM_Defaults, KM_Sound, KM_Game, KM_Main, KM_Resource, KM_ResourceCursors;
 
 constructor TViewport.Create(aWidth, aHeight: Integer);
 begin
-  inherited Create;
+  Inherited Create;
   fMapX := 1; //Avoid division by 0
   fMapY := 1; //Avoid division by 0
 
@@ -103,8 +103,8 @@ function TViewport.GetPosition:TKMPointF;
 begin
   Result.X := EnsureRange(fPosition.X, 1, fMapX);
   Result.Y := EnsureRange(fPosition.Y, 1, fMapY);
-  if not SMOOTH_SCROLLING then Result.X := Round(Result.X);
-  if not SMOOTH_SCROLLING then Result.Y := Round(Result.Y);
+  if not SMOOTH_SCROLLING then Result.X := round(Result.X);
+  if not SMOOTH_SCROLLING then Result.Y := round(Result.Y);
 end;
 
 

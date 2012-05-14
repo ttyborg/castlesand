@@ -81,7 +81,7 @@ object Form1: TForm1
     Top = 40
     Width = 153
     Height = 25
-    Caption = 'Load BMP picture ...'
+    Caption = 'Load picture ...'
     Enabled = False
     TabOrder = 3
     OnClick = btnLoadPictureClick

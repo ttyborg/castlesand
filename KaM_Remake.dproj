@@ -147,7 +147,6 @@
 			<DCCReference Include="KM_Render.pas"/>
 			<DCCReference Include="KM_RenderAux.pas"/>
 			<DCCReference Include="KM_RenderPool.pas"/>
-			<DCCReference Include="KM_RenderTerrain.pas"/>
 			<DCCReference Include="KM_RenderUI.pas"/>
 			<DCCReference Include="KM_Resolutions.pas"/>
 			<DCCReference Include="KM_Resource.pas"/>
@@ -241,7 +240,6 @@
 				<UnitTesting>
 					<TestProjectName>G:\Delphi\KaM Remake\Test\KaM_RemakeTests.dproj</TestProjectName>
 				</UnitTesting>
-				<ModelSupport>False</ModelSupport>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>

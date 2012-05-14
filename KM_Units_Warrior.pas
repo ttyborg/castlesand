@@ -126,7 +126,7 @@ end;
 constructor TKMUnitWarrior.Load(LoadStream:TKMemoryStream);
 var i,aCount:integer; W:TKMUnitWarrior;
 begin
-  inherited;
+  Inherited;
   LoadStream.Read(fCommander, 4); //subst on syncload
   LoadStream.Read(fOrderTargetUnit, 4); //subst on syncload
   LoadStream.Read(fOrderTargetHouse, 4); //subst on syncload
@@ -155,7 +155,7 @@ end;
 procedure TKMUnitWarrior.SyncLoad;
 var i:integer;
 begin
-  inherited;
+  Inherited;
   fCommander := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fCommander)));
   fOrderTargetUnit := TKMUnitWarrior(fPlayers.GetUnitByID(cardinal(fOrderTargetUnit)));
   fOrderTargetHouse := fPlayers.GetHouseByID(cardinal(fOrderTargetHouse));
@@ -173,7 +173,7 @@ begin
   fState := ws_None;
   fOrder := wo_None;
   fCommander := nil; //Otherwise if this closed unit is saved memory errors can occur (fCommander does not use pointer tracking)
-  inherited;
+  Inherited;
 end;
 
 
@@ -183,7 +183,7 @@ begin
   fPlayers.CleanUpHousePointer(fOrderTargetHouse);
 
   FreeAndNil(fMembers);
-  inherited;
+  Inherited;
 end;
 
 
@@ -192,8 +192,8 @@ var i,NewCommanderID:integer; Test,Nearest:single; NewCommander:TKMUnitWarrior;
 begin
   if IsDeadOrDying then
   begin
-    //Due to fKillASAP reassigning the commander etc. has already happened, we just need to finish the kill with inherited
-    inherited;
+    //Due to fKillASAP reassigning the commander etc. has already happened, we just need to finish the kill with Inherited
+    Inherited;
     exit;
   end;
 
@@ -267,7 +267,7 @@ begin
 
   ClearOrderTarget; //This ensures that pointer usage tracking is reset
 
-  inherited;
+  Inherited;
 end;
 
 
@@ -734,7 +734,7 @@ procedure TKMUnitWarrior.SetActionGoIn(aAction: TUnitActionType; aGoDir: TGoInDi
 begin
   Assert(aGoDir = gd_GoOutside, 'Walking inside is not implemented yet');
   Assert(aHouse.HouseType = ht_Barracks, 'Only Barracks so far');
-  inherited;
+  Inherited;
   fOrder := wo_WalkOut;
 end;
 
@@ -845,7 +845,7 @@ end;
 procedure TKMUnitWarrior.Save(SaveStream:TKMemoryStream);
 var i:integer;
 begin
-  inherited;
+  Inherited;
   if fCommander <> nil then
     SaveStream.Write(fCommander.ID) //Store ID
   else
@@ -1014,7 +1014,7 @@ begin
   if IsDeadOrDying then
   begin
     Result:=true; //Required for override compatibility
-    inherited UpdateState;
+    Inherited UpdateState;
     exit;
   end;
 
@@ -1166,7 +1166,7 @@ begin
   if (fFlagAnim mod 5 = 0) and (fState <> ws_RepositionPause) then CheckForEnemy; //Split into seperate procedure so it can be called from other places
 
   Result:=true; //Required for override compatibility
-  if inherited UpdateState then exit;
+  if Inherited UpdateState then exit;
 
 
   //This means we are idle, so make sure our direction is right and if we are commander reposition our troops if needed

@@ -190,7 +190,7 @@ const
 { TMissionParserGeneric }
 constructor TMissionParserGeneric.Create(aStrictParsing: boolean);
 begin
-  inherited Create;
+  Inherited Create;
   fStrictParsing := aStrictParsing;
 end;
 
@@ -314,7 +314,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  inherited LoadMission(aFileName);
+  Inherited LoadMission(aFileName);
 
   Result := false;
 
@@ -436,7 +436,7 @@ end;
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aStrictParsing: boolean);
 var i:integer;
 begin
-  inherited Create(aStrictParsing);
+  Inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
   for i:=0 to High(fRemap) do
@@ -449,7 +449,7 @@ end;
 constructor TMissionParserStandard.Create(aMode: TMissionParsingMode; aPlayersRemap: TPlayerArray; aStrictParsing:boolean);
 var i:integer;
 begin
-  inherited Create(aStrictParsing);
+  Inherited Create(aStrictParsing);
   fParsingMode := aMode;
 
   //PlayerRemap tells us which player should be used for which index
@@ -468,7 +468,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  inherited LoadMission(aFileName);
+  Inherited LoadMission(aFileName);
 
   Assert(fTerrain <> nil);
 
@@ -831,6 +831,7 @@ begin
                               AddError('Add_LostGoal for non existing player');
     ct_AIDefence:       if (fParsingMode <> mpm_Preview) then
                         if fLastPlayer >=0 then
+                        if InRange(P[3], Integer(Low(TGroupType)), Integer(High(TGroupType))) then //TPR 3 tries to set TGroupType 240 due to a missing space
                           fPlayers.Player[fLastPlayer].AI.AddDefencePosition(KMPointDir(P[0]+1, P[1]+1, TKMDirection(P[2]+1)),TGroupType(P[3]),P[4],TAIDefencePosType(P[5]));
     ct_SetMapColor:     if fLastPlayer >=0 then
                           //For now simply use the minimap color for all color, it is too hard to load all 8 shades from ct_SetNewRemap
@@ -1324,7 +1325,7 @@ var
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
-  inherited LoadMission(aFileName);
+  Inherited LoadMission(aFileName);
 
   fLastPlayer := 0;
   fHumanPlayer := 0;

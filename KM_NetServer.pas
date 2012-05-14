@@ -131,7 +131,7 @@ uses KM_Utils; //Needed in Linux for FakeGetTickCount
 { TKMServerClient }
 constructor TKMServerClient.Create(aHandle, aRoom: Integer);
 begin
-  inherited Create;
+  Inherited Create;
   fHandle := aHandle;
   fRoom := aRoom;
   SetLength(fBuffer,0);
@@ -206,7 +206,7 @@ end;
 { TKMNetServer }
 constructor TKMNetServer.Create(aMaxRooms:word; aKickTimeout: word; aHTMLStatusFile, aWelcomeMessage:string);
 begin
-  inherited Create;
+  Inherited Create;
   fEmptyGameInfo := TMPGameInfo.Create;
   fEmptyGameInfo.GameTime := -1;
   fMaxRooms := aMaxRooms;
@@ -227,7 +227,7 @@ begin
   fServer.Free;
   fClientList.Free;
   fEmptyGameInfo.Free;
-  inherited;
+  Inherited;
 end;
 
 

@@ -884,7 +884,6 @@ type
   private
     fCaption: string;
     fCount: Integer;
-    fItemHeight: Byte;
     fLines: array of record
       Title: string;
       Color: TColor4;
@@ -893,7 +892,6 @@ type
     end;
     fMaxLength: Word;
     fMaxValue: Word;
-    procedure UpdateMaxValue;
   public
     constructor Create(aParent: TKMPanel; aLeft,aTop,aWidth,aHeight: Integer);
 
@@ -3905,7 +3903,7 @@ constructor TKMGraph.Create(aParent: TKMPanel; aLeft, aTop, aWidth, aHeight: Int
 begin
   inherited Create(aParent, aLeft, aTop, aWidth, aHeight);
 
-  fItemHeight := 13;
+  fMaxValue := 0;
 end;
 
 
@@ -3933,21 +3931,8 @@ end;
 
 procedure TKMGraph.Clear;
 begin
-  fCount := 0;
   SetLength(fLines, 0);
   fMaxValue := 0;
-end;
-
-
-procedure TKMGraph.UpdateMaxValue;
-var I, K: Integer;
-begin
-  fMaxValue := 0;
-  for I := 0 to fCount - 1 do
-    if fLines[I].Visible then
-      for K := 0 to fMaxLength - 1 do
-        if fLines[I].Values[K] > fMaxValue then
-          fMaxValue := fLines[I].Values[K];
 end;
 
 
@@ -3958,12 +3943,10 @@ begin
 
   if X < Left + Width-55 then Exit;
 
-  I := (Y - Top - 20) div fItemHeight;
+  I := (Y - Top - 20) div 12;
   if not InRange(I, 0, fCount - 1) then Exit;
 
   fLines[I].Visible := not fLines[I].Visible;
-
-  UpdateMaxValue;
 end;
 
 
@@ -3980,12 +3963,12 @@ begin
     if fLines[I].Visible then
       fRenderUI.WritePlot(Left+25, Top+20, Width-25-60, Height-20, fLines[I].Values, fMaxValue, fLines[I].Color);
 
-    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*fItemHeight+2, 11, 11, fLines[I].Color, $00000000);
+    fRenderUI.WriteLayer(Left+Width-55, Top + 20 + I*12+2, 11, 10, fLines[I].Color, $00000000);
 
     if fLines[I].Visible then
-      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft);
+      fRenderUI.WriteText(Left+Width-55, Top + 20 + I*12 - 1, 0, 0, 'v', fnt_Game, taLeft);
 
-    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft);
+    fRenderUI.WriteText(Left+Width-43, Top + 20 + I*12, 0, 0, fLines[I].Title, fnt_Game, taLeft);
   end;
 
   fRenderUI.WriteText(Left+20, Top + Height, 0, 0, IntToStr(0), fnt_Game, taRight);
@@ -4092,7 +4075,8 @@ end;
 
 function TKMMasterControl.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     Result := CtrlFocus.KeyDown(Key, Shift)
   else
     Result := false;
@@ -4101,14 +4085,16 @@ end;
 
 procedure TKMMasterControl.KeyPress(Key: Char);
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     CtrlFocus.KeyPress(Key);
 end;
 
 
 function TKMMasterControl.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  if CtrlFocus <> nil then
+  //CtrlFocus could be on another menu page and no longer visible
+  if (CtrlFocus <> nil) and CtrlFocus.Visible then
     Result := CtrlFocus.KeyUp(Key, Shift)
   else
     Result := false;

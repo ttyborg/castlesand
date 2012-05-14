@@ -1,7 +1,7 @@
 unit KM_PlayerStats;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses Classes,
   KM_CommonClasses, KM_Defaults;
 
 
@@ -223,7 +223,7 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount: Integer);
+procedure TKMPlayerStats.GoodInitial(aRes: TResourceType; aCount:integer);
 begin
   if not DISPLAY_CHARTS_RESULT then Exit;
   if aRes <> rt_None then
@@ -231,17 +231,10 @@ begin
 end;
 
 
-procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount: Integer);
-var R: TResourceType;
+procedure TKMPlayerStats.GoodProduced(aRes: TResourceType; aCount:integer);
 begin
   if aRes <> rt_None then
-    case aRes of
-      rt_All:     for R := WARE_MIN to WARE_MAX do
-                    Inc(Goods[R].Produced, aCount);
-      WARE_MIN..
-      WARE_MAX:   Inc(Goods[aRes].Produced, aCount);
-      else        Assert(False, 'Cant''t add produced good ' + fResource.Resources[aRes].Title);
-    end;
+    Inc(Goods[aRes].Produced, aCount);
 end;
 
 

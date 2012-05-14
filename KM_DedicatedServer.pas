@@ -1,7 +1,7 @@
 unit KM_DedicatedServer;
 interface
 uses
-  SysUtils, Classes,
+  SysUtils, Classes, Math,
   {$IFDEF MSWindows}Windows,{$ENDIF}
   KM_NetServer, KM_MasterServer, KM_CommonEvents, KM_Defaults;
 
@@ -39,17 +39,21 @@ type
 implementation
 {$IFDEF Unix} uses KM_Utils; {$ENDIF} //Needed in Linux for FakeGetTickCount
 
+  //Enforce a minimum so our master server doesn't get spammed
+  const MINIMUM_ANNOUNCE_INTERVAL = 180;
+
+
 
 //Announce interval of -1 means the server will not be published (LAN)
 constructor TKMDedicatedServer.Create(aMaxRooms, aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                       const aMasterServerAddress:string; const aHTMLStatusFile:string;
                                       const aWelcomeMessage:string);
 begin
-  inherited Create;
+  Inherited Create;
   fNetServer := TKMNetServer.Create(aMaxRooms, aKickTimeout, aHTMLStatusFile, aWelcomeMessage);
   fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnError := MasterServerError;
-  fAnnounceInterval := aAnnounceInterval;
+  fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
   fLastPing := 0;
   fLastAnnounce := 0;
@@ -61,7 +65,7 @@ begin
   fNetServer.Free;
   fMasterServer.Free;
   StatusMessage('Server destroyed');
-  inherited;
+  Inherited;
 end;
 
 
@@ -123,7 +127,7 @@ end;
 procedure TKMDedicatedServer.UpdateSettings(const aServerName:string; aPublishServer:boolean; aKickTimeout, aPingInterval, aAnnounceInterval:word;
                                             const aMasterServerAddress:string; const aHTMLStatusFile:string; const aWelcomeMessage:string);
 begin
-  fAnnounceInterval := aAnnounceInterval;
+  fAnnounceInterval := Max(MINIMUM_ANNOUNCE_INTERVAL, aAnnounceInterval);
   fPingInterval := aPingInterval;
   fMasterServer.MasterServerAddress := aMasterServerAddress;
   fServerName := aServerName;

@@ -29,7 +29,7 @@ uses KM_PlayersCollection;
 { TTaskGoEat }
 constructor TTaskGoEat.Create(aInn:TKMHouseInn; aUnit:TKMUnit);
 begin
-  inherited Create(aUnit);
+  Inherited Create(aUnit);
   fTaskName := utn_GoEat;
   fInn      := TKMHouseInn(aInn.GetHousePointer);
   PlaceID   := 0;
@@ -39,7 +39,7 @@ end;
 
 constructor TTaskGoEat.Load(LoadStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   LoadStream.Read(fInn, 4);
   LoadStream.Read(PlaceID);
   LoadStream.Read(fFoodsEaten);
@@ -48,7 +48,7 @@ end;
 
 procedure TTaskGoEat.SyncLoad;
 begin
-  inherited;
+  Inherited;
   fInn := TKMHouseInn(fPlayers.GetHouseByID(cardinal(fInn)));
 end;
 
@@ -59,7 +59,7 @@ begin
   if PlaceID <> 0 then
     fInn.EatersGoesOut(PlaceID);
   fPlayers.CleanUpHousePointer(TKMHouse(fInn));
-  inherited;
+  Inherited;
 end;
 
 
@@ -150,7 +150,7 @@ end;
 
 procedure TTaskGoEat.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fInn <> nil then
     SaveStream.Write(fInn.ID) //Store ID, then substitute it with reference on SyncLoad
   else

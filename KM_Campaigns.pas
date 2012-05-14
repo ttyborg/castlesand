@@ -122,18 +122,30 @@ end;
 
 //Scan custom campaigns folders
 procedure TKMCampaignsCollection.ScanFolder(const aPath: string);
-var
-  SearchRec: TSearchRec;
+var C: TKMCampaign;
 begin
-  if not DirectoryExists(aPath) then Exit;
+  AddCampaign(aPath + 'The Shattered Kingdom\');
+  AddCampaign(aPath + 'The Peasants Rebellion\');
 
-  FindFirst(aPath + '*', faDirectory, SearchRec);
-  repeat
-    if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and (SearchRec.Attr and faDirectory = faDirectory) then
-      AddCampaign(aPath + SearchRec.Name + '\');
-  until (FindNext(SearchRec) <> 0);
-  FindClose(SearchRec);
+  //todo: So far TSK and TPR are hardcoded, but we need to switch to real Scan later
+
+  //Hardcoded for now
+  C := CampaignByTitle('TSK');
+  if C <> nil then
+  begin
+    //C.fBackGroundPic.RX := rxGuiMainH;
+    //C.fBackGroundPic.ID := 12;
+    //C.fFirstTextIndex := 340; //+10 added later on
+  end;
+
+  //Hardcoded for now
+  C := CampaignByTitle('TPR');
+  if C <> nil then
+  begin
+    //C.fBackGroundPic.RX := rxGuiMain;
+    //C.fBackGroundPic.ID := 20;
+    //C.fFirstTextIndex := 240; //+10 added later on
+  end;
 end;
 
 
@@ -340,13 +352,10 @@ begin
 
   fFirstTextIndex := fTextLibrary.AppendCampaign(fPath + 'text.%s.libx');
 
-  if fResource.Sprites <> nil then
-  begin
-    SP := fResource.Sprites[rxGuiMain];
-    fFirstSpriteIndex := SP.RXData.Count;
-    SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
-    SP.MakeGFX(False, fFirstSpriteIndex);
-  end;
+  SP := fResource.Sprites[rxGuiMain];
+  fFirstSpriteIndex := SP.RXData.Count;
+  SP.LoadFromRXXFile(fPath + 'images.rxx', SP.RXData.Count);
+  SP.MakeGFX(False, fFirstSpriteIndex);
 
   fBackGroundPic.RX := rxGuiMain;
   fBackGroundPic.ID := fFirstSpriteIndex;

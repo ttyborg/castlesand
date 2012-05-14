@@ -2,7 +2,7 @@ unit TestKM_Campaigns;
 interface
 uses
   TestFramework, SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
-  KM_Campaigns, KM_Locales, KM_Log, KM_Pics, KM_TextLibrary, KM_Resource, Math;
+  KM_Campaigns, KM_Locales, KM_Log, KM_Pics, KM_TextLibrary, Math;
 
 type
   // Test methods for class TKMCampaign
@@ -46,21 +46,17 @@ procedure TestTKMCampaign.SetUp;
 begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   FKMCampaign := TKMCampaign.Create;
-  fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
-  fResource := TResource.Create(nil, nil, nil);
 end;
 
 procedure TestTKMCampaign.TearDown;
 begin
-  fResource.Free;
-  fLog.Free;
   FKMCampaign.Free;
   FKMCampaign := nil;
 end;
 
 procedure TestTKMCampaign.TestLoadFromFile;
 begin
-  FKMCampaign.LoadFromFile('..\Campaigns\The Shattered Kingdom\info.cmp');
+  FKMCampaign.LoadFromFile('tsk_campaign.cmp');
 
   Check(FKMCampaign.MapCount = 20);
   Check(FKMCampaign.Maps[0].NodeCount > 0);
@@ -76,7 +72,7 @@ var
   FileLoad, FileSave: string;
 begin
   //Test with sample file
-  FileLoad := ExtractFilePath(ParamStr(0)) + '..\Campaigns\The Shattered Kingdom\info.cmp';
+  FileLoad := ExtractFilePath(ParamStr(0)) + 'tsk_campaign.cmp';
   FileSave := ExtractFilePath(ParamStr(0)) + 'Temp\campaign.tmp';
   ForceDirectories(ExtractFilePath(FileSave));
   FKMCampaign.LoadFromFile(FileLoad);
@@ -99,10 +95,8 @@ end;
 
 procedure TestTKMCampaign.TestMissionFile;
 begin
-  FKMCampaign.LoadFromFile('..\Campaigns\The Shattered Kingdom\info.cmp');
-  Check(FKMCampaign.MissionFile(0) = 'TSK01\TSK01.dat', 'Unexpected result: ' + FKMCampaign.MissionFile(0));
-  FKMCampaign.LoadFromFile('..\Campaigns\The Peasants Rebellion\info.cmp');
-  Check(FKMCampaign.MissionFile(0) = 'TPR01\TPR01.dat', 'Unexpected result: ' + FKMCampaign.MissionFile(0));
+  FKMCampaign.LoadFromFile('tsk_campaign.cmp');
+  Check(FKMCampaign.MissionFile(0) = 'TSK01.dat');
 end;
 
 procedure TestTKMCampaign.TestMissionTitle;
@@ -120,17 +114,12 @@ begin
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\log.tmp');
   fLocales := TKMLocales.Create(ExeDir+'data\locales.txt');
-  fResource := TResource.Create(nil, nil, nil);
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', 'eng');
   FKMCampaignsCollection := TKMCampaignsCollection.Create;
 end;
 
 procedure TestTKMCampaignsCollection.TearDown;
 begin
-  fTextLibrary.Free;
-  fResource.Free;
-  fLocales.Free;
-  fLog.Free;
   FKMCampaignsCollection.Free;
   FKMCampaignsCollection := nil;
 end;

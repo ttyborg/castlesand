@@ -33,7 +33,7 @@ uses KM_Houses, KM_PlayersCollection, KM_Resource;
 { TTaskMining }
 constructor TTaskMining.Create(aUnit: TKMUnit; aRes: TResourceType);
 begin
-  inherited Create(aUnit);
+  Inherited Create(aUnit);
   fTaskName := utn_Mining;
   fWorkPlan := TUnitWorkPlan.Create;
   fBeastID  := 0;
@@ -52,7 +52,7 @@ begin
   if (not fUnit.GetHome.IsDestroyed) and (fUnit.GetHome.GetState = hst_Work) then
     fUnit.GetHome.SetState(hst_Idle); //Make sure we don't abandon and leave our house with "working" animations
   FreeAndNil(fWorkPlan);
-  inherited;
+  Inherited;
 end;
 
 
@@ -91,7 +91,7 @@ end;
 
 constructor TTaskMining.Load(LoadStream: TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   fWorkPlan := TUnitWorkPlan.Create;
   fWorkPlan.Load(LoadStream);
   LoadStream.Read(fBeastID);
@@ -320,7 +320,7 @@ end;
 
 procedure TTaskMining.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   fWorkPlan.Save(SaveStream);
   SaveStream.Write(fBeastID);
 end;

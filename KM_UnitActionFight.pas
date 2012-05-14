@@ -53,7 +53,7 @@ const
 { TUnitActionFight }
 constructor TUnitActionFight.Create(aUnit: TKMUnit; aActionType: TUnitActionType; aOpponent: TKMUnit);
 begin
-  inherited Create(aUnit, aActionType, True);
+  Inherited Create(aUnit, aActionType, True);
   fFightDelay     := -1;
   fOpponent       := aOpponent.GetUnitPointer;
   aUnit.Direction := KMGetDirection(fUnit.GetPosition, fOpponent.GetPosition); //Face the opponent from the beginning
@@ -68,13 +68,13 @@ begin
   fPlayers.CleanUpUnitPointer(fOpponent);
   if not KMSamePoint(fVertexOccupied, KMPoint(0,0)) then
     DecVertex;
-  inherited;
+  Inherited;
 end;
 
 
 constructor TUnitActionFight.Load(LoadStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   LoadStream.Read(fOpponent, 4);
   LoadStream.Read(fFightDelay);
   LoadStream.Read(fVertexOccupied);
@@ -83,7 +83,7 @@ end;
 
 procedure TUnitActionFight.SyncLoad;
 begin
-  inherited;
+  Inherited;
   fOpponent := fPlayers.GetUnitByID(cardinal(fOpponent));
 end;
 
@@ -337,7 +337,7 @@ end;
 
 procedure TUnitActionFight.Save(SaveStream:TKMemoryStream);
 begin
-  inherited;
+  Inherited;
   if fOpponent <> nil then
     SaveStream.Write(fOpponent.ID) //Store ID, then substitute it with reference on SyncLoad
   else

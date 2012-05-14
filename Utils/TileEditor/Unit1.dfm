@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 167
   Top = 163
+  Width = 737
+  Height = 556
   Caption = 'Form1'
-  ClientHeight = 529
-  ClientWidth = 729
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -8247,9 +8247,9 @@ object Form1: TForm1
       2E2E342E343434132E0D2E2E0D2E2E1312100E05050E0E1026342E130D0D2E0D
       2E132B2B2B2B2B2B2B2B2B2B0A0A2B2B2C626263636363636363632C2C2C622B
       2B1C}
-    OnMouseDown = ImageMouseDown
-    OnMouseMove = ImageMouseMove
-    OnMouseUp = ImageMouseUp
+    OnMouseDown = MouseDown
+    OnMouseMove = MouseMove
+    OnMouseUp = MouseUp
   end
   object RadioGroup1: TRadioGroup
     Left = 528

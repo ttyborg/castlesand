@@ -214,9 +214,6 @@ begin
   fGoals        := TKMGoals.Create;
   fStats        := TKMPlayerStats.Create;
   fRoadsList    := TKMPointList.Create;
-  //People sometimes put two roads on the same tile, which is safely ignored when trying to add the second one.
-  //So we shouldn't crash in that case.
-  fRoadsList.AllowDuplicates := True;
   fHouses       := TKMHousesCollection.Create;
   fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;
@@ -255,7 +252,7 @@ end;
 //WasTrained - the uniot was trained by player and therefor counted by Stats
 function TKMPlayer.AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean=false): TKMUnit;
 begin
-  Result := inherited AddUnit(aUnitType, Position, AutoPlace);
+  Result := Inherited AddUnit(aUnitType, Position, AutoPlace);
 
   if Result <> nil then
   begin
@@ -788,19 +785,19 @@ begin
           if ((j = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, j) = at_Ally))
           and fPlayers[j].fBuildList.HousePlanList.HasPlan(KMPoint(P2.X+s,P2.Y+t)) then
           begin
-            BlockPoint(KMPoint(P2.X+s,P2.Y+t), TC_BLOCK); //Block surrounding points
+            BlockPoint(KMPoint(P2.X+s,P2.Y+t), 479); //Block surrounding points
             AllowBuild := False;
           end;
 
     //Mark the tile according to previous check results
     if not AllowBuild then
       if HA[i,k] = 2 then
-        BlockPoint(P2, TC_BLOCK_ENTRANCE)
+        BlockPoint(P2, 482)
       else
         if aHouseType in [ht_GoldMine, ht_IronMine] then
-          BlockPoint(P2, TC_BLOCK_MINE)
+          BlockPoint(P2, 480)
         else
-          BlockPoint(P2, TC_BLOCK);
+          BlockPoint(P2, 479);
   end;
 end;
 
@@ -880,8 +877,7 @@ begin
   end;
 
   if (fGame.MissionMode = mm_Normal) and (aTick mod CHARTS_SAMPLING_FOR_ECONOMY = 0)
-  or (fGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0)
-  or (aTick = 1) then
+  or (fGame.MissionMode = mm_Tactic) and (aTick mod CHARTS_SAMPLING_FOR_TACTICS = 0) then
     fStats.UpdateState;
 end;
 
