@@ -54,3 +54,7 @@ The project needs:
   * New ambient sound effects (birds, wind, water tide, etc.)
   * New music tracks
   * 
+
+== Translations ==
+
+The project always needs translations into new languages, improving existing translations.
