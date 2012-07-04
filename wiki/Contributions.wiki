@@ -1,0 +1,46 @@
+#summary Contributions.
+
+= Contributions =
+
+This page contains list of contributions the project needs. The list is not final, if you have any ideas and/or suggestions to it - please feel free to contact us on forum or via e-mail.
+
+
+== Artwork ==
+
+Required items:
+  * Main menu background image and separate parchment image with transparent shadow
+  * In-game beacons, several different kinds (info, fight, others?) for minimap and terrain
+  * Small arrows for scrollbars in main menu
+  * Supporting artwork for menu screens
+  * Icons for map editor sections and tools
+  * Better parchments/scrolls for in-game messages
+  * Icons for Single Player map selection list
+
+Optional items:
+  * Improve menu elements layout
+  * Winter houses (add snow and ice to houses rooftops mainly)
+  * New terrain objects (trees, rocks, etc.) and maybe some water objects
+  * New animals (birds, hedgehogs, etc)
+  * New splash screen artwork
+  * New project logo and icon
+
+Experimental research items:
+  * New user interface
+  * New design for menu elements
+  * Weather and day/night effects (clouds, rain, night, fog, snow, etc..)
+  * 
+
+Please contact us for additional details and requirements description if you plan to pick any of the tasks, so we could discuss it.
+
+
+== Programming ==
+
+We need anyone who is familiar with Delphi/Lazarus/Pascal and eager to work on the project.
+
+
+== Sound engineers / Music composers ==
+
+The project needs:
+  * New ambient sound effects (birds, wind, water tide, etc.)
+  * New music tracks
+  * 
