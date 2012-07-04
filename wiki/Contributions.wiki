@@ -35,7 +35,17 @@ Please contact us for additional details and requirements description if you pla
 
 == Programming ==
 
-We need anyone who is familiar with Delphi/Lazarus/Pascal and eager to work on the project.
+We need anyone who is familiar with Delphi/Lazarus/Pascal and eager to work on the project. We don't have fixed roles, so anyone has a chance to work on something he likes.
+
+Additional areas of interest:
+  * Documenting project structure and code
+  * Implementing unit tests
+  * Performing bugfixes
+
+Experimental areas:
+  * AI 
+  * Flocking unit movement
+  * 
 
 
 == Sound engineers / Music composers ==
