@@ -1,4 +1,4 @@
-#summary Contributions.
+#summary Contributions
 
 = Contributions =
 
@@ -23,6 +23,7 @@ Optional items:
   * New animals (birds, hedgehogs, etc)
   * New splash screen artwork
   * New project logo and icon
+  * Graphical layout of all keyboard shortcut keys and mouse actions in game (maybe with multiplayer chat commands listed nearby)
 
 Experimental research items:
   * New user interface
