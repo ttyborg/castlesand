@@ -16,6 +16,7 @@ Required items:
   * Icons for map editor sections and tools
   * Better parchments/scrolls for in-game messages
   * Icons for Single Player map selection list
+  * Icons for replay controls (restart, pause, step, resume, quit)
 
 Optional items:
   * Improve menu elements layout
