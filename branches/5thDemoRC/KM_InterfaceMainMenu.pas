@@ -103,7 +103,7 @@ type
     procedure MP_HostFail(const aData: string);
     procedure MP_BackClick(Sender: TObject);
 
-    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
+    procedure Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
     procedure Lobby_GameOptionsChange(Sender: TObject);
     procedure Lobby_OnGameOptions(Sender: TObject);
     procedure Lobby_PlayersSetupChange(Sender: TObject);
@@ -2823,7 +2823,7 @@ end;
 
 
 //Reset everything to it's defaults depending on users role (Host/Joiner/Reassigned)
-procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False);
+procedure TKMMainMenuInterface.Lobby_Reset(Sender: TObject; aPreserveMessage: Boolean = False; aPreserveMaps: Boolean = False);
 var I: Integer;
 begin
   Label_LobbyServerName.Caption := '';
@@ -2862,7 +2862,7 @@ begin
   begin
     Radio_LobbyMapType.Enable;
     Radio_LobbyMapType.ItemIndex := 0;
-    Lobby_MapTypeSelect(nil);
+    if not aPreserveMaps then Lobby_MapTypeSelect(nil);
     DropCol_LobbyMaps.Show;
     Label_LobbyMapName.Hide;
     Label_LobbyChooseMap.Show;
@@ -3413,14 +3413,16 @@ procedure TKMMainMenuInterface.Lobby_OnReassignedToHost(Sender: TObject);
   begin
     DropCol_LobbyMaps.ItemIndex := -1;
     for I := 0 to DropCol_LobbyMaps.Count - 1 do
-      if DropCol_LobbyMaps.Item[I].Cells[1].Caption = aName then
+      if DropCol_LobbyMaps.Item[I].Cells[0].Caption = aName then
       begin
         DropCol_LobbyMaps.ItemIndex := I;
         Break;
       end;
   end;
+var OldMapType: byte;
 begin
-  Lobby_Reset(Button_MP_CreateLAN, True); //Will reset the lobby page into host mode, preserving messages
+  Lobby_Reset(Button_MP_CreateLAN, True, True); //Will reset the lobby page into host mode, preserving messages/maps
+  OldMapType := Radio_LobbyMapType.ItemIndex;
   if fGameApp.Networking.SelectGameKind = ngk_None then
     Radio_LobbyMapType.ItemIndex := 0 //Default
   else
@@ -3435,8 +3437,12 @@ begin
         else
           Radio_LobbyMapType.ItemIndex := 0;
 
+  //Don't force rescanning all the maps unless the map type changed or no map was selected
+  if (Radio_LobbyMapType.ItemIndex <> OldMapType) or (DropCol_LobbyMaps.ItemIndex = -1) then
+    Lobby_MapTypeSelect(nil)
+  else
+    Lobby_RefreshMapList(False); //Just fill the list from fMapMP
 
-  Lobby_MapTypeSelect(nil);
   if fGameApp.Networking.SelectGameKind = ngk_Save then
     SelectByName(fGameApp.Networking.SaveInfo.FileName) //Select the map
   else
