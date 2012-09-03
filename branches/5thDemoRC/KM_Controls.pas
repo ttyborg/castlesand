@@ -375,7 +375,7 @@ type
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
-    function KeyEventHandled(Key: Word): Boolean;
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
@@ -1956,7 +1956,7 @@ end;
 
 
 //Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
-function TKMEdit.KeyEventHandled(Key: Word): Boolean;
+function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True;
   if fText = '' then
@@ -1973,12 +1973,14 @@ begin
     end;
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
+  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   //Clipboard operations
@@ -2026,7 +2028,7 @@ end;
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(OnChange) then OnChange(Self);
