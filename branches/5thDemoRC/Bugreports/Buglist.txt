@@ -49,6 +49,7 @@
 	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them.
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
 	Flatten/equalise in the MapEd doesn't seem to work properly (like Krom's editor). Unequalise is ok.
+	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
 
 	Heights look different on certain systems, see heights.jpg images and dxdiag report
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
