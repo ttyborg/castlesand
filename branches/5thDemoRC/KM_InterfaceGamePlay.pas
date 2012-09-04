@@ -3917,9 +3917,12 @@ begin
       MapLoc := fTerrain.FlatToHeight(UnitLoc);
       ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-      Label_TeamName.Left := ScreenLoc.X;
-      Label_TeamName.Top := ScreenLoc.Y;
-      Label_TeamName.Paint;
+      if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+      begin
+        Label_TeamName.Left := ScreenLoc.X;
+        Label_TeamName.Top := ScreenLoc.Y;
+        Label_TeamName.Paint;
+      end;
     end;
   end;
   Label_TeamName.Visible := False; //Only visible while we're using it, otherwise it shows up in other places
