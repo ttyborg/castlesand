@@ -1,0 +1,24 @@
+#summary Instructions for project compilation
+
+= Introduction =
+
+This instruction explains how to compile a working project.
+
+
+= Pre-requirements =
+
+ * Microsoft Windows OS: XP or higher (we did not tested 95,98,Me,2000, but they would probably work as well)
+ * Delphi (version 7 or higher) or Lazarus (0.9 or higher)
+ * SVN client (any of your choice)
+ * OpenGL 1.5 compliant GPU
+ * Original "Knights and Merchants: The Peasants Rebellion" data files
+
+Optional (can be ignored or skipped with conditional switches):
+ * madExcept installed
+ * OpenAL drivers installed
+
+= Walkthrough =
+
+ # Checkout project working copy onto your PC using SVN client of your choice. Specify path to our repository, "/trunk". Do not use "https" version unless you are added to the team - it will ask you for a password you do not have yet. 
+
+ # Copy data
