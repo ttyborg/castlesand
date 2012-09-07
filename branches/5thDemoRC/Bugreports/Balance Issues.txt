@@ -32,6 +32,7 @@ SOLUTIONS:
     - Arrows by nature are weaker than bolts
  3. Increase bowmen accuracy
     - Lewin: IMO it makes more sense for bowmen/crossbowmen to have similar accuracy.
+ 4. Decrease Arbaletmen attack down from 120 (which is already the highest attack except Towers)
 
 
 ISSUE:
