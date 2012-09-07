@@ -10,7 +10,7 @@ This instruction explains how to compile a working project.
 
  * Microsoft Windows OS: XP or higher (we did not tested 95,98,Me,2000, but they would probably work as well)
  * Delphi (version 7 or higher) or Lazarus (0.9 or higher)
- * SVN client (any of your choice)
+ * SVN client (Tortoise SVN or any other of your choice)
  * OpenGL 1.5 compliant GPU
  * Original "Knights and Merchants: The Peasants Rebellion" data files
 
@@ -20,6 +20,20 @@ Optional (can be ignored or skipped with conditional switches):
 
 = Walkthrough =
 
- # Checkout project working copy onto your PC using SVN client of your choice. Specify path to our repository, "/trunk". Do not use "https" version unless you are added to the team - it will ask you for a password you do not have yet. 
+ # Install SVN client if you don't have one. Tortoise SVN is good.
 
- # Copy data
+ # Checkout project working copy onto your PC using SVN client. Right-click in a folder where you want the project to be (e.g. "C:\My Documents\") and select from drop-down menu "SVN Checkout". Specify checkout folder (e.g. "C:\My Documents\Castlesand\") and path to our repository, "http://castlesand.googlecode.com/svn/trunk". Do not use "https" version unless you are added to the team - it will ask you for a password you do not have yet. SVN will do its job in couple of minutes.
+
+ * From now on paths will be written as relative, so e.g. ".\Maps" means "C:\My Documents\Castlesand\Maps"
+
+ # Copy resource files from your "Knights and Merchants: The Peasants Rebellion" installation. You need ".\data" folder, copy whole of it into project folder. When asked - replace all of the existing files/folders.
+
+ # Now to revert several replaced files - Right-click inside project folder and select SVN > Revert. Revert all the changes made to project files in ".\data" folder.
+
+ # Copy all the `*`.rx files from ".\data\gfx\res\" to ".\SpriteResource\" folder.
+
+ # Launch the Delphi/Lazarus and open ".\Utils\RXXPacker\RXXPacker.dpr" project. Compile and launch it. Select all the available items and press "Repack". This will convert sprites to format we use in game.
+
+ # If you don't have madExcept installed, then open ".\KaM Remake.inc" file with Notepad and place a dot like so "{.$DEFINE USE_MAD_EXCEPT}". This will make Delphi skip all the code within _USE_MAD_EXCEPT_ clauses. If you have madExcept installed - skip this step.
+
+ # Now you you can open ".\KaM Remake.dpk" package and compile the project and/or its utility tools.
