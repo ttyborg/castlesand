@@ -521,8 +521,11 @@ begin
   LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
 
   //Copy the chat and typed lobby message to the in-game chat
-  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  if fGame <> nil then
+  begin
+    fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+    fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  end;
 end;
 
 
