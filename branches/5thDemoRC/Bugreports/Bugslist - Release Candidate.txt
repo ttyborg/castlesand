@@ -15,6 +15,7 @@ Todo:
  +	Fixed crash when using extreme zoom in MapEd/Game with onScreenDisplays turned on (deposit amounts, teamnames)
  +	Crash when having the Remake on 2nd monitor on right, when moving your cursor to the left monitor (Shadaoe to confirm fix)
  +	Crash when starting a map from the lobby if the script contained a fatal error (it should just show the normal error screen)
+ +	Crash on startup for some people where the game tried to unnecessarily obtain read+write (not just read) access for data\defines\pattern.dat
 	All multiplayer maps need more starting food due to matching unit condition to original KaM
 	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
 	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
