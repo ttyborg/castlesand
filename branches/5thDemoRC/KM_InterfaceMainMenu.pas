@@ -2117,7 +2117,12 @@ end;
 procedure TKMMainMenuInterface.MainMenu_MultiplayerClick(Sender: TObject);
 begin
   if fMain.LockMutex then
-    SwitchMenuPage(Sender)
+  begin
+    if not fGameApp.CheckDATConsistency then
+      ShowScreen(msError, fTextLibrary[TX_ERROR_MODS])
+    else
+      SwitchMenuPage(Sender);
+  end
   else
     ShowScreen(msError, fTextLibrary[TX_MULTIPLE_INSTANCES]);
 end;

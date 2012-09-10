@@ -56,6 +56,7 @@ type
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName:string);
+    function CheckDATConsistency: Boolean;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -659,6 +660,12 @@ begin
   if not FileExists(aFileName) then Exit;
   fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
   fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
+end;
+
+
+function TKMGameApp.CheckDATConsistency: Boolean;
+begin
+  Result := ALLOW_MP_MODS or (fResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
 end;
 
 
