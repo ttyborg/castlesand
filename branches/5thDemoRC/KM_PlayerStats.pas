@@ -260,7 +260,7 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Inc(Result, Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost);
+                  Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
 end;
@@ -275,7 +275,7 @@ begin
     ht_None:    ;
     ht_Any:     for H := Low(THouseType) to High(THouseType) do
                 if fResource.HouseDat[H].IsValid then
-                  Inc(Result, Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved);
+                  Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
     else        Result := Houses[aType].Started + Houses[aType].Planned - Houses[aType].Ended - Houses[aType].PlanRemoved;
   end;
 end;
@@ -288,7 +288,7 @@ begin
   case aType of
     ut_None:    ;
     ut_Any:     for UT := HUMANS_MIN to HUMANS_MAX do
-                  Result := Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
+                  Result := Result + Units[UT].Initial + Units[UT].Trained - Units[UT].Lost;
     else        begin
                   Result := Units[aType].Initial + Units[aType].Trained - Units[aType].Lost;
                   if aType = ut_Recruit then
