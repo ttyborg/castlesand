@@ -68,3 +68,4 @@ We can discuss them in dialog-style and maybe move to GC issues later on
 	Clicking on player's name/flag in lobby opens a drop down menu with options like: kick, ban, promote to host
 	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
 	Settings page allows players to save their default resource slider options (minor feature)
+	Option to enable/disable "snap to grid" for elevating in MapEd (Krom's editor snaps, currently Remake interpolates, but both are useful modes)
