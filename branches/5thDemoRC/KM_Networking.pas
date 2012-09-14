@@ -1255,7 +1255,7 @@ begin
     mk_StartingLocQuery:
             if IsHost and not fNetPlayers.HostDoesSetup then begin
               LocID := Param;
-              if (GameInfo <> nil) and GameInfo.IsValid and
+              if (GameInfo <> nil) and GameInfo.IsValid(False) and
                  (LocID <= GameInfo.PlayerCount) and
                  fNetPlayers.LocAvailable(LocID) then
               begin //Update Players setup

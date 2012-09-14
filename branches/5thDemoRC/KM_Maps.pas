@@ -228,7 +228,7 @@ end;
 
 function TKMapInfo.IsValid: Boolean;
 begin
-  Result := fInfo.IsValid and
+  Result := fInfo.IsValid(False) and
             FileExists(fPath + fFileName + '.dat') and
             FileExists(fPath + fFileName + '.map');
 end;
