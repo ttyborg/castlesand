@@ -1,7 +1,7 @@
 ; For each "Update" build there are two things to change. Revision and Upgradable Versions
 
 ; REVISION
-#define Revision 'r3392'
+#define Revision 'r3967'
 
 ; These don't need to change
 #define InstallType 'Update'
@@ -17,8 +17,8 @@ begin
          or (aVersion = 'r2678')
          or (aVersion = 'r2736')
          or (aVersion = 'r3392')
-        {or (aVersion = 'r1234')
-         or (aVersion = 'r1234')}
+         or (aVersion = 'r3812') //RC1
+         or (aVersion = 'r3870') //RC2
          ; 
 end;
 
