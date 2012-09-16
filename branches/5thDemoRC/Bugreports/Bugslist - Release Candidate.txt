@@ -1,4 +1,5 @@
 Todo:
+ +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
 	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
 	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")

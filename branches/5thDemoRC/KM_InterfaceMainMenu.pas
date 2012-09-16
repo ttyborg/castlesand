@@ -38,6 +38,7 @@ type
 
     //We remember old values to enable "Apply" button dynamicaly
     OldResolutionID: TResIndex;
+    SelectedRefRate: Integer;
 
     procedure Create_MainMenu_Page;
     procedure Create_SinglePlayer_Page;
@@ -3981,7 +3982,6 @@ end;
 procedure TKMMainMenuInterface.Options_ChangeRes(Sender: TObject);
 var
   I: Integer;
-  RefRate: Integer;
   ResID, RefID: Integer;
 begin
   if fMain.Resolutions.Count = 0 then Exit;
@@ -3995,16 +3995,13 @@ begin
     ResID := DropBox_Options_Resolution.ItemIndex;
     RefID := DropBox_Options_RefreshRate.ItemIndex;
 
-    //Remember refresh rate (we will try to reuse it below)
-    RefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
-
     //Reset refresh rates, because they are different for each resolution
     DropBox_Options_RefreshRate.Clear;
     for I := 0 to fMain.Resolutions.Items[ResID].RefRateCount - 1 do
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[ResID].RefRate[I]]));
-      //Make sure to select something
-      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = RefRate) then
+      //Make sure to select something. SelectedRefRate is prefered, otherwise select first
+      if (I = 0) or (fMain.Resolutions.Items[ResID].RefRate[I] = SelectedRefRate) then
         DropBox_Options_RefreshRate.ItemIndex := I;
     end;
   end;
@@ -4016,6 +4013,8 @@ begin
       (fMain.Settings.FullScreen <> CheckBox_Options_FullScreen.Checked) or
       (CheckBox_Options_FullScreen.Checked and ((OldResolutionID.ResID <> ResID) or
                                                 (OldResolutionID.RefID <> RefID)));
+  //Remember which one we have selected so we can reselect it if the user changes resolution
+  SelectedRefRate := fMain.Resolutions.Items[ResID].RefRate[RefID];
 end;
 
 
@@ -4069,7 +4068,10 @@ begin
     begin
       DropBox_Options_RefreshRate.Add(Format('%d Hz', [fMain.Resolutions.Items[R.ResID].RefRate[I]]));
       if (I = 0) or (I = R.RefID) then
+      begin
         DropBox_Options_RefreshRate.ItemIndex := I;
+        SelectedRefRate := fMain.Resolutions.Items[R.ResID].RefRate[I];
+      end;
     end;
   end
   else
