@@ -9,7 +9,7 @@ const
 //|===================| <- constant name length
   MAX_MAP_SIZE          = 256;
   CELL_SIZE_PX          = 40;           //Single cell size in pixels (width)
-  CELL_HEIGHT_DIV       = 733.333;       //Height divider, controlls terrains pseudo-3d look
+  CELL_HEIGHT_DIV       = 33.333;       //Height divider, controlls terrains pseudo-3d look
   TOOLBAR_WIDTH         = 224;          //Toolbar width in game
   TERRAIN_PACE          = 200;          //Each tile gets updated once per ** ticks (100 by default), Warning, it affects field/tree growth rate
   FOW_PACE              = 10;           //Each tile gets updated once per ** ticks (10 by default)
@@ -30,8 +30,8 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r3918';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '5th Multiplayer Demo Release Candidate 2 ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r3967';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '5th Multiplayer Demo Release Candidate 3 ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -41,14 +41,14 @@ const
 
 var
   //These should be True
-  MAKE_ANIM_TERRAIN     :Boolean = False;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = False;  //Whenever to make team colors or not, saves RAM for debug
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
   DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple MP games at once (to prevent MP cheating)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
@@ -66,8 +66,8 @@ var
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
-  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
-  AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
 
   //These are debug things, should be False
   {User interface options}
@@ -79,7 +79,7 @@ var
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
-  SKIP_SOUND            :Boolean = True; //Skip all the sounds in favor of faster logic
+  SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
@@ -102,7 +102,6 @@ var
   SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
-  SHOW_WARE_BALANCE     :Boolean = True; //Show wares balance (Produced - Consumed)
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
@@ -111,11 +110,11 @@ var
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
-  MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
-  ALLOW_NO_HUMAN_IN_SP  :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
+  ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
@@ -264,18 +263,8 @@ const
     $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
     $101080, $0080FF, $FFBF00);
 
-  //How many of resource gets produced per minute on AVERAGE
-  //Measured on a test map RES_COUNT / TIME
-  ProductionRate: array [WARE_MIN..WARE_MAX] of Single = (
-     88/120, 414/120, 390/120, 160/120, 160/120,
-    155/120, 218/120, 330/120, 120/120, 138/120,
-    336/120, 162/120, 324/120, 510/120,  84/180,
-     84/180, 190/120, 155/120, 170/120, 155/120,
-    200/120, 195/120, 195/120, 195/120, 200/120,
-    190/120,  69/120, 122/120);
-
-  //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern: array [WARE_MIN..WARE_MAX] of Byte = (
+const //Using shortints instead of bools makes it look much neater in code-view
+  CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -314,7 +303,6 @@ type
     CanWolf,        // Soil tiles where wolfs Can move around
     CanElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
     CanWorker,      // Like CanWalk but allows walking on building sites
-    CanOwn,         // For AI ownership
     CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
     );
   TPassabilitySet = set of TPassability;
@@ -518,10 +506,7 @@ type
   THouseActionSet = set of THouseActionType;
 
 const
-  HOUSE_MIN = ht_ArmorSmithy;
-  HOUSE_MAX = ht_Woodcutters;
-
-  HouseAction: array [THouseActionType] of string = (
+  HouseAction:array[THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
@@ -597,12 +582,10 @@ type
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
 
-  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStomp);
-
 const
   //Chopable tree, Chopdown animation,
   //Age1, Age2, Age3, Age4, Falling, Stomp
-  ChopableTrees: array [1..13, TChopableAge] of byte = (
+  ChopableTrees: array [1..13, 1..6] of byte = (
   //For grass
   (  88,  89,  90,  90,  91,  37), //These two are very look alike
   (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction

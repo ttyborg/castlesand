@@ -97,7 +97,7 @@ var
 begin
   Inc(fDesireToSteer);
   //Default is the next tile in the direction we're going
-  Loc := KMPoint(KMGetPointInDir(fUnit.GetPosition, fUnit.Direction));
+  Loc := KMGetPointInDir(fUnit.GetPosition, fUnit.Direction).Loc;
   //Decide whether we should change direction or not
   if (KaMRandom(10) < fDesireToSteer)
   or not fUnit.CanStepTo(Loc.X, Loc.Y) then
@@ -110,7 +110,7 @@ begin
         if ((I<>0)or(K<>0)) and fUnit.CanStepTo(Loc.X+I, Loc.Y+K) then
         begin
           //Directions next to our current one are preferable (looks nicer if animals don't make jarring direction changes often)
-          GoodSpot := KMGetDirection(I, K) in [KMNextDirection(fUnit.Direction), KMPrevDirection(fUnit.Direction)];
+          GoodSpot := KMGetDirection(-I,-K) in [KMNextDirection(fUnit.Direction), KMPrevDirection(fUnit.Direction)];
           for J:=0 to 5*Byte(GoodSpot) do
             List.AddEntry(KMPoint(Loc.X+I, Loc.Y+K));
         end;

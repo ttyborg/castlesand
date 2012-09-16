@@ -121,7 +121,7 @@ begin
 end;
 
 
-procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads: Boolean);
+procedure TKMPlayersCollection.AfterMissionInit(aFlattenRoads:boolean);
 var
   I: Integer;
 begin
@@ -129,6 +129,7 @@ begin
     fPlayerList[I].AfterMissionInit(aFlattenRoads);
 
   fAIFields.AfterMissionInit;
+  fAIFields.UpdateInfluenceMaps;
 end;
 
 
@@ -204,9 +205,7 @@ end;
 
 
 function TKMPlayersCollection.GetClosestUnit(aLoc: TKMPoint; aIndex: TPlayerIndex; aAlliance: TAllianceType): TKMUnit;
-var
-  I: Integer;
-  U: TKMUnit;
+var i:integer; U: TKMUnit;
 begin
   Result := nil;
 
@@ -214,8 +213,7 @@ begin
   if (aIndex<>i) and (CheckAlliance(aIndex,i) = aAlliance) then
   begin
     U := fPlayerList[i].Units.GetClosestUnit(aLoc);
-    if (U <> nil)
-    and ((Result = nil) or (KMLengthSqr(U.PositionF, KMPointF(aLoc)) < KMLengthSqr(Result.PositionF, KMPointF(aLoc)))) then
+    if (U<>nil) and ((Result=nil) or (GetLength(U.PositionF, KMPointF(aLoc)) < GetLength(Result.PositionF, KMPointF(aLoc)))) then
       Result := U;
   end;
 end;

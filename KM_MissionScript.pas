@@ -135,7 +135,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos,
+uses KM_PlayersCollection, KM_Player, KM_AI, KM_AIDefensePos, KM_AIFields,
   KM_Resource, KM_ResourceHouse, KM_ResourceResource, KM_Game;
 
 
@@ -158,7 +158,7 @@ const
   AI_ATTACK_PARAMS: array [TAIAttackParamType] of AnsiString = (
     'TYPE', 'TOTAL_AMOUNT', 'COUNTER', 'RANGE', 'TROUP_AMOUNT', 'TARGET', 'POSITION', 'TAKEALL');
 
-  MAX_PARAMS = 8;
+  MAXPARAMS = 8;
 
   //This is a map of the valid values for !SET_UNIT, and the corresponing unit that will be created (matches KaM behavior)
   UnitsRemap: array[0..31] of TUnitType = (ut_Serf,ut_Woodcutter,ut_Miner,ut_AnimalBreeder,
@@ -472,17 +472,18 @@ end;
 function TMissionParserStandard.LoadMission(const aFileName: string): Boolean;
 var
   FileText, CommandText, Param, TextParam: AnsiString;
-  ParamList: array [1..MAX_PARAMS] of integer;
+  ParamList: array[1..8] of integer;
   k, l, IntParam: integer;
   CommandType: TKMCommandType;
 begin
   inherited LoadMission(aFileName);
 
-  Assert((fTerrain <> nil) and (fPlayers <> nil));
+  Assert(fTerrain <> nil);
 
   Result := false; //Set it right from the start
 
   //Reset fPlayers and other stuff
+  FreeThenNil(fPlayers);
   fLastPlayer := -1;
 
   //Read the mission file into FileText
@@ -494,7 +495,7 @@ begin
   repeat
     if FileText[k]='!' then
     begin
-      for l:=1 to MAX_PARAMS do
+      for l:=1 to 8 do
         ParamList[l]:=-1;
       TextParam:='';
       CommandText:='';
@@ -507,7 +508,7 @@ begin
       CommandType := TextToCommandType(CommandText);
       inc(k);
       //Extract parameters
-      for l:=1 to MAX_PARAMS do
+      for l:=1 to 8 do
         if (k<=length(FileText)) and (FileText[k]<>'!') then
         begin
           Param := '';
@@ -542,10 +543,7 @@ begin
 
   //SinglePlayer needs a player
   if (fMissionInfo.HumanPlayerID = PLAYER_NONE) and (fParsingMode = mpm_Single) then
-    if ALLOW_NO_HUMAN_IN_SP then
-      fMissionInfo.HumanPlayerID := 0 //We need to choose some player to look at
-    else
-      AddError('No human player detected - ''ct_SetHumanPlayer''', True);
+    AddError('No human player detected - ''ct_SetHumanPlayer''', True);
 
   //If we have reach here without exiting then loading was successful if no errors were reported
   Result := (fFatalErrors = '');
@@ -581,12 +579,16 @@ begin
                           end;
                         end;
     ct_SetMaxPlayer:    begin
+                          if fPlayers=nil then
+                            fPlayers := TKMPlayersCollection.Create;
                           if fParsingMode = mpm_Single then
                             fPlayers.AddPlayers(P[0])
                           else
                             fPlayers.AddPlayers(fRemapCount);
                         end;
     ct_SetTactic:       begin
+                          if fPlayers = nil then
+                            fPlayers := TKMPlayersCollection.Create;
                           fMissionInfo.MissionMode := mm_Tactic;
                         end;
     ct_SetCurrPlayer:   if InRange(P[0], 0, MAX_PLAYERS-1) then

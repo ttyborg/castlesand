@@ -5,7 +5,7 @@ uses
   Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults,
   KM_Campaigns, KM_Game,
-  KM_InterfaceMainMenu,
+  KM_InterfaceDefaults, KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
 
 type
@@ -56,6 +56,7 @@ type
     function RenderVersion: string;
     procedure PrintScreen(aFilename: string = '');
     procedure PauseMusicToPlayFile(aFileName:string);
+    function CheckDATConsistency: Boolean;
 
     //These are all different game kinds we can start
     procedure NewCampaignMap(aCampaign: TKMCampaign; aMap: Byte);
@@ -521,8 +522,11 @@ begin
   LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
 
   //Copy the chat and typed lobby message to the in-game chat
-  fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
-  fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  if fGame <> nil then
+  begin
+    fGame.GamePlayInterface.SetChatText(fMainMenuInterface.GetChatText);
+    fGame.GamePlayInterface.SetChatMessages(fMainMenuInterface.GetChatMessages);
+  end;
 end;
 
 
@@ -656,6 +660,12 @@ begin
   if not FileExists(aFileName) then Exit;
   fSoundLib.AbortAllFadeSounds; //Victory/defeat sounds also fade music, so stop those in the rare chance they might still be playing
   fMusicLib.PauseMusicToPlayFile(aFileName, fGameSettings.SoundFXVolume);
+end;
+
+
+function TKMGameApp.CheckDATConsistency: Boolean;
+begin
+  Result := ALLOW_MP_MODS or (fResource.GetDATCRC = $4F5458E6); //That's the magic CRC of official .dat files
 end;
 
 

@@ -2,6 +2,7 @@ unit KM_RenderPool;
 {$I KaM_Remake.inc}
 interface
 uses
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   Classes, Graphics,
   dglOpenGL, SysUtils, KromOGLUtils, KromUtils, Math,
@@ -102,7 +103,8 @@ var
 
 implementation
 uses KM_CommonTypes, KM_RenderAux, KM_PlayersCollection, KM_Game, KM_Sound, KM_Resource,
-  KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_AIFields;
+  KM_ResourceUnit, KM_ResourceHouse, KM_ResourceMapElements, KM_Units, KM_FogOfWar,
+  KM_MapEditor, KM_AIFields;
 
 
 constructor TRenderPool.Create(aRender: TRender);
@@ -287,8 +289,8 @@ begin
     //Render as a red outline in map editor mode
     if fGame.IsMapEditor then
     begin
-      fRenderAux.Quad(pX+1, pY+1, $600000FF);
-      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $800000FF);
+      fRenderAux.Quad(pX+1, pY+1, $800000FF);
+      RenderCursorWireQuad(KMPoint(pX+1, pY+1), $FF0000FF);
     end;
   end else begin
     R := fRXData[rxTrees];
@@ -917,6 +919,9 @@ begin
 
   if SHOW_UNIT_MOVEMENT then
     fRenderAux.UnitMoves(Rect);
+
+  if SHOW_INFLUENCE_MAP <> 0 then
+    fRenderAux.InfluenceMap(Rect, SHOW_INFLUENCE_MAP);
 end;
 
 
@@ -1023,7 +1028,7 @@ begin
     A.X := GFXData[rxGui, ID].Tex.u1;
     A.Y := GFXData[rxGui, ID].Tex.v1;
     b.X := GFXData[rxGui, ID].Tex.u2;
-    b.Y := Mix(GFXData[rxGui, ID].Tex.v2, GFXData[rxGui, ID].Tex.v1, HeightInPx / GFXData[rxGui, ID].pxHeight);
+    b.Y := mix(GFXData[rxGui, ID].Tex.v2, GFXData[rxGui, ID].Tex.v1, HeightInPx / GFXData[rxGui, ID].pxHeight);
     BorderWidth := GFXData[rxGui,ID].PxWidth / CELL_SIZE_PX;
     glBegin(GL_QUADS);
       FOW := MyPlayer.FogOfWar.CheckVerticeRevelation(pX-1, pY-1, True);

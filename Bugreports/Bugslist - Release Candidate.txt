@@ -1,20 +1,30 @@
 Todo:
+	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
+	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
+	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+ -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.
+
+
+Fixed in 3rd RC r3967:
  +	Viewport position was not saved with MP map properly
  +	Hotkeys were not saved in SP games
  +	Make MapEd to start with default 30% height
  +	Map Winter Comes does not have !CENTER_SCREEN commands so the locations are not shown the lobby
- +	CRC check was flawed, CRC check needs to be based on what we loaded at game start, not what is on the user's HD at the time he joins the lobby
+ +	CRC check was flawed, CRC check needs to be based on what we loaded at game start, not what is on the user's HDD at the time he joins the lobby
  +	Enforce tiles triangulation direction to NW-SE
  +	Tweak AI to food balance changes
  +	Improve unit task display
-	Enemy stonemason in TSK 11 will not cut through the mountain below the player because of walking distance check going around his house (increase mining radiuses by +2?)
-	All multiplayer maps need more starting food due to matching unit condition to original KaM
-	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
-	Resource sliders always unlocked at start when house will become buildable (blocked houses still disabled)
-	New default for resource sliders
-	CTRL+B to place beacon while chat window is open?
-	Fix smooth shadows from the mill blades, they don't use pure black so the shadow smoothing algorithm ignores them
- -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.
+ +	Resource sliders always unlocked at start when house will become buildable (blocked houses still disabled)
+ +	New default for resource sliders
+ +	Enemy stonemason in TSK 11 will not cut through the mountain below the player because of walking distance check going around his house (increased mining radius by +2)
+ +	CTRL+B to place beacon while chat window is open (CTRL also works for other shortcuts like troops)
+ +	Fix smooth shadows from the mill blades, they don't use pure black so the shadow smoothing algorithm ignores them
+ +	Fixed crash when using extreme zoom in MapEd/Game with onScreenDisplays turned on (deposit amounts, teamnames)
+ +	Crash when having the Remake on 2nd monitor on right, when moving your cursor to the left monitor (Shadaoe to confirm fix)
+ +	Crash when starting a map from the lobby if the script contained a fatal error (it should just show the normal error screen)
+ +	Crash on startup for some people where the game tried to unnecessarily obtain read+write (not just read) access for data\defines\pattern.dat
+ +	Include dat files CRC in saves and don't load a different CRC save (show the user an error)
+ +	All multiplayer maps need more starting food due to matching unit condition to original KaM
 
 
 Fixed in 2nd RC r3870:

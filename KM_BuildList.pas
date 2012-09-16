@@ -51,7 +51,7 @@ type
     function HasPlan(aLoc: TKMPoint): Boolean;
     procedure RemPlan(aLoc: TKMPoint);
     function GetPlan(aLoc: TKMPoint): THouseType;
-    function FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
+    function FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
 
     //Game events
     function BestBid(aWorker: TKMUnitWorker; out aBid: Single): Integer; //Calculate best bid for a given worker
@@ -231,16 +231,16 @@ begin
   //For now, each worker will go for the house closest to him
 
   Result := -1;
-  aBid := MaxSingle;
+  aBid := 999;
   for I := fHousesCount - 1 downto 0 do
   if (fHouses[i].House <> nil) and fHouses[i].House.CheckResToBuild
   and aWorker.CanWalkTo(KMPointBelow(fHouses[i].House.GetEntrance), 0)
   then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
     NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
-    if NewBid < aBid then
+    if (Result = -1) or (NewBid < aBid) then
     begin
       aBid := NewBid;
       Result := I;
@@ -343,8 +343,8 @@ begin
   if (fFields[I].JobStatus = js_Open)
   and aWorker.CanWalkTo(fFields[I].Loc, 0) then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fFields[I].Loc);
-    if NewBid < aBid then
+    NewBid := GetLength(aWorker.GetPosition, fFields[I].Loc);
+    if (Result = -1) or (NewBid < aBid) then
     begin
       Result := I;
       aBid := NewBid;
@@ -642,8 +642,8 @@ begin
     and aWorker.CanWalkTo(fPlans[I].Loc, 0)
     then
     begin
-      NewBid := KMLengthDiag(aWorker.GetPosition, fPlans[I].Loc);
-      if NewBid < aBid then
+      NewBid := GetLength(aWorker.GetPosition, fPlans[I].Loc);
+      if (Result = -1) or (NewBid < aBid) then
       begin
         Result := I;
         aBid := NewBid;
@@ -671,25 +671,21 @@ begin
 end;
 
 
-//Find plan nearest to aLoc but skip said location
-function TKMHousePlanList.FindHousePlan(aLoc: TKMPoint; aSkip: TKMPoint; out aOut: TKMPoint): Boolean;
+//Find plan nearest to aLoc but ecluding it
+function TKMHousePlanList.FindPlan(aLoc: TKMPoint; out aOut: TKMPoint): Boolean;
 var
   I: Integer;
   Entrance: TKMPoint;
   Dist, Best: Single;
-  HD: TKMHouseDatCollection;
 begin
   Result := False;
   Best := MaxSingle;
-  HD := fResource.HouseDat;
-
   for I := 0 to fPlansCount - 1 do
-  if (fPlans[I].HouseType <> ht_None)
-  and ((fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX <> aSkip.X) or (fPlans[I].Loc.Y <> aSkip.Y)) then
+  if (fPlans[I].HouseType <> ht_None) then
   begin
-    Entrance := KMPoint(fPlans[I].Loc.X + HD[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
-    Dist := KMLengthDiag(Entrance, aLoc);
-    if Dist < Best then
+    Entrance := KMPoint(fPlans[I].Loc.X + fResource.HouseDat[fPlans[I].HouseType].EntranceOffsetX, fPlans[I].Loc.Y + 1);
+    Dist := KMLength(Entrance, aLoc);
+    if (Dist <> 0) and (Dist < Best) then
     begin
       Best := Dist;
       aOut := Entrance;
@@ -928,14 +924,14 @@ begin
   //For now, each worker will go for the house closest to him
 
   Result := -1;
-  aBid := MaxSingle;
+  aBid := 999;
   for I := 0 to fHousesCount - 1 do
   if fHouses[I].House <> nil then
   begin
-    NewBid := KMLengthDiag(aWorker.GetPosition, fHouses[I].House.GetPosition);
+    NewBid := GetLength(aWorker.GetPosition, fHouses[I].House.GetPosition);
     NewBid := NewBid + fHouses[I].Assigned * BID_MODIF;
 
-    if NewBid < aBid then
+    if (Result = -1) or (NewBid < aBid) then
     begin
       aBid := NewBid;
       Result := I;
@@ -1143,8 +1139,8 @@ begin
 end;
 
 
-function TKMBuildList.GetIdleWorkerCount: Integer;
-var I: Integer;
+function TKMBuildList.GetIdleWorkerCount:Integer;
+var I:Integer;
 begin
   Result := 0;
   for I := 0 to fWorkersCount - 1 do
@@ -1153,18 +1149,16 @@ begin
 end;
 
 
-function TKMBuildList.GetBestWorker(aPoint: TKMPoint): TKMUnitWorker;
-var
-  I: Integer;
-  NewBid, BestBid: Single;
+function TKMBuildList.GetBestWorker(aPoint:TKMPoint):TKMUnitWorker;
+var I: Integer; NewBid, BestBid: single;
 begin
+  BestBid := -1;
   Result := nil;
-  BestBid := MaxSingle;
   for I := 0 to fWorkersCount - 1 do
     if fWorkers[I].Worker.IsIdle and fWorkers[I].Worker.CanWalkTo(aPoint, 0) then
     begin
-      NewBid := KMLengthDiag(fWorkers[I].Worker.GetPosition, aPoint);
-      if NewBid < BestBid then
+      NewBid := GetLength(fWorkers[I].Worker.GetPosition, aPoint);
+      if (BestBid = -1) or (NewBid < BestBid) then
       begin
         Result := fWorkers[I].Worker;
         BestBid := NewBid;

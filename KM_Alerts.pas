@@ -1,7 +1,7 @@
 unit KM_Alerts;
 {$I KaM_Remake.inc}
 interface
-uses Classes, SysUtils,
+uses Classes, Math, SysUtils,
   KM_Defaults, KM_Pics, KM_Points, KM_Sound, KM_Viewport;
 
 
@@ -335,7 +335,7 @@ begin
     if Items[I] is TKMAlertAttacked then
       with TKMAlertAttacked(Items[I]) do
         if (Owner = aPlayer) and (Asset = aAsset)
-        and (KMLength(Loc, aLoc) < FIGHT_DISTANCE) then
+        and (GetLength(Loc, aLoc) < FIGHT_DISTANCE) then
         begin
           Refresh(fTickCounter^);
           Exit;

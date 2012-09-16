@@ -311,7 +311,7 @@ begin
     Explanation := 'We were forced to exchange places';
     ExplanationLogAdd;
     fDoExchange := true;
-    if KMLengthDiag(ForcedExchangePos, NodeList[NodePos+1]) >= 1.5 then
+    if KMLength(ForcedExchangePos, NodeList[NodePos+1]) >= 1.5 then
       NodeList.Insert(NodePos+1, fUnit.GetPosition); //We must back-track if we cannot continue our route from the new tile
     NodeList.Insert(NodePos+1, ForcedExchangePos);
     if KMSamePoint(fUnit.GetPosition, ForcedExchangePos) then
@@ -332,7 +332,7 @@ end;
 //Used for dodging and side stepping
 procedure TUnitActionWalkTo.ChangeStepTo(aPos: TKMPoint);
 begin
-  if (NodePos+2 <= NodeList.Count-1) and (KMLengthDiag(aPos, NodeList[NodePos+2]) < 1.5) then
+  if (NodePos+2 <= NodeList.Count-1) and (KMLength(aPos, NodeList[NodePos+2]) < 1.5) then
     NodeList[NodePos+1] := aPos //We can simply replace the entry because it is near the next tile
   else //Otherwise we must insert it
     NodeList.Insert(NodePos+1, aPos);
@@ -459,9 +459,9 @@ end;
 function TUnitActionWalkTo.CheckWalkComplete: Boolean;
 begin
   Result := (NodePos >= NodeList.Count - 1)
-            or ((fTargetHouse = nil) and (round(KMLengthDiag(fUnit.GetPosition,fWalkTo)) <= fDistance))
+            or ((fTargetHouse = nil) and (round(KMLength(fUnit.GetPosition,fWalkTo)) <= fDistance))
             or ((fTargetHouse <> nil) and (fTargetHouse.GetDistance(fUnit.GetPosition) <= fDistance))
-            or ((fTargetUnit <> nil) and (KMLengthDiag(fUnit.GetPosition,fTargetUnit.GetPosition) <= fDistance))
+            or ((fTargetUnit <> nil) and (KMLength(fUnit.GetPosition,fTargetUnit.GetPosition) <= fDistance))
             or ((fUnit.UnitTask <> nil) and fUnit.UnitTask.WalkShouldAbandon);
 end;
 
@@ -645,9 +645,8 @@ end;
 
 
 function TUnitActionWalkTo.IntSolutionDodge(fOpponent:TKMUnit; HighestInteractionCount:integer):boolean;
-var I: Byte; //Test 2 options really
-    TempPos: TKMPointI;
-    OpponentNextNextPos: TKMPoint;
+var i:byte; //Test 2 options really
+    TempPos, OpponentNextNextPos: TKMPoint;
     fAltOpponent:TKMUnit;
 begin
   //If there is a unit on one of the tiles either side of target that wants to swap, do so
@@ -657,43 +656,39 @@ begin
   if CheckInteractionFreq(HighestInteractionCount,DODGE_TIMEOUT,DODGE_FREQ) then
   begin
     //Tiles to the left (-1) and right (+1) (relative to unit) of the one we are walking to
-    for I := 0 to 1 do
+    for i := 0 to 1 do
     begin
-      if I = 0 then TempPos := KMGetPointInDir(fUnit.GetPosition, KMPrevDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1]))));
-      if I = 1 then TempPos := KMGetPointInDir(fUnit.GetPosition, KMNextDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1]))));
+      if i = 0 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMPrevDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1])))).Loc;
+      if i = 1 then TempPos := KMGetPointInDir(fUnit.GetPosition,KMNextDirection((KMGetDirection(fUnit.GetPosition,NodeList[NodePos+1])))).Loc;
+      if fTerrain.TileInMapCoords(TempPos.X,TempPos.Y) and fTerrain.CanWalkDiagonaly(fUnit.GetPosition,TempPos)
+        and (GetEffectivePassability in fTerrain.Land[TempPos.Y,TempPos.X].Passability) then //First make sure tile is on map and walkable!
+      if fTerrain.HasUnit(TempPos) then //Now see if it has a unit
+      begin
+        //There is a unit here, first find our alternate opponent
+        fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
 
-      //First make sure tile is on map and walkable!
-      if fTerrain.TileInMapCoords(TempPos.X, TempPos.Y)
-      and fTerrain.CanWalkDiagonaly(fUnit.GetPosition, KMPoint(TempPos))
-      and (GetEffectivePassability in fTerrain.Land[TempPos.Y, TempPos.X].Passability) then
+        //Make sure unit really exists, is walking and has arrived on tile
+        if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
+          (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
+          and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
+          and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
+          or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
+          and not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition,TempPos))))) then //...vertex is free
+          if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
+            if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
+            begin
+              //Perform exchange from our position to TempPos
+              TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
 
-        if fTerrain.HasUnit(KMPoint(TempPos)) then //Now see if it has a unit
-        begin
-          //There is a unit here, first find our alternate opponent
-          fAltOpponent := fTerrain.UnitsHitTest(TempPos.X, TempPos.Y);
-
-          //Make sure unit really exists, is walking and has arrived on tile
-          if (fAltOpponent <> nil) and (fAltOpponent.GetUnitAction is TUnitActionWalkTo) and
-            (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoExchange)
-            and (not TUnitActionWalkTo(fAltOpponent.GetUnitAction).fDoesWalking)
-            and ((not KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])) //Isn't diagonal
-            or ((KMStepIsDiag(fUnit.NextPosition,NodeList[NodePos+1])       //...or is diagonal and...
-            and not fTerrain.HasVertexUnit(KMGetDiagVertex(fUnit.GetPosition, KMPoint(TempPos)))))) then //...vertex is free
-            if TUnitActionWalkTo(fAltOpponent.GetUnitAction).GetNextNextPosition(OpponentNextNextPos) then
-              if KMSamePoint(OpponentNextNextPos, fUnit.GetPosition) then //Now see if they want to exchange with us
-              begin
-                //Perform exchange from our position to TempPos
-                TUnitActionWalkTo(fAltOpponent.GetUnitAction).PerformExchange(KMPoint(0,0)); //Request unforced exchange
-
-                Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
-                ExplanationLogAdd;
-                fDoExchange := true;
-                ChangeStepTo(KMPoint(TempPos));
-                //They both will exchange next tick
-                Result := true; //Means exit DoUnitInteraction
-                exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)
-              end;
-        end;
+              Explanation:='Unit on tile next to target tile wants to swap. Performing an exchange';
+              ExplanationLogAdd;
+              fDoExchange := true;
+              ChangeStepTo(TempPos);
+              //They both will exchange next tick
+              Result := true; //Means exit DoUnitInteraction
+              exit; //Once we've found a solution, do NOT check the other alternative dodge position (when for loop i=1)
+            end;
+      end;
     end;
   end;
 end;
@@ -984,7 +979,7 @@ begin
       and not KMSamePoint(fTargetUnit.GetPosition, fWalkTo)
       //It's wasteful to run pathfinding to correct route every step of the way, so if the target unit
       //is within 8 tiles, update every step. Within 16, every 2 steps, 24, every 3 steps, etc.
-      and (NodePos mod Max((Round(KMLengthDiag(fUnit.GetPosition, fTargetUnit.GetPosition)) div 8), 1) = 0) then
+      and (NodePos mod Max((Round(KMLength(fUnit.GetPosition, fTargetUnit.GetPosition)) div 8),1) = 0) then
     begin
       //If target unit has moved then change course and keep following it
       ChangeWalkTo(fTargetUnit, fDistance);
@@ -1071,7 +1066,7 @@ begin
       fDoExchange := false;
       fUnit.IsExchanging := true; //So unit knows that it must slide
       fInteractionCount := 0;
-      if KMStepIsDiag(fUnit.PrevPosition, fUnit.NextPosition) then IncVertex; //Occupy the vertex
+      if KMStepIsDiag(fUnit.PrevPosition,fUnit.NextPosition) then IncVertex; //Occupy the vertex
     end else
     begin
       if not DoUnitInteraction then
@@ -1082,10 +1077,10 @@ begin
       Inc(NodePos);
       fUnit.NextPosition := NodeList[NodePos];
 
-      if KMLength(fUnit.PrevPosition, fUnit.NextPosition) > 1.5 then
-        raise ELocError.Create('Unit walk length > 1.5', fUnit.PrevPosition);
+      if GetLength(fUnit.PrevPosition,fUnit.NextPosition) > 1.5 then
+        raise ELocError.Create('Unit walk length>1.5', fUnit.PrevPosition);
 
-      if fTerrain.Land[fUnit.PrevPosition.Y, fUnit.PrevPosition.X].IsUnit = nil then
+      if fTerrain.Land[fUnit.PrevPosition.Y,fUnit.PrevPosition.X].IsUnit = nil then
         raise ELocError.Create('Unit walk Prev position IsUnit = nil', fUnit.PrevPosition);
 
       fUnit.Walk(fUnit.PrevPosition, fUnit.NextPosition); //Pre-occupy next tile

@@ -121,11 +121,12 @@ end;
 
 procedure TestTKMCampaignsCollection.TearDown;
 begin
-  FreeAndNil(fTextLibrary);
-  FreeAndNil(fResource);
-  FreeAndNil(fLocales);
-  FreeAndNil(fLog);
-  FreeAndNil(FKMCampaignsCollection);
+  fTextLibrary.Free;
+  fResource.Free;
+  fLocales.Free;
+  fLog.Free;
+  FKMCampaignsCollection.Free;
+  FKMCampaignsCollection := nil;
 end;
 
 procedure TestTKMCampaignsCollection.TestCount;

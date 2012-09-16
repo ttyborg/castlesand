@@ -1,5 +1,4 @@
 unit KM_ArmyEvaluation;
-{$I KaM_Remake.inc}
 interface
 uses
   Classes, Contnrs, KromUtils,

@@ -139,7 +139,7 @@ begin
   if TimeToHit <> 0 then
   begin
     Jitter := ProjectileJitter[aProjType]
-            + KMLength(KMPointF(0,0), TargetVector) * ProjectilePredictJitter[aProjType];
+            + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
     Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
@@ -254,12 +254,14 @@ begin
         begin
           U := fTerrain.UnitsHitTestF(fTarget);
           //Projectile can miss depending on the distance to the unit
-          if (U = nil) or ((1 - Math.min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom) then
+          if (U = nil) or ((1-Math.min(GetLength(U.PositionF,fTarget),1)) > KaMRandom) then
           begin
             case fType of
               pt_Arrow,
               pt_SlingRock,
-              pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal) then
+              pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal)
+                            //Can't hit units past max range because that's unintuitive/confusing to player
+                            and (GetLength(fShotFrom, U.PositionF) <= fMaxLength) then
                             begin
                               Damage := 0;
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
@@ -318,8 +320,8 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
-      P := KMLerp(fItems[i].fScreenStart, fItems[i].fScreenEnd, MixValue);
-      PTileBased := KMLerp(fItems[i].fShotFrom, fItems[i].fTarget, MixValue);
+      P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+      PTileBased := mix(fItems[i].fTarget, fItems[i].fShotFrom, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
           begin

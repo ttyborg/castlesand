@@ -5,7 +5,6 @@ uses
   SysUtils, KM_Points, KM_Defaults, KM_CommonClasses, Classes, KromUtils,
   KM_GameApp, KM_Locales, KM_Log, KM_PlayersCollection, KM_TextLibrary, KM_Terrain, KM_Units_Warrior, KM_Utils, Math;
 
-
 type
   TestTKMGame = class(TTestCase)
   public
@@ -18,9 +17,7 @@ type
     procedure Test3Cities;
   end;
 
-
 implementation
-
 
 procedure TestTKMGame.SetUp;
 begin
@@ -157,8 +154,6 @@ end;
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestTKMGame.Suite);
-
-
+  RegisterTest('Functional', TestTKMGame.Suite);
 end.
 

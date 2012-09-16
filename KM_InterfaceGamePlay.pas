@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
-  KM_InterfaceDefaults, KM_Terrain, KM_Pics,
+  KM_InterfaceDefaults, KM_Terrain, KM_Pics, KM_Alerts,
   KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -142,7 +142,7 @@ type
       Sidebar_Top: TKMImage;
       Sidebar_Middle: TKMImage;
       MinimapView: TKMMinimapView;
-      Label_DebugInfo, Label_Hint: TKMLabel;
+      Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
 
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
@@ -152,6 +152,8 @@ type
       Label_ClockSpeedup:TKMLabel;
       Label_MenuTitle: TKMLabel; //Displays the title of the current menu to the right of return
       Image_DirectionCursor:TKMImage;
+
+      Label_VictoryChance : TKMLabel;
 
     Panel_Controls: TKMPanel;
       Button_Main: array [TKMTabButtons] of TKMButton; //4 common buttons + Return
@@ -408,8 +410,8 @@ begin
   for i:=1 to ResRatioHouseCount[RatioTab] do
   begin
     HT := ResRatioHouse[RatioTab, i];
-    //Do not allow player to see yet unreleased houses. Though house may be prebuilt and unreleased
-    if MyPlayer.Stats.GetCanBuild(HT) or (MyPlayer.Stats.GetHouseQty(HT) > 0) then
+    //Do not allow player to see blocked house (never able to build). Though house may be prebuilt and blocked
+    if (not MyPlayer.Stats.HouseBlocked[HT]) or (MyPlayer.Stats.GetHouseQty(HT) > 0) then
     begin
       Image_RatioPic[i].TexID := fResource.HouseDat[HT].GUIIcon;
       TrackBar_RatioRat[i].Caption := fResource.HouseDat[HT].HouseName;
@@ -772,7 +774,17 @@ begin
     Image_DirectionCursor.Hide;
 
     //Debugging displays
-    Label_DebugInfo := TKMLabel.Create(Panel_Main,224+8,106,0,0,'',fnt_Outline,taLeft);
+    Label_Stat := TKMLabel.Create(Panel_Main,224+80,16,0,0,'',fnt_Outline,taLeft);
+    Label_Stat.Visible := SHOW_SPRITE_COUNT;
+    Label_PointerCount := TKMLabel.Create(Panel_Main,224+80,80,0,0,'',fnt_Outline,taLeft);
+    Label_PointerCount.Visible := SHOW_POINTER_COUNT;
+    Label_CmdQueueCount := TKMLabel.Create(Panel_Main,224+80,110,0,0,'',fnt_Outline,taLeft);
+    Label_CmdQueueCount.Visible := SHOW_CMDQUEUE_COUNT;
+    Label_SoundsCount := TKMLabel.Create(Panel_Main,224+80,140,0,0,'',fnt_Outline,taLeft);
+    Label_SoundsCount.Visible := DISPLAY_SOUNDS;
+    Label_NetworkDelay := TKMLabel.Create(Panel_Main,224+80,140,0,0,'',fnt_Outline,taLeft);
+    Label_NetworkDelay.Visible := SHOW_NETWORK_DELAY;
+    Label_VictoryChance := TKMLabel.Create(Panel_Main, Panel_Main.Width - 150, 20, 0, 0, '', fnt_Outline, taLeft);
 
 {I plan to store all possible layouts on different pages which gets displayed one at a time}
 {==========================================================================================}
@@ -3852,37 +3864,33 @@ begin
     end;
   end;
 
-  S := '';
-
   //Debug info
   if SHOW_SPRITE_COUNT then
-    S := IntToStr(fPlayers.GetUnitCount) + ' units on map|' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites) + '/' +
-         IntToStr(fRenderPool.RenderList.Stat_Sprites2) + ' sprites/rendered|' +
-         IntToStr(CtrlPaintCount) + ' controls rendered|';
+    Label_Stat.Caption:=
+        IntToStr(fPlayers.GetUnitCount)+' units on map'+#124+
+        IntToStr(fRenderPool.RenderList.Stat_Sprites)+'/'+IntToStr(fRenderPool.RenderList.Stat_Sprites2)+' sprites/rendered'+#124+
+        IntToStr(CtrlPaintCount)+' controls rendered';
 
   if SHOW_POINTER_COUNT then
-    S := S + Format('Pointers: %d units, %d houses|', [MyPlayer.Units.GetTotalPointers, MyPlayer.Houses.GetTotalPointers]);
+    Label_PointerCount.Caption := Format('Pointers: %d units, %d houses', [MyPlayer.Units.GetTotalPointers, MyPlayer.Houses.GetTotalPointers]);
 
   if SHOW_CMDQUEUE_COUNT then
-    S := S + IntToStr(fGame.GameInputProcess.Count) + ' commands stored|';
+    Label_CmdQueueCount.Caption := IntToStr(fGame.GameInputProcess.Count)+' commands stored';
 
   if SHOW_NETWORK_DELAY and fMultiplayer then
-    S := S + 'Network delay: ' + IntToStr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay) + '|';
+    Label_NetworkDelay.Caption := 'Network delay: '+IntToStr(TGameInputProcess_Multi(fGame.GameInputProcess).GetNetworkDelay);
 
   if DISPLAY_SOUNDS then
-    S := S + IntToStr(fSoundLib.ActiveCount) + ' sounds playing|';
+    Label_SoundsCount.Caption := IntToStr(fSoundLib.ActiveCount)+' sounds playing';
 
   //Temporary inteface (by @Crow)
-  if SHOW_ARMYEVALS then
-    for I := 0 to fPlayers.Count - 1 do
-    if I <> MyPlayer.PlayerIndex then
-      S := S + Format('Enemy %d: %f|', [I, RoundTo(MyPlayer.ArmyEval.Evaluations[I].fPower, -3)]);
-
-  if SHOW_WARE_BALANCE then
-    S := S + MyPlayer.AI.Mayor.BalanceText;
-
-  Label_DebugInfo.Caption := S;
+  if SHOW_ARMYEVALS then begin
+    S := '';
+    for i := 0 to fPlayers.Count-1 do
+    if i <> MyPlayer.PlayerIndex then
+      S := S+Format('Enemy %d: %f|', [i, RoundTo(MyPlayer.ArmyEval.Evaluations[i].fPower,-3)]);
+    Label_VictoryChance.Caption := S;
+  end;
 end;
 
 
@@ -3909,9 +3917,12 @@ begin
       MapLoc := fTerrain.FlatToHeight(UnitLoc);
       ScreenLoc := fGame.Viewport.MapToScreen(MapLoc);
 
-      Label_TeamName.Left := ScreenLoc.X;
-      Label_TeamName.Top := ScreenLoc.Y;
-      Label_TeamName.Paint;
+      if KMInRect(ScreenLoc, KMRect(0, 0, Panel_Main.Width, Panel_Main.Height)) then
+      begin
+        Label_TeamName.Left := ScreenLoc.X;
+        Label_TeamName.Top := ScreenLoc.Y;
+        Label_TeamName.Paint;
+      end;
     end;
   end;
   Label_TeamName.Visible := False; //Only visible while we're using it, otherwise it shows up in other places
