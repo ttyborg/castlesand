@@ -3267,7 +3267,8 @@ begin
   inherited;
 
   if (ssLeft in Shift)
-  and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
+  and InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
+  and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + GetVisibleRows * fItemHeight - 1)
   then begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
