@@ -5,6 +5,10 @@ Todo:
  +	Ask Ukr translator (Mulberry) to fix his translations and use "Kazarmy" instead of "Baraki", cos latter is a wrong term.
  +	Player with an unknown (custom) locale code would crash the lobby for everyone when trying to display their flag
  +	Exception/crash report window now shows the exception message to the user
+ +	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
+ +	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them
+ +	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them
+ +	Added Belarusian translation
 	So far 4 beta testers report they have old PCs with OpenGL 1.3 and now can't play the Remake. Maybe we can use legacy terrain rendering without VBOs for people with old OpenGL versions? 4/80+ beta testers is not insignificant.
 	Using 3D mode allows you to see through fog of war
 	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
