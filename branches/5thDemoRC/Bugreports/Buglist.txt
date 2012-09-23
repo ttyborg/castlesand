@@ -29,6 +29,7 @@
  +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
  +	Fixed some crashes/bugs in the Linux dedicated server
  +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
+ +	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
 	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
 	Deliveries should use the actual walking route length (opposed to Radius)
@@ -44,7 +45,6 @@
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
 	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
-	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Armour smithy has shields as 2nd item, armour workshop has shields as 1st item. Would make sense to match them.

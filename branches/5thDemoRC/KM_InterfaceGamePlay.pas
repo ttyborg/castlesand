@@ -3194,13 +3194,14 @@ end;
 
 procedure TKMGamePlayInterface.AlliesOnPlayerSetup(Sender: TObject);
 var
-  I: Integer;
+  I,LocaleID: Integer;
 begin
   for I := 0 to fGame.Networking.NetPlayers.Count - 1 do
   begin
     //Show players locale flag
-    if fGame.Networking.NetPlayers[I+1].LangCode <> '' then
-      Image_AlliesLang[I].TexID := fLocales.GetLocale(fGame.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
+    LocaleID := fLocales.GetIDFromCode(fGame.Networking.NetPlayers[I+1].LangCode);
+    if LocaleID <> -1 then
+      Image_AlliesLang[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
       if fGame.Networking.NetPlayers[I+1].IsComputer then
         Image_AlliesLang[I].TexID := 62 //PC icon

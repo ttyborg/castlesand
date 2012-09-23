@@ -2986,7 +2986,7 @@ end;
 //We should reflect it to UI
 procedure TKMMainMenuInterface.Lobby_OnPlayersSetup(Sender: TObject);
 var
-  I,ID: Integer;
+  I,ID,LocaleID: Integer;
   MyNik, CanEdit, HostCanEdit, IsSave, IsValid: Boolean;
 begin
   IsSave := fGameApp.Networking.SelectGameKind = ngk_Save;
@@ -2995,8 +2995,9 @@ begin
   for I:=0 to fGameApp.Networking.NetPlayers.Count - 1 do
   begin
     //Flag icon
-    if fGameApp.Networking.NetPlayers[I+1].LangCode <> '' then
-      Image_LobbyFlag[I].TexID := fLocales.GetLocale(fGameApp.Networking.NetPlayers[I+1].LangCode).FlagSpriteID
+    LocaleID := fLocales.GetIDFromCode(fGameApp.Networking.NetPlayers[I+1].LangCode);
+    if LocaleID <> -1 then
+      Image_LobbyFlag[I].TexID := fLocales[LocaleID].FlagSpriteID
     else
       if fGameApp.Networking.NetPlayers[I+1].IsComputer then
         Image_LobbyFlag[I].TexID := 62 //PC icon
