@@ -376,6 +376,7 @@ type
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
     function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
+    procedure ValidateText();
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
@@ -1952,6 +1953,31 @@ begin
   //Setting the text should place cursor to the end
   fLeftIndex := 0;
   SetCursorPos(Length(Text));
+  ValidateText();
+end;
+
+
+//Validates fText basing on predefined sets of allowed or disallowed chars
+//It iterates from end to start of a string - deletes chars and moves cursor appropriately
+procedure TKMEdit.ValidateText();
+var
+  i : integer;
+const
+  DigitChars: set of Char = ['1' .. '9', '0'];
+  NonFileChars: set of Char = [#0 .. #31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
+  NonTextChars: set of Char = [#0 .. #31, '|'];
+begin
+  for i:= Length(fText) downto 1 do
+  begin
+    if(fAllowedChars = acDigits) and not(fText[i] in DigitChars) or
+      (fAllowedChars = acFileName) and (fText[i] in NonFileChars) or
+      (fAllowedChars = acText) and (fText[i] in NonTextChars) then
+        begin
+          Delete(fText, i, 1);
+          if CursorPos >= i then
+            CursorPos := CursorPos - 1;
+        end;
+    end;
 end;
 
 
@@ -1989,9 +2015,13 @@ begin
     case Key of
       Ord('C'):    Clipboard.AsText := fText;
       Ord('X'):    begin Clipboard.AsText := fText; Text := ''; end;
-      Ord('V'):    begin Insert(Clipboard.AsText, fText, CursorPos+1);
-                         CursorPos := CursorPos + Length(Clipboard.AsText); end;
-    end;
+      Ord('V'):
+      begin
+          Insert(Clipboard.AsText, fText, CursorPos + 1);
+          CursorPos := CursorPos + Length(Clipboard.AsText);
+          ValidateText();
+        end;
+      end;
   end;
 
   case Key of
@@ -2008,21 +2038,12 @@ end;
 
 
 procedure TKMEdit.KeyPress(Key: Char);
-const
-  DigitChars: set of Char = ['1'..'9', '0'];
-  NonFileChars: set of Char = [#0..#31, '<', '>', '|', '"', '\', '/', ':', '*', '?'];
-  NonTextChars: set of Char = [#0..#31, '|'];
 begin
   if ReadOnly then Exit;
 
-  case fAllowedChars of
-    acDigits:   if not (Key in DigitChars) then Exit;
-    acFileName: if Key in NonFileChars then Exit;
-    acText:     if Key in NonTextChars then Exit;
-  end;
-
   Insert(Key, fText, CursorPos + 1);
   CursorPos := CursorPos + 1;
+  ValidateText();
 end;
 
 
