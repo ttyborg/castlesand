@@ -423,6 +423,11 @@ begin
   fRect := aRect;
   fFOW := aFOW;
 
+  //VBO has proper vertice coords only for Light/Shadow
+  //it cant handle 3D yet and because of FOW leaves terrain revealed, which is an exploit in MP
+  //Thus we allow VBO only in 2D
+  fUseVBO := GL_VERSION_1_5 and not RENDER_3D;
+
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
 
     //With depth test we can render all terrain tiles and then apply light/shadow without worrying about
