@@ -44,5 +44,7 @@ rd /s /q "MapsMP\The Valley of Dangers"
 rd /s /q "MapsMP\The Kings Favorite"
 rd /s /q "MapsMP\Heroes of Might & Axe II"
 rd /s /q "MapsMP\Heroes of Might & Axe I"
+rd /s /q "MapsMP\Dark Rock 4P"
+rd /s /q "MapsMP\Dark Rock 6P"
 
-del Clean.bat
+del PostInstallClean.bat

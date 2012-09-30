@@ -124,7 +124,7 @@ begin
   fResource     := TResource.Create(fRender, aLS, aLT);
   fResource.LoadMenuResources(fGameSettings.Locale);
 
-  fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume); //Required for button click sounds
+  fSoundLib     := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, True); //Required for button click sounds
   fMusicLib     := TMusicLib.Create(fGameSettings.MusicVolume);
   fSoundLib.OnRequestFade   := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
@@ -210,7 +210,9 @@ begin
   //Recreate resources that use Locale info
   fTextLibrary := TTextLibrary.Create(ExeDir + 'data\text\', fGameSettings.Locale);
   {$IFDEF USE_MAD_EXCEPT}fExceptions.LoadTranslation;{$ENDIF}
-  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume);
+  //Don't reshow the warning dialog when initing sounds, it gets stuck behind in full screen
+  //and the user already saw it when starting the game.
+  fSoundLib := TSoundLib.Create(fGameSettings.Locale, fGameSettings.SoundFXVolume, False);
   fSoundLib.OnRequestFade := fMusicLib.FadeMusic;
   fSoundLib.OnRequestUnfade := fMusicLib.UnfadeMusic;
   fResource.ResourceFont.LoadFonts(fGameSettings.Locale);

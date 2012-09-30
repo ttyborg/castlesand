@@ -10,12 +10,12 @@ if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311"))
   die('[$0000FF]THE 4TH MULTIPLAYER DEMO IS OUT![]||This release candidate is now redundant. Please download the release from www.kamremake.com||Thanks again for your help testing!');
 }
 
-if(($Rev == "r3967"))
+if(($Rev == "r3985"))
 {
-  die('[$00FF00]Welcome to the third release candidate[] :)||Please continue to report any problems.');
+  die('[$00FF00]Welcome to the forth release candidate[]. We hope this will be the last one!||Please continue to report any problems.');
 }
 
-if(($Rev == "r3812") || ($Rev == "r3870"))
+if(($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967"))
 {
   die('[$0000FF]This release candidate is now outdated![]||If you have not received the new release candidate yet please email: contact@kamremake.com');
 }

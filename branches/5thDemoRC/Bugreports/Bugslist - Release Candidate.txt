@@ -1,4 +1,11 @@
 Todo:
+	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
+	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
+	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+ -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.
+
+
+Fixed in 4th RC r3985:
  +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
  +	"Digging field" and "Constructing winefield" activity text was swapped
  +	Dragging above/below a column list would select items out of sight
@@ -13,10 +20,7 @@ Todo:
  +	Using 3D mode allows you to see through fog of war
  +	On The Cracked Land the stone mountain for loc 7 was too elevated and usually could not be completely mined
  +	The elevation features of the map editor now work more like Krom's editor (it's still not finished, but more usable)
-	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
-	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
-	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
- -	AI soldiers will shoot at enemies during PT in MP game. That's normal, peacetime does not disable fighting, it disables troop control so you can't move/train troops and the AI will not train troops, move troops, attack, etc. If you build roads in front of enemy archers, yes they will shoot you, that's a feature not a bug.
+ +	Game could still crash when toggling locale if you did not have OpenAL installed
 
 
 Fixed in 3rd RC r3967:
