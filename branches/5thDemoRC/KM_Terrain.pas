@@ -1163,10 +1163,10 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if (Land[T.Y,T.X].Obj = 255) or (ObjectIsChopableTree(T, 6)) then
-          BestToPlant.AddEntry(T) //Stump/empty places
+        if ObjectIsChopableTree(T, caAgeStomp) then
+          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stomps to avoid cluttering whole area with em
         else
-          SecondBestToPlant.AddEntry(T); //Other objects that can be dug out (e.g. mushrooms) if no other options available
+          SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
   end;
   ValidTiles.Free;

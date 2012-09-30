@@ -1,4 +1,5 @@
 Todo:
+ +	Woodcutters would clutter whole available area within mining radius with stumps after few hours
 	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
 	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
