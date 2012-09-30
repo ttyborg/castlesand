@@ -1,5 +1,6 @@
 Todo:
  +	Woodcutters would clutter whole available area within mining radius with stumps after few hours
+ +	Coal/iron in weapons smithy and shields/armour in iron smithy were swapped in the GUI vs game logic (you ordered a shield and got armour instead)
 	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
 	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
