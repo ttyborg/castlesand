@@ -11,6 +11,7 @@ Todo:
  +	Added Belarusian translation
  +	So far 4 beta testers report they have old PCs with OpenGL 1.3 and now can't play the Remake. Maybe we can use legacy terrain rendering without VBOs for people with old OpenGL versions? 4/80+ beta testers is not insignificant.
  +	Using 3D mode allows you to see through fog of war
+ +	On The Cracked Land the stone mountain for loc 7 was too elevated and usually could not be completely mined
 	Customising anti-aliasing settings (and others?) in AMD's Catalyst Control Center causes houses to not render on HD5770 (pawel95 on forum). Maybe that's normal?
 	Assertion failed with serf trying to remove 1 resource from a storehouse with none of that resource in stock (crash reports on 8th September)
 	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
