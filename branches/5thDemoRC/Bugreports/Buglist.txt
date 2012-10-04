@@ -53,6 +53,8 @@
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
 	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
+	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
+	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 
 	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor

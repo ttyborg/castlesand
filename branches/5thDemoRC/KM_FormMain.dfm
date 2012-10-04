@@ -244,10 +244,12 @@ object FormMain: TFormMain
       end
       object ExportMenuPages: TMenuItem
         Caption = 'Export Menu Pages'
+        Visible = False
         OnClick = Debug_ExportMenuPagesClick
       end
       object ExportGamePages: TMenuItem
         Caption = 'Export Game Pages'
+        Visible = False
         OnClick = Debug_ExportGamePagesClick
       end
     end
