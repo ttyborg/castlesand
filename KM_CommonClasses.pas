@@ -424,8 +424,9 @@ begin
   begin
     Point := fItems[0];
     for I := 1 to fCount - 1 do
-    if KMLengthSqr(fItems[I], aLoc) < KMLengthSqr(Point, aLoc) then
+    if GetLength(fItems[I], aLoc) < GetLength(Point, aLoc) then
       Point := fItems[I];
+    Result := True;
   end;
 end;
 

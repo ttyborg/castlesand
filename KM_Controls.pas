@@ -375,8 +375,8 @@ type
     fLeftIndex: Integer; //The position of the character shown left-most when text does not fit
     procedure SetCursorPos(aPos: Integer);
     procedure SetText(aText: string);
+    function KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
     procedure ValidateText();
-    function KeyEventHandled(Key: Word): Boolean;
   public
     Masked: Boolean; //Mask entered text as *s
     ReadOnly: Boolean;
@@ -1516,7 +1516,7 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  fRenderUI.WriteText(Left, Top, Width, fText, fFont, fTextAlign, Col);
+  fRenderUI.WriteText(Left, Top, Width, Height, fText, fFont, fTextAlign, Col);
 
   if fStrikethrough then
     fRenderUI.WriteLayer(TextLeft, Top + fTextSize.Y div 2 - 2, fTextSize.X, 3, Col, $FF000000);
@@ -1540,7 +1540,7 @@ begin
   if fEnabled then Col := FontColor
               else Col := $FF888888;
 
-  fRenderUI.WriteText(Left, NewTop, Width, fCaption, fFont, fTextAlign, Col);
+  fRenderUI.WriteText(Left, NewTop, Width, Height, fCaption, fFont, fTextAlign, Col);
   fRenderUI.ReleaseClip;
 end;
 
@@ -1759,7 +1759,7 @@ begin
     //Render miniature copy of all available colors with '?' on top
     for i:=0 to Length(Colors)-1 do
       fRenderUI.WriteLayer(Left+(i mod fColumnCount)*(fCellSize div fColumnCount)+2, Top+(i div fColumnCount)*(fCellSize div fColumnCount)+2, (fCellSize div fColumnCount), (fCellSize div fColumnCount), Colors[i], $00);
-    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, '?', fnt_Metal, taCenter);
+    fRenderUI.WriteText(Left + fCellSize div 2, Top + fCellSize div 4, 0, 0, '?', fnt_Metal, taCenter);
     Start := 1;
   end;
 
@@ -1845,7 +1845,7 @@ begin
   Col := IfThen(fEnabled, $FFFFFFFF, $FF888888);
 
   fRenderUI.WriteText(Left + Width div 2 + Byte(csDown in State),
-                      (Top + Height div 2)-7 + Byte(csDown in State), Width, fCaption, fFont, fTextAlign, Col);
+                      (Top + Height div 2)-7 + Byte(csDown in State), Width, 0, fCaption, fFont, fTextAlign, Col);
 end;
 
 
@@ -1900,7 +1900,7 @@ begin
   inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
   fRenderUI.WriteLayer(Left+1,Top+1,Width-2,Width-2, ShapeColor, $00000000);
-  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, fCaption, fFont, taCenter);
+  fRenderUI.WriteText(Left+(Width div 2),Top+(Height div 2)+4+CapOffsetY, Width, 0, fCaption, fFont, taCenter);
   if (csOver in State) and fEnabled then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $40FFFFFF, $00000000);
   if (csDown in State) or Down then fRenderUI.WriteLayer(Left,Top,Width-1,Height-1, $00000000, $FFFFFFFF);
 end;
@@ -1955,6 +1955,8 @@ begin
   SetCursorPos(Length(Text));
   ValidateText();
 end;
+
+
 //Validates fText basing on predefined sets of allowed or disallowed chars
 //It iterates from end to start of a string - deletes chars and moves cursor appropriately
 procedure TKMEdit.ValidateText();
@@ -1977,8 +1979,10 @@ begin
         end;
     end;
 end;
+
+
 //Key events which have no effect should not be handled (allows scrolling while chat window open with no text entered)
-function TKMEdit.KeyEventHandled(Key: Word): Boolean;
+function TKMEdit.KeyEventHandled(Key: Word; Shift: TShiftState): Boolean;
 begin
   Result := True;
   if fText = '' then
@@ -1995,13 +1999,14 @@ begin
     end;
   //We want these keys to be ignored by chat, so game shortcuts still work
   if Key in [VK_F1..VK_F12, VK_ESCAPE] then Result := False;
+  //Ctrl can be used as an escape character, e.g. CTRL+B places beacon while chat is open
+  if ssCtrl in Shift then Result := (Key in [Ord('C'), Ord('X'), Ord('V')]);
 end;
 
 
 function TKMEdit.KeyDown(Key: Word; Shift: TShiftState): Boolean;
-
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyDown(Key, Shift) or ReadOnly then exit;
 
   //Clipboard operations
@@ -2044,7 +2049,7 @@ end;
 
 function TKMEdit.KeyUp(Key: Word; Shift: TShiftState): Boolean;
 begin
-  Result := KeyEventHandled(Key);
+  Result := KeyEventHandled(Key, Shift);
   if inherited KeyUp(Key, Shift) or ReadOnly then exit;
 
   if Assigned(OnChange) then OnChange(Self);
@@ -2076,7 +2081,7 @@ begin
 
   RText := Copy(RText, fLeftIndex+1, Length(RText)); //Remove characters to the left of fLeftIndex
 
-  fRenderUI.WriteText(Left+4, Top+3, Width-8, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
+  fRenderUI.WriteText(Left+4, Top+3, Width-8, 0, RText, fFont, taLeft, Col, not ShowColors, True); //Characters that do not fit are trimmed
 
   //Render text cursor
   if (csFocus in State) and ((TimeGet div 500) mod 2 = 0) then
@@ -2120,9 +2125,9 @@ begin
       fRenderUI.WriteLayer(Left+4, Top+4, Width-8, Height-8, $C0A0A0A0, $D0A0A0A0);
   end else
   begin
-    fRenderUI.WriteText(Left, Top, Width, '[ ] '+fCaption, fFont, taLeft, Col);
+    fRenderUI.WriteText(Left, Top, Width, 0, '[ ] '+fCaption, fFont, taLeft, Col);
     if fChecked then
-      fRenderUI.WriteText(Left+3, Top-1, 0, 'x', fFont, taLeft, Col);
+      fRenderUI.WriteText(Left+3, Top-1, 0, 0, 'x', fFont, taLeft, Col);
   end;
 end;
 
@@ -2187,9 +2192,9 @@ begin
 
   for I := 0 to ItemCount - 1 do
   begin
-    fRenderUI.WriteText(Left, Top + I * LineHeight, Width, '[ ] ' + fItems.Strings[I], fFont, taLeft, Col);
+    fRenderUI.WriteText(Left, Top + I * LineHeight, Width, 0, '[ ] ' + fItems.Strings[I], fFont, taLeft, Col);
     if fItemIndex = I then
-      fRenderUI.WriteText(Left + 3, Top + I * LineHeight - 1, 0, 'x', fFont, taLeft, Col);
+      fRenderUI.WriteText(Left + 3, Top + I * LineHeight - 1, 0, 0, 'x', fFont, taLeft, Col);
   end;
 end;
 
@@ -2226,9 +2231,9 @@ begin
   if Caption <> '' then
   begin
     //Shadow
-    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, Caption, fFont, fTextAlign, $FF000000);
+    fRenderUI.WriteText((Left + Width div 2)+2, (Top + Height div 2)+TextYOffset-4, Width-4, 0, Caption, fFont, fTextAlign, $FF000000);
     //Text
-    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, Caption, fFont, fTextAlign, FontColor);
+    fRenderUI.WriteText((Left + Width div 2)+1, (Top + Height div 2)+TextYOffset-5, Width-4, 0, Caption, fFont, fTextAlign, FontColor);
   end;
 end;
 
@@ -2239,7 +2244,7 @@ var i: Integer;
 begin
   inherited;
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width-8, Caption, fnt_Game, taLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width-8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
 end;
@@ -2287,7 +2292,7 @@ begin
   fOrderLab.Caption := inttostr(OrderCount);
 
   fRenderUI.WriteBevel(Left,Top,Width,Height);
-  fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, Caption, fnt_Game, taLeft, $FFE0E0E0);
+  fRenderUI.WriteText(Left + 4, Top + 3, Width - 8, 0, Caption, fnt_Game, taLeft, $FFE0E0E0);
   for i:=1 to ResourceCount do
     fRenderUI.WritePicture((Left+Width-2-20)-(ResourceCount-i)*14, Top+1, RX, TexID, $00000000);
 end;
@@ -2297,7 +2302,7 @@ end;
 procedure TKMCostsRow.Paint;
 begin
   inherited;
-  fRenderUI.WriteText(Left, Top + 4, Width-20, Caption, fnt_Grey, taLeft, $FFFFFFFF);
+  fRenderUI.WriteText(Left, Top + 4, Width-20, 0, Caption, fnt_Grey, taLeft, $FFFFFFFF);
   if TexID1 <> 0 then fRenderUI.WritePicture(Left+Width-40, Top + (Height-GFXData[RX,TexID1].PxHeight) div 2, RX, TexID1, $00000000);
   if TexID2 <> 0 then fRenderUI.WritePicture(Left+Width-20, Top + (Height-GFXData[RX,TexID2].PxHeight) div 2, RX, TexID2, $00000000);
 end;
@@ -2380,15 +2385,15 @@ begin
   inherited;
 
   if fCaption <> '' then
-    fRenderUI.WriteText(Left, Top, Width, fCaption, fFont, taLeft, TextColor[fEnabled]);
+    fRenderUI.WriteText(Left, Top, Width, 20, fCaption, fFont, taLeft, TextColor[fEnabled]);
 
   fRenderUI.WriteBevel(Left+2,Top+fTrackTop+2,Width-4,fTrackHeight-4);
-  ThumbPos := Round(Mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
+  ThumbPos := Round(mix (0, Width - ThumbWidth - 4, 1-(Position-fMinValue) / (fMaxValue - fMinValue)));
 
   ThumbHeight := fResource.Sprites[rxGui].RXData.Size[132].Y;
 
   fRenderUI.WritePicture(Left + ThumbPos + 2, Top+fTrackTop, ThumbWidth, ThumbHeight, rxGui, 132, True);
-  fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
+  fRenderUI.WriteText(Left + ThumbPos + ThumbWidth div 2 + 2, Top+fTrackTop+3, 0, 0, IntToStr(Position), fnt_Metal, taCenter, TextColor[fEnabled]);
 end;
 
 
@@ -2736,7 +2741,7 @@ begin
   fRenderUI.WriteBevel(Left, Top, PaintWidth, Height, false, 0.5);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, fItems.Strings[TopIndex+i] , fFont, taLeft);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, Width-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft);
 end;
 
 
@@ -2941,7 +2946,7 @@ begin
     fRenderUI.WriteLayer(Left, Top+fItemHeight*(fItemIndex - TopIndex), PaintWidth, fItemHeight, $88888888, $FFFFFFFF);
 
   for i:=0 to Math.min(fItems.Count-1, (fHeight div fItemHeight)-1) do
-    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, fItems.Strings[TopIndex+i] , fFont, taLeft);
+    fRenderUI.WriteText(Left+4, Top+i*fItemHeight+3, PaintWidth-8, 0, fItems.Strings[TopIndex+i] , fFont, taLeft);
 end;
 
 
@@ -3049,7 +3054,7 @@ begin
     fRenderUI.WriteBevel(Left + fColumnOffsets[I], Top, ColumnWidth, Height, True, fBackAlpha);
     if Assigned(OnColumnClick) and (csOver in State) and (fColumnHighlight = I) then
       fRenderUI.WriteLayer(Left + fColumnOffsets[I], Top, ColumnWidth, Height, $20FFFFFF, $00000000);
-    fRenderUI.WriteText(Left + fColumnOffsets[I] + 4, Top + 4, 0, fColumns[I], fFont, taLeft);
+    fRenderUI.WriteText(Left + fColumnOffsets[I] + 4, Top + 4, 0, 0, fColumns[I], fFont, taLeft);
 
     if Assigned(OnColumnClick) and (fSortIndex = I) then
       case fSortDirection of
@@ -3283,7 +3288,8 @@ begin
   inherited;
 
   if (ssLeft in Shift)
-  and (InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible)))
+  and InRange(X, Left, Left + Width - fScrollBar.Width * Byte(fScrollBar.Visible))
+  and InRange(Y, Top + fHeader.Height*Byte(fHeader.Visible), Top + fHeader.Height*Byte(fHeader.Visible) + GetVisibleRows * fItemHeight - 1)
   then begin
     NewIndex := TopIndex + (Y - Top - fHeader.Height * Byte(fShowHeader)) div fItemHeight;
 
@@ -3332,7 +3338,7 @@ begin
     if fRows[aIndex].Cells[I].Pic.ID <> 0 then
       fRenderUI.WritePicture(X + 4 + fHeader.ColumnOffset[I], Y + 1, fRows[aIndex].Cells[I].Pic.RX, fRows[aIndex].Cells[I].Pic.ID, fRows[aIndex].Cells[I].Color);
     if fRows[aIndex].Cells[I].Caption <> '' then
-      fRenderUI.WriteText(X + 4 + fHeader.ColumnOffset[I], Y + 3, ItemWidth, fRows[aIndex].Cells[I].Caption, fFont, taLeft, fRows[aIndex].Cells[I].Color);
+      fRenderUI.WriteText(X + 4 + fHeader.ColumnOffset[I], Y + 3, ItemWidth, 0, fRows[aIndex].Cells[I].Caption, fFont, taLeft, fRows[aIndex].Cells[I].Color);
   end;
 end;
 
@@ -3579,7 +3585,7 @@ begin
   inherited;
 
   if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-  fRenderUI.WriteText(Left+4, Top+4, Width-8, fCaption, fFont, taLeft, Col);
+  fRenderUI.WriteText(Left+4, Top+4, Width-8, 0, fCaption, fFont, taLeft, Col);
 end;
 
 
@@ -3735,7 +3741,7 @@ begin
                             fList.Rows[ItemIndex].Cells[0].Color,
                             fEnabled or not FadeImageWhenDisabled)}
   else
-    fRenderUI.WriteText(Left + 4, Top + 4, Width - 8 - fButton.Width, fDefaultCaption, fFont, taLeft, Col);
+    fRenderUI.WriteText(Left + 4, Top + 4, Width - 8 - fButton.Width, 0, fDefaultCaption, fFont, taLeft, Col);
 end;
 
 
@@ -3829,7 +3835,7 @@ begin
   if (fRandomCaption <> '') and (fSwatch.ColorIndex = 0) then
   begin
     if fEnabled then Col:=$FFFFFFFF else Col:=$FF888888;
-    fRenderUI.WriteText(Left+4, Top+3, 0, fRandomCaption, fnt_Metal, taLeft, Col);
+    fRenderUI.WriteText(Left+4, Top+3, 0, 0, fRandomCaption, fnt_Metal, taLeft, Col);
   end;
 end;
 
@@ -3983,7 +3989,7 @@ begin
   if not KMSamePoint(fMinimap.PlayerLocations[I], KMPoint(0,0)) then
     fRenderUI.WriteText(NewLeft+EnsureRange(Round(fMinimap.PlayerLocations[I].X*PaintWidth / fMinimap.MapX),LOC_RAD,PaintWidth-LOC_RAD),
                         NewTop +EnsureRange(Round(fMinimap.PlayerLocations[I].Y*PaintHeight / fMinimap.MapY),LOC_RAD,PaintHeight-LOC_RAD)-6,
-                        16, IntToStr(I), fnt_Outline, taCenter);
+                        16, 16, IntToStr(I), fnt_Outline, taCenter);
 end;
 
 
@@ -4201,10 +4207,10 @@ begin
     //Checkboxes
     fRenderUI.WriteLayer(G.Right + 5, G.Top - 2 + I*fItemHeight+2, 11, 11, NewColor, $00000000);
     if fLines[I].Visible then
-      fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 'v', fnt_Game, taLeft, $FF000000);
+      fRenderUI.WriteText(G.Right + 5, G.Top - 2 + I*fItemHeight - 1, 0, 0, 'v', fnt_Game, taLeft, $FF000000);
 
     //Legend
-    fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, fLines[I].Title, fnt_Game, taLeft, TextColor);
+    fRenderUI.WriteText(G.Right + 18, G.Top - 2 + I*fItemHeight, 0, 0, fLines[I].Title, fnt_Game, taLeft, TextColor);
   end;
 
   //Render the highlighted line above all the others and thicker so you can see where it goes under others
@@ -4215,10 +4221,10 @@ begin
   fRenderUI.WriteRect(G.Left, G.Top, G.Right-G.Left, G.Bottom-G.Top, 1, $FFFFFFFF);
 
   //Title
-  fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, fCaption, fFont, taLeft);
+  fRenderUI.WriteText(G.Left + 5, G.Top + 5, 0, 20, fCaption, fFont, taLeft);
 
   //Render vertical axis captions
-  fRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, IntToStr(0), fnt_Game, taRight);
+  fRenderUI.WriteText(G.Left - 5, G.Bottom + 5, 0, 0, IntToStr(0), fnt_Game, taRight);
   //fRenderUI.WriteText(Left+20, Top + 20, 0, 0, IntToStr(fMaxValue), fnt_Game, taRight);
 
   //Find first interval that will have less than 10 ticks
@@ -4233,7 +4239,7 @@ begin
   if Best <> 0 then
   for I := 1 to (TopValue div Best) do
   begin
-    fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)) - 6, 0, IntToStr(I * Best), fnt_Game, taRight);
+    fRenderUI.WriteText(G.Left - 5, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)) - 6, 0, 0, IntToStr(I * Best), fnt_Game, taRight);
     fRenderUI.WriteLayer(G.Left - 2, G.Top + Round((1 - I * Best / TopValue) * (G.Bottom - G.Top)), 5, 2, $FFFFFFFF, $00000000);
   end;
 
@@ -4251,7 +4257,7 @@ begin
   for I := 1 to (fMaxTime div Best) do
   begin
     fRenderUI.WriteLayer(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom - 2, 2, 5, $FFFFFFFF, $00000000);
-    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 4, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
+    fRenderUI.WriteText(G.Left + Round(I * Best / fMaxTime * (G.Right - G.Left)), G.Bottom + 4, 0, 0, TimeToString((I * Best) / 24 / 60 / 60), fnt_Game, taLeft);
   end;
 end;
 
@@ -4431,7 +4437,7 @@ begin
   fCtrl.Paint;
 
   if MODE_DESIGN_CONTORLS and (CtrlFocus <> nil) then
-    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, taLeft);
+    fRenderUI.WriteText(CtrlFocus.Left, CtrlFocus.Top-14, 0, 0, inttostr(CtrlFocus.Left)+':'+inttostr(CtrlFocus.Top), fnt_Grey, taLeft);
 end;
 
 

@@ -1,7 +1,7 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, Math,
+uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
   KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units;
@@ -133,7 +133,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-  KM_Units_Warrior, KM_TextLibrary, KM_AIFields;
+  KM_Units_Warrior, KM_TextLibrary;
 
 
 { TKMPlayerCommon }
@@ -436,32 +436,25 @@ end;
 
 
 function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
-var
-  I, K, J, S, T, Tx, Ty: Integer;
-  HA: THouseArea;
-  EnterOff: ShortInt;
+var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  Result := fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType);
+  Result := fTerrain.CanPlaceHouse(kmPoint(aX, aY), aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  EnterOff := fResource.HouseDat[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aX + K - 3 - EnterOff;
+    Tx := aX - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aY + I - 4;
 
     //Make sure tile in map coords and there's no road below
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
-    //Check if tile's blocked
-    Result := Result and (aIgnoreInfluence or (fAIFields.AvoidBuilding[Ty, Tx] = 0));
-
-    //Make sure we can add road below house, full width + 1 on each side
+    //Make sure we can add road below house, full width
     if (I = 4) then
       Result := Result and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
                        and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
@@ -479,6 +472,8 @@ begin
           for T := -1 to 1 do
             Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
+
+    Result := Result and (aIgnoreInfluence or (fTerrain.Land[Ty,Tx].Influence = 0));
   end;
 end;
 
@@ -650,7 +645,7 @@ begin
   //Will return nil if no suitable inn is available
   Result := nil;
   I := 1;
-  BestMatch := MaxSingle;
+  BestMatch := 9999;
   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
 
   H := TKMHouseInn(FindHouse(ht_Inn));
@@ -660,7 +655,7 @@ begin
     and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), CanWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
-      Dist := KMLengthSqr(H.GetPosition, Loc);
+      Dist := GetLength(H.GetPosition, Loc);
       if Dist < BestMatch then
       begin
         Result := H;
@@ -906,7 +901,7 @@ begin
 
   if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
   begin
-    fAI.UpdateState(aTick);
+    fAI.UpdateState;
     //fArmyEval.UpdateState;
   end;
 

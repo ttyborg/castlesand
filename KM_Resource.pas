@@ -14,7 +14,9 @@ uses
   KM_ResourceResource,
   KM_ResourceSprites,
   KM_ResourceTileset,
-  KM_ResourceUnit;
+  KM_ResourceUnit
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
 
 type
@@ -43,6 +45,8 @@ type
 
     constructor Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
     destructor Destroy; override;
+
+    function GetDATCRC: Cardinal;
 
     procedure LoadMenuResources(const aLocale: AnsiString);
     procedure LoadGameResources(aAlphaShadows: boolean);
@@ -109,6 +113,16 @@ end;
 procedure TResource.StepCaption(const aCaption: string);
 begin
   if Assigned(OnLoadingText) then OnLoadingText(aCaption);
+end;
+
+
+//CRC of data files that can cause inconsitencies
+function TResource.GetDATCRC: Cardinal;
+begin
+  Result := HouseDat.CRC xor
+            UnitDat.CRC xor
+            MapElements.CRC xor
+            Tileset.CRC;
 end;
 
 

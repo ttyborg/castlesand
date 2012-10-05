@@ -178,7 +178,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields,
+  KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -228,8 +228,6 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
-  fPlayers := TKMPlayersCollection.Create;
-  fAIFields := TKMAIFields.Create;
 
   InitUnitStatEvals; //Army
 
@@ -263,7 +261,6 @@ begin
   FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
   FreeThenNil(fTerrain);
-  FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fEventsManager);
@@ -414,21 +411,18 @@ begin
       fMapEditor := TKMMapEditor.Create;
       MyPlayer := fPlayers.Player[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
-      for I := 0 to fPlayers.Count - 1 do
+      for I := 0 to MAX_PLAYERS - 1 do
         fPlayers[I].FogOfWar.RevealEverything;
     end
     else
     if fGameMode = gmSingle then
     begin
       MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
-      Assert(ALLOW_NO_HUMAN_IN_SP or (MyPlayer.PlayerType = pt_Human));
-      if ALLOW_NO_HUMAN_IN_SP and (MyPlayer.PlayerType = pt_Computer) then
-        for I := 0 to fPlayers.Count - 1 do
-          fPlayers[I].FogOfWar.RevealEverything;
+      Assert(MyPlayer.PlayerType = pt_Human);
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors, KMPoint(0,0));
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|'+Parser.MinorErrors, KMPoint(0,0));
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally
@@ -438,6 +432,8 @@ begin
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
+  fPlayers.AfterMissionInit(true);
+
   if fGameMode = gmMulti then
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
@@ -446,8 +442,6 @@ begin
 
   if fGameMode = gmMulti then
     MultiplayerRig;
-
-  fPlayers.AfterMissionInit(true);
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 
@@ -731,8 +725,8 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
-
   fMapEditor := TKMMapEditor.Create;
+  fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
   MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
@@ -1169,9 +1163,8 @@ begin
   //Load the data into the game
   fTerrain.Load(LoadStream);
 
+  fPlayers := TKMPlayersCollection.Create;
   fPlayers.Load(LoadStream);
-  //todo: Load fAIFields here
-
   fProjectiles.Load(LoadStream);
   fEventsManager.Load(LoadStream);
 
@@ -1253,7 +1246,6 @@ begin
                       fEventsManager.ProcTime(fGameTickCount);
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
-                      fAIFields.UpdateState(fGameTickCount);
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       fProjectiles.UpdateState; //If game has stopped it's NIL

@@ -196,7 +196,7 @@ begin
 
   fDeposits := TKMDeposits.Create;
 
-  fShowDefencePositions := True;
+  //fShowDefencePositions := True;
   fShowDeposits := True;
 end;
 
@@ -212,8 +212,7 @@ end;
 procedure TKMMapEditor.Update;
 begin
   fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
-  fAIFields.AfterMissionInit;
-  fAIFields.UpdateState(0);
+  //fAIFields.UpdateNavMesh;
 end;
 
 

@@ -31,13 +31,11 @@ type
     property CRC: Cardinal read fCRC;
   end;
 
-
 var
   //MapElem is in global access because of the recursive FloodFill algorithm
   //when it uses TKMMapElements.MapElem each call takes 8 times more memory
   //on the stack (View>Debug>CPU>Stack) for reasons unknown to me.
   MapElem: array [Byte] of TKMMapElement;
-
 
 implementation
 
