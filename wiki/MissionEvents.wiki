@@ -32,6 +32,7 @@ Comments and empty lines are allowed, preceding with `//` mark.
 || _ATTACK_ || Issue attack order to AI || 1. AI player index || 2. Target player index || 3. Other attack parameters ... ? ||
 || *DELAYED_MESSAGE* || Displays a message with after specified delay || 1. Delay amount in game ticks || 2. Message index || - ||
 || _GIVE_WARES_ || Adds amount of ware to players Store || 1. Ware type || 2. Count || - ||
+|| _SEND_WARES_ || Take amount of ware from one player and give them to another players Store || 1. Ware type || 2. Count || 3. Donor player index || 4. Acceptor player index ||
 || *SHOW_MESSAGE* || Displays a message immediately || 1. Message index || - || - ||
 || _UNLOCK_HOUSE_ || Allow player to build specified type of house || 1. House type || - || - ||
 || *VICTORY* || Proclaims victory to the player || - || - || - ||
