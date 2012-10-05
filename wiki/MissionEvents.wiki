@@ -20,6 +20,7 @@ Comments and empty lines are allowed, preceding with `//` mark.
 || *DEFEATED* || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || - || - ||
 || *HOUSE_BUILT* || Occurs when player has built the specified house type || 1. House type index || - ||
 || *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) || - ||
+|| _TIME_REPEAT_ || Occurs when specified time has come and repeats eve after || 1. Time of first occurrence || 2. Interval between occurrences || 3. Repeat count ||
 || _UNIT_COUNT_ || Player has specified count of alive citizens || 1. Unit type || 2. Count ||
 || _WARES_COUNT_ || Player has total of specified amount of wares || 1. Ware type || 2. Count ||
 
