@@ -352,16 +352,16 @@ end;
 
 
 function TKMUnitCitizen.CanWorkAt(aLoc:TKMPoint; aGatheringScript:TGatheringScript):Boolean;
-var I: Integer;
+var i:Integer;
 begin
   case aGatheringScript of
     gs_WoodCutterPlant: begin
                           //Woodcutters should not plant trees on our own or our ally's house plans
                           //(it's very annoying if they do)
                           Result := True;
-                          for I := 0 to fPlayers.Count - 1 do
-                            if (I = fOwner) or (fPlayers.CheckAlliance(fOwner, I) = at_Ally) then
-                              Result := Result and not fPlayers[I].BuildList.HousePlanList.HasPlan(aLoc);
+                          for i:=0 to fPlayers.Count-1 do
+                            if (i = fOwner) or (fPlayers.CheckAlliance(fOwner, i) = at_Ally) then
+                              Result := Result and not fPlayers[i].BuildList.HousePlanList.HasPlan(aLoc);
                         end;
     else Result := True;
   end;
@@ -624,7 +624,7 @@ begin
 end;
 
 
-function TKMUnitRecruit.InitiateActivity: TUnitTask;
+function TKMUnitRecruit.InitiateActivity:TUnitTask;
 var
   Enemy:TKMUnit;
 begin
@@ -2220,7 +2220,7 @@ begin
   for i := 0 to Count - 1 do
     if not Units[i].IsDeadOrDying and Units[i].fVisible then
     begin
-      Dist := KMLengthSqr(Units[i].GetPosition, aPoint);
+      Dist := GetLength(Units[i].GetPosition, aPoint);
       if Dist < BestDist then
       begin
         BestDist := Dist;

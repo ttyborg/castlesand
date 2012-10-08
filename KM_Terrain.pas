@@ -2,7 +2,7 @@ unit KM_Terrain;
 {$I KaM_Remake.inc}
 interface
 uses Classes, KromUtils, Math, SysUtils, Graphics,
-  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset, KM_TerrainFinder;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Utils, KM_ResourceTileset;
 
 
 type
@@ -21,7 +21,6 @@ type
     fKromsMapEditorData: array of Byte;
 
     fTileset: TKMTileset;
-    fFinder: TKMTerrainFinder;
 
     fBoundsWC: TKMRect; //WC rebuild bounds used in FlattenTerrain (put outside to fight with recursion SO error in FlattenTerrain EnsureWalkable)
 
@@ -74,9 +73,11 @@ type
 
       Border: TBorderType; //Borders (ropes, planks, stones)
       BorderSide: Byte; //Bitfield whether the borders are enabled
+      Influence: Byte;
     end;
 
     FallingTrees: TKMPointTagList;
+    procedure GetTilesWithinDistance(aStart:TKMPoint; aRadius:Byte; aPass:TPassability; aList:TKMPointList);
 
     constructor Create;
     destructor Destroy; override;
@@ -88,7 +89,7 @@ type
     property MapY: Word read fMapY;
 
     procedure SetTileLock(aLoc: TKMPoint; aTileLock: TTileLock);
-    procedure UnlockTile(aLoc: TKMPoint);
+    procedure UnlockTile(aLoc:TKMPoint);
     procedure SetRoads(aList: TKMPointList; aOwner: TPlayerIndex; aUpdateWalkConnects: Boolean = True);
     procedure SetField(Loc: TKMPoint; aOwner: TPlayerIndex; aFieldType: TFieldType);
     procedure SetHouse(Loc: TKMPoint; aHouseType: THouseType; aHouseStage: THouseStage; aOwner: TPlayerIndex; const aFlattenTerrain: Boolean = False);
@@ -174,8 +175,7 @@ type
     function UnitsHitTestF(aLoc: TKMPointF): Pointer;
     function UnitsHitTestWithinRad(aLoc: TKMPoint; MinRad, MaxRad: Single; aPlayer: TPlayerIndex; aAlliance: TAllianceType; Dir: TKMDirection; const aClosest: Boolean): Pointer;
 
-    function ObjectIsChopableTree(X,Y: Word): Boolean; overload;
-    function ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean; overload;
+    function ObjectIsChopableTree(Loc: TKMPoint; Stage: Byte): Boolean;
     function CanWalkDiagonaly(const A,B: TKMPoint): Boolean;
 
     procedure FlattenTerrain(Loc:TKMPoint; aUpdateWalkConnects: Boolean=true); overload;
@@ -208,7 +208,7 @@ var
 
 
 implementation
-uses KM_Log, KM_PlayersCollection,
+uses KM_Log, KM_PlayersCollection, KM_AIFields,
   KM_Resource, KM_Units, KM_ResourceHouse, KM_ResourceMapElements, KM_Sound, KM_UnitActionStay, KM_Units_Warrior;
 
 
@@ -224,8 +224,8 @@ end;
 
 destructor TTerrain.Destroy;
 begin
+  FreeAndNil(fAIFields);
   FreeAndNil(FallingTrees);
-  FreeAndNil(fFinder);
   inherited;
 end;
 
@@ -257,17 +257,20 @@ begin
     IsUnit       := nil;
     IsVertexUnit := vu_None;
     FieldAge     := 0;
-    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I), caAgeFull), TREE_AGE_FULL, 0);
+    TreeAge      := IfThen(ObjectIsChopableTree(KMPoint(K,I),4), TREE_AGE_FULL, 0);
     Border       := bt_None;
     BorderSide   := 0;
   end;
 
-  fFinder := TKMTerrainFinder.Create;
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
+
+  FreeAndNil(fAIFields);
+  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
+  fAIFields.UpdateNavMesh;
 end;
 
 
@@ -295,7 +298,6 @@ begin
     Assert((NewX <= MAX_MAP_SIZE) and (NewY <= MAX_MAP_SIZE), 'Can''t open the map cos it has too big dimensions');
     fMapX := NewX;
     fMapY := NewY;
-
     for i:=1 to fMapY do for k:=1 to fMapX do
     begin
       Land[i,k].OldTerrain   := 0;
@@ -318,10 +320,10 @@ begin
       S.Seek(1, soFromCurrent);
       S.Read(Land[i,k].Obj); //6
       S.Seek(17, soFromCurrent);
-      if ObjectIsChopableTree(KMPoint(k,i), caAge1) then Land[i,k].TreeAge := 1;
-      if ObjectIsChopableTree(KMPoint(k,i), caAge2) then Land[i,k].TreeAge := TREE_AGE_1;
-      if ObjectIsChopableTree(KMPoint(k,i), caAge3) then Land[i,k].TreeAge := TREE_AGE_2;
-      if ObjectIsChopableTree(KMPoint(k,i), caAgeFull) then Land[i,k].TreeAge := TREE_AGE_FULL;
+      if ObjectIsChopableTree(KMPoint(k,i),1) then Land[i,k].TreeAge := 1;
+      if ObjectIsChopableTree(KMPoint(k,i),2) then Land[i,k].TreeAge := TREE_AGE_1;
+      if ObjectIsChopableTree(KMPoint(k,i),3) then Land[i,k].TreeAge := TREE_AGE_2;
+      if ObjectIsChopableTree(KMPoint(k,i),4) then Land[i,k].TreeAge := TREE_AGE_FULL;
       //Everything else is default
     end;
 
@@ -337,13 +339,16 @@ begin
     S.Free;
   end;
 
-  fFinder := TKMTerrainFinder.Create;
   UpdateLighting(KMRect(1, 1, fMapX, fMapY));
   UpdatePassability(KMRect(1, 1, fMapX, fMapY));
 
   //Everything except roads
   UpdateWalkConnect([wcWalk, wcFish, wcWork], KMRect(1, 1, fMapX, fMapY), True);
   fLog.AppendLog('Map file loaded');
+
+  FreeAndNil(fAIFields);
+  fAIFields := TKMAIFields.Create; //todo: Should be moved someplace else, but for now we can init it here
+  fAIFields.UpdateNavMesh;
 end;
 
 
@@ -595,8 +600,8 @@ begin
     U := Land[I,K].IsUnit;
     if U <> nil then
     begin
-      T := KMLengthSqr(U.PositionF, aLoc);
-      if (T <= 1) and ((Result = nil) or (T < KMLengthSqr(TKMUnit(Result).PositionF, aLoc))) then
+      T := GetLength(U.PositionF, aLoc);
+      if (T <= 1) and ((Result = nil) or (T < GetLength(TKMUnit(Result).PositionF, aLoc))) then
         Result := U;
     end;
   end;
@@ -661,7 +666,7 @@ begin
 
     //Don't check tiles farther than closest Warrior
     if aClosest and (W <> nil)
-    and (KMLengthSqr(aLoc, KMPoint(K,I)) >= KMLengthSqr(aLoc, W.GetPosition)) then
+    and (GetLength(aLoc, KMPoint(K,I)) >= GetLength(aLoc, W.GetPosition)) then
       Continue; //Since we check left-to-right we can't exit just yet (there are possible better enemies below)
 
     //In KaM archers can shoot further than sight radius (shoot further into explored areas)
@@ -684,7 +689,7 @@ begin
           or (Abs(aLoc.Y - P.Y) <> 1)
           or VertexUsageCompatible(aLoc, P)
         )
-    and InRange(KMLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad) //Unit's exact position must be close enough
+    and InRange(GetLength(KMPointF(aLoc), U.PositionF), MinRad, RequiredMaxRad) //Unit's exact position must be close enough
     then
       if aClosest then
       begin
@@ -725,28 +730,16 @@ begin
 end;
 
 
-function TTerrain.ObjectIsChopableTree(X,Y: Word): Boolean;
-var I: Byte; K: TChopableAge;
+function TTerrain.ObjectIsChopableTree(Loc:TKMPoint; Stage: Byte): Boolean;
+var h,i: Byte;
 begin
-  Result := True;
-
-  for I := 1 to Length(ChopableTrees) do
-    for K := Low(TChopableAge) to High(TChopableAge) do
-      if (Land[Y,X].Obj = ChopableTrees[I,K]) then Exit;
-
-  Result := False;
-end;
-
-
-function TTerrain.ObjectIsChopableTree(Loc: TKMPoint; aStage: TChopableAge): Boolean;
-var I: Byte;
-begin
-  Result := True;
-
-  for I := 1 to Length(ChopableTrees) do
-    if (Land[Loc.Y, Loc.X].Obj = ChopableTrees[I, aStage]) then Exit;
-
-  Result := False;
+  //If Stage is not in 1..6 then assume they mean any type of tree
+  Result:=false;
+  for h:=1 to length(ChopableTrees) do
+    if Stage in [1..6] then
+      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,Stage])
+    else for i:=1 to 6 do
+      Result := Result or (Land[Loc.Y,Loc.X].Obj = ChopableTrees[h,i])
 end;
 
 
@@ -952,24 +945,23 @@ end;
 
 { Finds a winefield ready to be picked }
 function TTerrain.FindWineField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FieldPoint:TKMPointDir): Boolean;
-var
-  I: Integer;
-  ValidTiles: TKMPointList;
-  ChosenTiles: TKMPointDirList;
-  P: TKMPoint;
+var i: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
   ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
   ChosenTiles := TKMPointDirList.Create;
-  for I := 0 to ValidTiles.Count - 1 do
+  for i:=0 to ValidTiles.Count-1 do
   begin
-    P := ValidTiles[I];
+    P := ValidTiles[i];
     if not KMSamePoint(aAvoidLoc,P) then
       if TileIsWineField(P) then
-        if Land[P.Y,P.X].FieldAge = CORN_AGE_MAX then
+        if Land[P.Y,P.X].FieldAge=CORN_AGE_MAX then
           if not TileIsLocked(P) then //Taken by another farmer
-            if Route_CanBeMade(aLoc, P, CanWalk, 0) then
+            if Route_CanBeMade(aLoc,P,CanWalk,0) then
               ChosenTiles.AddItem(KMPointDir(P, dir_NA));
   end;
 
@@ -981,17 +973,16 @@ end;
 
 { Finds a corn field }
 function TTerrain.FindCornField(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; aPlantAct:TPlantAct; out PlantAct:TPlantAct; out FieldPoint:TKMPointDir): Boolean;
-var
-  I: Integer;
-  ValidTiles: TKMPointList;
-  ChosenTiles: TKMPointList;
-  P: TKMPoint;
+var i: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
   ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles := TKMPointList.Create;
-  for I := 0 to ValidTiles.Count - 1 do
+  ChosenTiles := TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
   begin
     P := ValidTiles[i];
     if not KMSamePoint(aAvoidLoc,P) then
@@ -999,12 +990,11 @@ begin
         if((aPlantAct in [taAny, taPlant]) and (Land[P.Y,P.X].FieldAge = 0)) or
           ((aPlantAct in [taAny, taCut])   and (Land[P.Y,P.X].FieldAge = CORN_AGE_MAX)) then
           if not TileIsLocked(P) then //Taken by another farmer
-            if Route_CanBeMade(aLoc, P, CanWalk, 0) then
-              ChosenTiles.AddEntry(P);
+            if Route_CanBeMade(aLoc,P,CanWalk,0) then
+              ChosenTiles.AddItem(KMPointDir(P, dir_NA));
   end;
 
-  Result := ChosenTiles.GetRandom(P);
-  FieldPoint := KMPointDir(P, dir_NA);
+  Result := ChosenTiles.GetRandom(FieldPoint);
   ChosenTiles.Free;
   ValidTiles.Free;
   if not Result then
@@ -1020,16 +1010,15 @@ end;
 {Find closest harvestable deposit of Stone}
 {Return walkable tile below Stone deposit}
 function TTerrain.FindStone(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out StonePoint: TKMPointDir): Boolean;
-var
-  I: Integer;
-  ValidTiles: TKMPointList;
-  ChosenTiles: TKMPointList;
-  P: TKMPoint;
+var I: Integer;
+    ValidTiles: TKMPointList;
+    ChosenTiles: TKMPointDirList;
+    P: TKMPoint;
 begin
   ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles := TKMPointList.Create;
+  ChosenTiles := TKMPointDirList.Create;
   for I := 0 to ValidTiles.Count - 1 do
   begin
     P := ValidTiles[I];
@@ -1038,11 +1027,10 @@ begin
     and (TileIsStone(P.X, P.Y - 1) > 0)
     and not TileIsLocked(P) //Already taken by another stonemason
     and Route_CanBeMade(aLoc, P, CanWalk, 0) then
-      ChosenTiles.AddEntry(P);
+      ChosenTiles.AddItem(KMPointDir(P, dir_N));
   end;
 
-  Result := ChosenTiles.GetRandom(P);
-  StonePoint := KMPointDir(P, dir_N);
+  Result := ChosenTiles.GetRandom(StonePoint);
   ChosenTiles.Free;
   ValidTiles.Free;
 end;
@@ -1113,23 +1101,23 @@ end;
 //taPlant - Woodcutter specifically wants to get an empty place to plant a Tree
 //taAny - Anything will do since Woodcutter is querying from home
 //Result indicates if desired TreeAct place was found successfully
-procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees: TKMPointDirList; BestToPlant, SecondBestToPlant: TKMPointList);
+procedure TTerrain.FindTree(aLoc: TKMPoint; aRadius: Word; aAvoidLoc: TKMPoint; aPlantAct: TPlantAct; Trees:TKMPointDirList; BestToPlant,SecondBestToPlant: TKMPointList);
 
-  function ChooseCuttingDirection(aTree: TKMPoint; out CuttingPoint: TKMPointDir): Boolean;
+  function ChooseCuttingDirection(aTree:TKMPoint; out CuttingPoint:TKMPointDir):Boolean;
   var I, K, BestSlope, Slope: Integer;
   begin
     BestSlope := 255;
     Result := False; //It is already tested that we can walk to the tree, but double-check
 
-    for I:=-1 to 0 do for K:=-1 to 0 do
-    if Route_CanBeMade(aLoc, KMPoint(aTree.X+K, aTree.Y+I), CanWalk, 0) then
+    for i:=-1 to 0 do for k:=-1 to 0 do
+    if Route_CanBeMade(aLoc, KMPoint(aTree.X+k, aTree.Y+i), CanWalk, 0) then
     begin
-      Slope := Round(HeightAt(aTree.X+K-0.5, aTree.Y+I-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
+      Slope := Round(HeightAt(aTree.X+k-0.5, aTree.Y+i-0.5) * CELL_HEIGHT_DIV) - Land[aTree.Y, aTree.X].Height;
       //Cutting trees which are higher than us from the front looks visually poor, (axe hits ground) so avoid it where possible
-      if (I = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
+      if (i = 0) and (Slope < 0) then Slope := Slope - 100; //Make it worse but not worse than initial BestSlope
       if Abs(Slope) < BestSlope then
       begin
-        CuttingPoint := KMPointDir(aTree.X+K, aTree.Y+I, KMGetVertexDir(K, I));
+        CuttingPoint := KMPointDir(aTree.X+k, aTree.Y+i, KMGetVertexDir(k, i));
         Result := True;
         BestSlope := Abs(Slope);
       end;
@@ -1140,7 +1128,7 @@ var
   ValidTiles: TKMPointList;
   I: Integer;
   T: TKMPoint;
-  CuttingPoint: TKMPointDir;
+  CuttingPoint:TKMPointDir;
 begin
   //Why do we use 3 lists instead of one like Corn does?
   //Because we should always prefer stumps over empty places
@@ -1148,19 +1136,19 @@ begin
 
   //Scan terrain and add all trees/spots into lists
   ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
-  for I := 0 to ValidTiles.Count - 1 do
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  for I := 0 to ValidTiles.Count-1 do
   begin
      //Store in temp variable for speed
     T := ValidTiles[I];
 
-    if (KMLengthDiag(aLoc, T) <= aRadius)
+    if (KMLength(aLoc, T) <= aRadius)
     and not KMSamePoint(aAvoidLoc, T) then
     begin
 
       //Grownup tree
       if (aPlantAct in [taCut, taAny])
-      and ObjectIsChopableTree(T, caAgeFull)
+      and ObjectIsChopableTree(T, 4)
       and (Land[T.Y,T.X].TreeAge >= TREE_AGE_FULL)
       //Woodcutter could be standing on any tile surrounding this tree
       and not TileIsLocked(T)
@@ -1175,8 +1163,8 @@ begin
       and (CanPlantTrees in Land[T.Y,T.X].Passability)
       and Route_CanBeMade(aLoc, T, CanWalk, 0)
       and not TileIsLocked(T) then //Taken by another woodcutter
-        if ObjectIsChopableTree(T, caAgeStump) then
-          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stumps to avoid cluttering whole area with em
+        if ObjectIsChopableTree(T, 6) then
+          BestToPlant.AddEntry(T) //Prefer to dig out and plant on stomps to avoid cluttering whole area with em
         else
           SecondBestToPlant.AddEntry(T); //Empty space and other objects that can be dug out (e.g. mushrooms) if no other options available
     end;
@@ -1187,30 +1175,29 @@ end;
 
 {Find seaside}
 {Return walkable tile nearby}
-function TTerrain.FindFishWater(aLoc: TKMPoint; aRadius: Integer; aAvoidLoc: TKMPoint; out FishPoint: TKMPointDir): Boolean;
-var I,J,K: Integer;
+function TTerrain.FindFishWater(aLoc:TKMPoint; aRadius:integer; aAvoidLoc:TKMPoint; out FishPoint: TKMPointDir): Boolean;
+var i,j,l:integer;
     P: TKMPoint;
     ValidTiles: TKMPointList;
-    ChosenTiles: TKMPointDirList;
+    ChosenTiles:TKMPointDirList;
 begin
   ValidTiles := TKMPointList.Create;
-  fFinder.GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
+  GetTilesWithinDistance(aLoc, aRadius, canWalk, ValidTiles);
 
-  ChosenTiles := TKMPointDirList.Create;
-  for I := 0 to ValidTiles.Count - 1 do
+  ChosenTiles:=TKMPointDirList.Create;
+  for i:=0 to ValidTiles.Count-1 do
   begin
-    P := ValidTiles[I];
+    P := ValidTiles[i];
     //Check that this tile is valid
     if not TileIsLocked(P) //Taken by another fisherman
     and Route_CanBeMade(aLoc, P, CanWalk, 0)
     and not KMSamePoint(aAvoidLoc, P) then
       //Now find a tile around this one that is water
-      for J := -1 to 1 do
-        for K := -1 to 1 do
-          if ((K <> 0) or (J <> 0))
-          and TileInMapCoords(P.X+J, P.Y+K)
-          and TileIsWater(KMPoint(P.X+J, P.Y+K)) and WaterHasFish(KMPoint(P.X+J, P.Y+K)) then //Limit to only tiles which are water and have fish
-            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(J, K)));
+      for j:=-1 to 1 do
+        for l:=-1 to 1 do
+          if TileInMapCoords(P.X+j,P.Y+l) and ((l <> 0) or (j <> 0))
+          and TileIsWater(KMPoint(P.X+j,P.Y+l)) and WaterHasFish(KMPoint(P.X+j,P.Y+l)) then //Limit to only tiles which are water and have fish
+            ChosenTiles.AddItem(KMPointDir(P, KMGetDirection(-j,-l)));
   end;
 
   Result := ChosenTiles.GetRandom(FishPoint);
@@ -1227,7 +1214,7 @@ begin
   Result := False;
   for I := max(aLoc.Y - aRadius, Ins) to Min(aLoc.Y + aRadius, fMapY - Ins) do
   for K := max(aLoc.X - aRadius, Ins) to Min(aLoc.X + aRadius, fMapX - Ins) do
-    if (KMLengthDiag(aLoc, KMPoint(K,I)) <= aRadius)
+    if (KMLength(aLoc, KMPoint(K,I)) <= aRadius)
     and TileIsWater(KMPoint(K,I)) then
     begin
       Result := True;
@@ -1240,10 +1227,10 @@ function TTerrain.ChooseTreeToPlant(aLoc:TKMPoint):integer;
 begin
   //This function randomly chooses a tree object based on the terrain type. Values matched to KaM, using all soil tiles.
   case Land[aLoc.Y,aLoc.X].Terrain of
-    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7), caAge1]; //Grass (oaks, etc.)
-    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2), caAge1]; //Yellow dirt
-    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5), caAge1]; //Brown dirt (pine trees)
-    else Result := ChopableTrees[1+KaMRandom(Length(ChopableTrees)), caAge1]; //If it isn't one of those soil types then choose a random tree
+    0..3,5,6,8,9,11,13,14,18,19,56,57,66..69,72..74,84..86,93..98,180,188: Result := ChopableTrees[1+KaMRandom(7),1]; //Grass (oaks, etc.)
+    26..28,75..80,182,190:                                                 Result := ChopableTrees[7+KaMRandom(2),1]; //Yellow dirt
+    16,17,20,21,34..39,47,49,58,64,65,87..89,183,191,220,247:              Result := ChopableTrees[9+KaMRandom(5),1]; //Brown dirt (pine trees)
+    else Result := ChopableTrees[1+KaMRandom(length(ChopableTrees)),1]; //If it isn't one of those soil types then choose a random tree
   end;
 end;
 
@@ -1328,7 +1315,7 @@ function TTerrain.CatchFish(aLoc:TKMPointDir; TestOnly: Boolean=false): Boolean;
 var MyFish: TKMUnitAnimal;
 begin
   //Here we are catching fish in the tile 1 in the direction
-  aLoc.Loc := KMPoint(KMGetPointInDir(aLoc.Loc, aLoc.Dir));
+  aLoc := KMGetPointInDir(aLoc.Loc, aLoc.Dir);
   MyFish := fPlayers.PlayerAnimals.GetFishInWaterBody(Land[aLoc.Loc.Y,aLoc.Loc.X].WalkConnect[wcFish],not TestOnly);
   Result := (MyFish <> nil);
   if (not TestOnly) and (MyFish <> nil) then MyFish.ReduceFish; //This will reduce the count or kill it (if they're all gone)
@@ -1337,8 +1324,8 @@ end;
 
 procedure TTerrain.SetTree(Loc: TKMPoint; ID: Integer);
 begin
-  Land[Loc.Y,Loc.X].Obj := ID;
-  Land[Loc.Y,Loc.X].TreeAge := 1;
+  Land[Loc.Y,Loc.X].Obj :=  ID;
+  Land[Loc.Y,Loc.X].TreeAge :=  1;
 
   //Add 1 tile on sides because surrounding tiles will be affected (CanPlantTrees)
   UpdatePassability(KMRectGrow(KMRect(Loc), 1));
@@ -1349,15 +1336,15 @@ end;
 
 
 {Remove the tree and place a falling tree instead}
-procedure TTerrain.FallTree(Loc: TKMPoint);
-var I: Integer;
+procedure TTerrain.FallTree(Loc:TKMPoint);
+var h:integer;
 begin
-  for I := 1 to Length(ChopableTrees) do
-    if ChopableTrees[I, caAgeFull] = Land[Loc.Y,Loc.X].Obj then
+  for h:=1 to length(ChopableTrees) do
+    if ChopableTrees[h,4]=Land[Loc.Y,Loc.X].Obj then
     begin
-      Land[Loc.Y,Loc.X].Obj := ChopableTrees[I, caAgeStump];             //Set stump object
-      FallingTrees.AddEntry(Loc,ChopableTrees[I, caAgeFall], fAnimStep); //along with falling tree
-      fSoundLib.Play(sfx_TreeDown, Loc, True);
+      Land[Loc.Y,Loc.X].Obj:=ChopableTrees[h,6];                        //Set stump object
+      FallingTrees.AddEntry(Loc,ChopableTrees[h,5],fAnimStep);  //along with falling tree
+      fSoundLib.Play(sfx_TreeDown,Loc,true);
       Exit;
     end;
 end;
@@ -1542,11 +1529,6 @@ begin
   Assert(TileInMapCoords(Loc.X, Loc.Y)); //First of all exclude all tiles outside of actual map
 
   Land[Loc.Y,Loc.X].Passability := [];
-
-  if TileIsWalkable(Loc)
-  and not MapElem[Land[Loc.Y,Loc.X].Obj].AllBlocked
-  and CheckHeightPass(Loc, CanWalk) then
-    AddPassability(CanOwn);
 
   //For all passability types other than CanAll, houses and fenced houses are excluded
   if Land[Loc.Y,Loc.X].TileLock in [tlNone, tlFenced, tlFieldWork, tlRoadWork] then
@@ -1807,7 +1789,7 @@ begin
     and (aPass in Land[Loc.Y+I,Loc.X+K].Passability)
     and CanWalkDiagonaly(Loc, KMPoint(Loc.X+K,Loc.Y+I)) //Check for trees that stop us walking on the diagonals!
     and (Land[Loc.Y+I,Loc.X+K].TileLock in [tlNone, tlFenced])
-    and (KMLengthDiag(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
+    and (KMLength(KMPoint(Loc.X+K,Loc.Y+I),Loc2) <= 1) //Right next to Loc2 (not diagonal)
     and not HasUnit(KMPoint(Loc.X+K,Loc.Y+I)) then //Doesn't have a unit
       L1.AddEntry(KMPoint(Loc.X+K,Loc.Y+I));
 
@@ -1815,7 +1797,7 @@ begin
   L2 := TKMPointList.Create;
   if not KMSamePoint(Loc3, KMPoint(0,0)) then //No Loc3 was given
   for I := 0 to L1.Count - 1 do
-    if KMLengthDiag(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
+    if KMLength(L1[I], Loc3) < 1.5 then //Next to Loc3 (diagonal is ok)
       L2.AddEntry(L1[I]);
 
   Result := True;
@@ -1844,7 +1826,7 @@ begin
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-  if KMLength(LocB,KMPoint(k,i)) <= aDistance then
+  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or CheckPassability(KMPoint(k,i),aPass);
   Result := Result and TestRadius;
 
@@ -1873,7 +1855,7 @@ begin
   TestRadius := False;
   for i:=max(round(LocB.Y-aDistance),1) to min(round(LocB.Y+aDistance),fMapY-1) do
   for k:=max(round(LocB.X-aDistance),1) to min(round(LocB.X+aDistance),fMapX-1) do
-  if KMLength(LocB,KMPoint(k,i)) <= aDistance then
+  if GetLength(LocB,KMPoint(k,i)) <= aDistance then
     TestRadius := TestRadius or (Land[LocA.Y,LocA.X].WalkConnect[WC] = Land[i,k].WalkConnect[WC]);
   Result := Result and TestRadius;
 end;
@@ -2563,9 +2545,9 @@ procedure TTerrain.UpdateBorders(Loc: TKMPoint; CheckSurrounding: Boolean = True
       Result := False;
   end;
 begin
- if not TileInMapCoords(Loc.X, Loc.Y) then exit;
+ if not TileInMapCoords(Loc.X,Loc.Y) then exit;
 
-  Land[Loc.Y,Loc.X].Border := GetBorderType;
+  Land[Loc.Y,Loc.X].Border:=GetBorderType;
   if Land[Loc.Y,Loc.X].Border = bt_None then
     Land[Loc.Y,Loc.X].BorderSide := 0
   else
@@ -2578,10 +2560,10 @@ begin
 
   if CheckSurrounding then
   begin
-    UpdateBorders(KMPoint(Loc.X-1, Loc.Y), False);
-    UpdateBorders(KMPoint(Loc.X+1, Loc.Y), False);
-    UpdateBorders(KMPoint(Loc.X, Loc.Y-1), False);
-    UpdateBorders(KMPoint(Loc.X, Loc.Y+1), False);
+    UpdateBorders(KMPoint(Loc.X-1,Loc.Y),false);
+    UpdateBorders(KMPoint(Loc.X+1,Loc.Y),false);
+    UpdateBorders(KMPoint(Loc.X,Loc.Y-1),false);
+    UpdateBorders(KMPoint(Loc.X,Loc.Y+1),false);
   end;
 end;
 
@@ -2625,9 +2607,9 @@ begin
   Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
   Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
 
-  Tmp1 := Mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
-  Tmp2 := Mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
-  Result := inY - Mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
+  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Result := inY - mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
 
 
@@ -2652,8 +2634,8 @@ begin
   Xc := EnsureRange(Trunc(inX), 0, fMapX-2);
   Yc := EnsureRange(Trunc(inY), 0, fMapY-2);
 
-  Tmp1 := Mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
-  Tmp2 := Mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
+  Tmp1 := mix(Land[Yc+1, Xc+2].Height, Land[Yc+1, Xc+1].Height, Frac(inX));
+  Tmp2 := mix(Land[Yc+2, Xc+2].Height, Land[Yc+2, Xc+1].Height, Frac(inX));
   Result := Mix(Tmp2, Tmp1, Frac(inY)) / CELL_HEIGHT_DIV;
 end;
 
@@ -2675,25 +2657,27 @@ begin
   for I := Max((round(aLoc.Y) - Rad), 1) to Min((round(aLoc.Y) + Rad), fMapY) do
   for K := Max((round(aLoc.X) - Rad), 1) to Min((round(aLoc.X) + Rad), fMapX) do
   begin
-  // We have square area basing on mouse point +/- radius
-  // Now we need to check whether point is inside brush type area(circle etc.)
-  // Every MapEdShape case has it's own check routine
+    // We have square area basing on mouse point +/- radius
+    // Now we need to check whether point is inside brush type area(circle etc.)
+    // Every MapEdShape case has it's own check routine
     case GameCursor.MapEdShape of
-        hsCircle:
-            Tmp := Max(1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad, 0);   // Negative number means that point is outside circle
-        hsSquare:
-          Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
+      hsCircle:
+        Tmp := Max(1 - GetLength(I - round(aLoc.Y), round(K - aLoc.X)) / Rad, 0);   // Negative number means that point is outside circle
+      hsSquare:
+        Tmp := 1 - Max(Abs(I - round(aLoc.Y)), Abs(K - round(aLoc.X))) / Rad;
       else
         Tmp := 0;
-      end;
-  // Default cursor mode is elevate/decrease
+    end;
+
+    // Default cursor mode is elevate/decrease
     if GameCursor.Mode = cm_Equalize then
-    begin // START Unequalize
+    begin
+      // START Unequalize
       if aRaise then
       begin
-        if (i > 1) and (k >1) and (i < fMapY - 1) and (k < fMapX - 1) then
+        if (i > 1) and (k > 1) and (i < fMapY - 1) and (k < fMapX - 1) then
         begin
-        // Unequalize compares heights of adjacent tiles and increases differences
+          // Unequalize compares heights of adjacent tiles and increases differences
           if (Land[I,K].Height < Land[I-1,K+1].Height) then
             Tmp := -Min(Land[I-1,K+1].Height - Land[I,K].Height, Tmp)
           else
@@ -2704,21 +2688,23 @@ begin
         end
         else
           Tmp := 0;
-       //END Unequalize
-      end else
+      //END Unequalize
+      end
+      else
       // START Flatten
       begin
       //Flatten comapres heights of mouse click and active tile then it increases/decreases height of active tile
         if (Land[I,K].Height < Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
           Tmp := - Min(Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height - Land[I,K].Height, Tmp)
         else
-          if (Land[I,K].Height > Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
-            Tmp := Min(Land[I,K].Height - Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height, Tmp)
-          else
-            Tmp := 0;
+        if (Land[I,K].Height > Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height) then
+          Tmp := Min(Land[I,K].Height - Land[trunc(Max(aLoc.Y, 1)), trunc(Max(aLoc.X, 1))].Height, Tmp)
+        else
+          Tmp := 0;
       end;
       //END Flatten
     end;
+
     //COMMON PART FOR Elevate/Lower and Unequalize/Flatten
     //Compute resulting floating-point height
     Tmp := power(abs(Tmp),(Slope+1)/6)*sign(Tmp); //Modify slopes curve
@@ -2779,6 +2765,9 @@ begin
     else
       SaveStream.Write(Integer(0));
     SaveStream.Write(Land[i,k].IsVertexUnit, SizeOf(Land[i,k].IsVertexUnit));
+    //Influence must be saved because it is generated once at game start, so
+    //calculating it after loading could give different results and cause mismatches
+    SaveStream.Write(Land[i,k].Influence);
   end;
 end;
 
@@ -2806,6 +2795,9 @@ begin
     LoadStream.Read(Land[i,k].TileOwner,SizeOf(Land[i,k].TileOwner));
     LoadStream.Read(Land[i,k].IsUnit, 4);
     LoadStream.Read(Land[i,k].IsVertexUnit,SizeOf(Land[i,k].IsVertexUnit));
+    //Influence must be saved because it is generated once at game start, so
+    //calculating it after loading could give different results and cause mismatches
+    LoadStream.Read(Land[i,k].Influence);
   end;
 
   for i:=1 to fMapY do for k:=1 to fMapX do
@@ -2843,8 +2835,7 @@ procedure TTerrain.UpdateState;
       UpdateWalkConnect([wcWalk,wcRoad,wcWork], KMRectGrowTopLeft(KMRect(X,Y,X,Y),1), True);
   end;
 var
-  H, I, K, A: Word;
-  J: TChopableAge;
+  H, I, J, K, A: Word;
   T: Integer;
 begin
   inc(fAnimStep);
@@ -2897,12 +2888,12 @@ begin
           or (Land[I,K].TreeAge = TREE_AGE_2)
           or (Land[I,K].TreeAge = TREE_AGE_FULL) then //Speedup
             for H := Low(ChopableTrees) to High(ChopableTrees) do
-              for J := caAge1 to caAge3 do
+              for J := 1 to 3 do
                 if Land[I,K].Obj = ChopableTrees[H,J] then
                   case Land[I,K].TreeAge of
-                    TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H, caAge2];
-                    TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H, caAge3];
-                    TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H, caAgeFull];
+                    TREE_AGE_1:    Land[I,K].Obj := ChopableTrees[H,2];
+                    TREE_AGE_2:    Land[I,K].Obj := ChopableTrees[H,3];
+                    TREE_AGE_FULL: Land[I,K].Obj := ChopableTrees[H,4];
                   end;
         end;
       end;
@@ -3014,5 +3005,76 @@ begin
     Land[I,K].WalkConnect[aWC] := Parent[Land[I,K].WalkConnect[aWC]];
 end;
 
+
+//Fills aList with all of the tiles within aRadius of aStart with aPass using either a
+//simple radius or a floodfill walking distance calculation depending on USE_WALKING_DISTANCE
+procedure TTerrain.GetTilesWithinDistance(aStart:TKMPoint; aRadius:Byte; aPass:TPassability; aList:TKMPointList);
+var Visited: array of array of Byte;
+
+  //Uses a floodfill style algorithm but only on a small area (with aRadius)
+  procedure Visit(X,Y: Word; aWalkDistance: Byte);
+  var Xt, Yt: Word;
+  begin
+    //Test whether this tile is valid and exit immediately if not
+    //Multiply the radius by 10 because of diagonal approximation (straight=10, diagonal=14)
+    if (aWalkDistance > aRadius*10) or
+    not (aPass in Land[Y,X].Passability) then Exit;
+    Xt := aStart.X-X+aRadius;
+    Yt := aStart.Y-Y+aRadius;
+    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+
+    //Only add to results once (255 is the intial value)
+    if Visited[Xt,Yt] = 255 then
+      aList.AddEntry(KMPoint(X,Y));
+
+    //Mark this tile as visited
+    Visited[Xt,Yt] := aWalkDistance;
+
+    //Run again on surrounding tiles
+    //We use +10 for straights and +14 for diagonals rather than +1 and +1.41 then div by 10 in
+    //calculations so we can still store it as bytes to save space and time
+    if X-1 >= 1 then
+    begin
+      if (Y-1 >= 1) and not MapElem[Land[Y,X].Obj].DiagonalBlocked then
+        Visit(X-1, Y-1, aWalkDistance+14);
+      Visit(X-1, Y, aWalkDistance+10);
+      if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X].Obj].DiagonalBlocked then
+        Visit(X-1,Y+1, aWalkDistance+14);
+    end;
+
+    if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+10);
+    if Y+1 <= fMapY then Visit(X, Y+1, aWalkDistance+10);
+
+    if X+1 <= fMapX then
+    begin
+      if (Y-1 >= 1) and not MapElem[Land[Y,X+1].Obj].DiagonalBlocked then
+        Visit(X+1, Y-1, aWalkDistance+14);
+      Visit(X+1, Y, aWalkDistance+10);
+      if (Y+1 <= fMapY) and not MapElem[Land[Y+1,X+1].Obj].DiagonalBlocked then
+        Visit(X+1, Y+1, aWalkDistance+14);
+    end;
+  end;
+
+var i,k: Integer;
+begin
+  if USE_WALKING_DISTANCE then
+  begin
+    //Because we use 10 for straight and 14 for diagonal in byte storage 24 is the maximum allowed
+    Assert(aRadius <= 24, 'GetTilesWithinDistance can''t handle radii > 24');
+    SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
+    for i:=0 to 2*aRadius do
+      for k:=0 to 2*aRadius do
+        Visited[i,k] := 255; //Maximum distance so we will always prefer the route we find
+
+    Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
+  end
+  else
+  begin
+    for I := max(aStart.Y-aRadius, 1) to min(aStart.Y+aRadius, fMapY-1) do
+      for K := max(aStart.X-aRadius, 1) to min(aStart.X+aRadius, fMapX-1) do
+        if (aPass in Land[I,K].Passability) and (KMLength(aStart, KMPoint(K,I)) <= aRadius) then
+          aList.AddEntry(KMPoint(K,I));
+  end;
+end;
 
 end.

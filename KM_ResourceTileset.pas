@@ -3,6 +3,8 @@ unit KM_ResourceTileset;
 interface
 uses
   Classes, Math, SysUtils, KromUtils,
+  {$IFDEF WDC} ZLibEx, {$ENDIF}
+  {$IFDEF FPC} ZStream, {$ENDIF}
   KM_Defaults, KM_CommonTypes;
 
 

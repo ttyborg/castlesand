@@ -1,7 +1,7 @@
 unit KM_AISetup;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, Math, SysUtils,
+uses Classes, KromUtils, SysUtils,
     KM_CommonClasses, KM_Points, KM_Defaults;
 
 
@@ -20,6 +20,7 @@ type
     WorkerFactor: Byte;
 
     Strong: Boolean;
+    Wooden: Boolean;
 
     function GetEquipRate(aUnit:TUnitType): Word;
 
@@ -53,13 +54,12 @@ begin
   TownDefence := 100; //In KaM 100 is standard, although we don't completely understand this command
 
   //Remake properties
-  Strong := True;//(KaMRandom > 0.5);
-  WorkerFactor := IfThen(Strong, 15, 6);
-  SerfFactor := IfThen(Strong, 7, 10);
+  Strong := (KaMRandom > 0.5);
+  Wooden := (KaMRandom > 0.5);
 end;
 
 
-function TKMPlayerAISetup.GetEquipRate(aUnit: TUnitType): Word;
+function TKMPlayerAISetup.GetEquipRate(aUnit:TUnitType): Word;
 begin
   if aUnit in WARRIORS_IRON then
     Result := EquipRateIron
@@ -84,6 +84,7 @@ begin
   SaveStream.Write(WorkerFactor);
 
   SaveStream.Write(Strong);
+  SaveStream.Write(Wooden);
 end;
 
 
@@ -103,6 +104,7 @@ begin
   LoadStream.Read(WorkerFactor);
 
   LoadStream.Read(Strong);
+  LoadStream.Read(Wooden);
 end;
 
 

@@ -211,7 +211,6 @@ begin
     //       when workers block the enterance. But it is much simpler this way so I don't have a problem really.
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
-          Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
           fToHouse.ResAddToBuild(Carry);
           fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);
           CarryTake;
@@ -231,7 +230,7 @@ begin
     5:  SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //When approaching from diagonal
     6:  begin
           //See if the unit has moved. If so we must try again
-          if KMLengthDiag(fUnit.GetPosition, fToUnit.GetPosition) > 1.5 then
+          if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
           begin
             SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //Walk to unit again
             fPhase := 6;

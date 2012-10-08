@@ -40,19 +40,19 @@ type
     property General: TKMGeneral read fGeneral;
     property WonOrLost: TWonOrLost read fWonOrLost;
 
-    procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure OwnerUpdate(aPlayer:TPlayerIndex);
 
     procedure CommanderDied(DeadCommander, NewCommander: TKMUnitWarrior);
-    procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker: TKMUnitWarrior);
-    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker: TKMUnitWarrior);
+    procedure HouseAttackNotification(aHouse: TKMHouse; aAttacker:TKMUnitWarrior);
+    procedure UnitAttackNotification(aUnit: TKMUnit; aAttacker:TKMUnitWarrior);
     procedure WarriorEquipped(aWarrior: TKMUnitWarrior);
 
-    function HouseAutoRepair: Boolean; //Do we automatically repair all houses?
+    function HouseAutoRepair:boolean; //Do we automatically repair all houses?
 
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
     procedure SyncLoad;
-    procedure UpdateState(aTick: Cardinal);
+    procedure UpdateState;
   end;
 
 
@@ -110,8 +110,12 @@ begin
   //Of course opponent can rebuild with workers, but that will take a lot of time in
   //already half-ruined city.
 
-  Defeat := (Stat.GetHouseQty([ht_School, ht_Barracks, ht_Store, ht_TownHall, ht_SiegeWorkshop]) = 0) and
-            (Stat.GetArmyCount = 0);
+  Defeat := (Stat.GetHouseQty(ht_School) = 0) and
+            (Stat.GetArmyCount = 0) and
+            (Stat.GetHouseQty(ht_Barracks) = 0) and
+            (Stat.GetHouseQty(ht_Store) = 0) and
+            (Stat.GetHouseQty(ht_TownHall) = 0) and
+            (Stat.GetHouseQty(ht_SiegeWorkshop) = 0);
 
   //Let the event system know (defeat may trigger events for other players)
   if Defeat then
@@ -133,18 +137,18 @@ procedure TKMPlayerAI.CheckGoals;
       Stat := nil;
 
     case aGoal.GoalCondition of
-      gc_BuildTutorial:     Result := Stat.GetHouseQty([ht_Tannery]) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
+      gc_BuildTutorial:     Result := Stat.GetHouseQty(ht_Tannery) = 0; //For some reason this goal is gs_False in KaM, that's why check is =0 not  > 0
       //gc_Time is disabled as we process messages in Event system now. Return true so players
       //do not have to wait for all messages to show before they are allowed to win (same in TPR)
       gc_Time:              Result := True;
-      gc_Buildings:         Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Barracks]) > 0);
+      gc_Buildings:         Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Barracks) > 0);
       gc_Troops:            Result := (Stat.GetArmyCount > 0);
-      gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or
-                                      (Stat.GetHouseQty([ht_Barracks, ht_CoalMine, ht_WeaponWorkshop, ht_ArmorWorkshop, ht_Stables,
-                                                         ht_IronMine, ht_IronSmithy ,ht_WeaponSmithy, ht_ArmorSmithy, ht_TownHall,
-                                                         ht_SiegeWorkshop]) > 0);
-      gc_SerfsAndSchools:   Result := (Stat.GetHouseQty([ht_School]) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
-      gc_EconomyBuildings:  Result := (Stat.GetHouseQty([ht_Store, ht_School, ht_Inn]) > 0);
+      gc_MilitaryAssets:    Result := (Stat.GetArmyCount > 0) or (Stat.GetHouseQty(ht_Barracks) > 0) or (Stat.GetHouseQty(ht_CoalMine) > 0) or
+                                      (Stat.GetHouseQty(ht_WeaponWorkshop) > 0) or (Stat.GetHouseQty(ht_ArmorWorkshop) > 0) or (Stat.GetHouseQty(ht_Stables) > 0) or
+                                      (Stat.GetHouseQty(ht_IronMine) > 0) or (Stat.GetHouseQty(ht_IronSmithy) > 0) or (Stat.GetHouseQty(ht_WeaponSmithy) > 0) or
+                                      (Stat.GetHouseQty(ht_ArmorSmithy) > 0) or (Stat.GetHouseQty(ht_TownHall) > 0) or (Stat.GetHouseQty(ht_SiegeWorkshop) > 0);
+      gc_SerfsAndSchools:   Result := (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetUnitQty(ut_Serf) > 0);
+      gc_EconomyBuildings:  Result := (Stat.GetHouseQty(ht_Store) > 0) or (Stat.GetHouseQty(ht_School) > 0) or (Stat.GetHouseQty(ht_Inn) > 0);
       else                  Assert(false, 'Unknown goal');
     end;
     if aGoal.GoalStatus = gs_False then
@@ -349,7 +353,7 @@ begin
             //them from the defence position so new warriors can take up the defence if needs be
             for k:=0 to DefencePositions.Count - 1 do
               with DefencePositions[k] do
-                if (CurrentCommander = GetCommander) and (KMLengthDiag(Position.Loc, GetPosition) > Radius) then
+                if (CurrentCommander = GetCommander) and (KMLength(Position.Loc, GetPosition) > Radius) then
                   CurrentCommander := nil;
             Continue;
           end;
@@ -520,7 +524,7 @@ begin
       if (CurrentCommander <> nil) and not CurrentCommander.IsDeadOrDying
       and CurrentCommander.IsCommander and (not CurrentCommander.ArmyInFight)
       and (CurrentCommander.OrderTarget = nil)
-      and (KMLengthDiag(CurrentCommander.GetPosition, aAttacker.GetPosition) <= Radius) then
+      and (KMLength(CurrentCommander.GetPosition, aAttacker.GetPosition) <= Radius) then
         CurrentCommander.OrderAttackUnit(aAttacker);
 end;
 
@@ -611,31 +615,21 @@ begin
 end;
 
 
-//todo: Updates should be well separated, maybe we can make an interleaved array or something
-//where updates will stacked to execute 1 at a tick
-//OR maybe we can collect all Updates into one list and run them from there (sounds like a better more manageble idea)
-procedure TKMPlayerAI.UpdateState(aTick: Cardinal);
+procedure TKMPlayerAI.UpdateState;
 begin
   //Check if player has been defeated for Events
-  if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
-    CheckDefeated;
+  CheckDefeated;
 
   //Check goals for all players to maintain multiplayer consistency
   //AI does not care if it won or lost and Human dont need Mayor and Army management
   case fPlayers[fPlayerIndex].PlayerType of
-    pt_Human:     begin
-                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
-                      CheckGoals; //This procedure manages victory and loss
-                  end;
+    pt_Human:     CheckGoals; //This procedure manages victory and loss
     pt_Computer:  begin
-                    fMayor.UpdateState(aTick);
-                    fGeneral.UpdateState(aTick);
-                    if (aTick + Byte(fPlayerIndex)) mod MAX_PLAYERS = 0 then
-                    begin
-                      CheckArmy; //Feed army, position defence, arrange/organise groups
-                      CheckCanAttack;
-                      CheckArmiesCount; //Train new soldiers if needed
-                    end;
+                    fMayor.UpdateState;
+
+                    CheckArmy; //Feed army, position defence, arrange/organise groups
+                    CheckCanAttack;
+                    CheckArmiesCount; //Train new soldiers if needed
 
                     //CheckEnemyPresence; //Check enemy threat in close range and issue defensive attacks (or flee?)
                     //CheckAndIssueAttack; //Attack enemy

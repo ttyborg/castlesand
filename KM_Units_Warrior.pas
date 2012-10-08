@@ -220,7 +220,7 @@ begin
       NewCommanderID := 0;
       Nearest := maxSingle;
       for i:=0 to fMembers.Count-1 do begin
-        Test := KMLengthSqr(GetPosition, TKMUnitWarrior(fMembers.Items[i]).GetPosition);
+        Test := GetLength(GetPosition, TKMUnitWarrior(fMembers.Items[i]).GetPosition);
         if Test < Nearest then begin
           Nearest := Test;
           NewCommanderID := i;
@@ -627,7 +627,7 @@ begin
   if Foes.Count > 0 then
     for i:=0 to Foes.Count - 1 do
     begin
-      Test := KMLengthSqr(GetPosition, TKMUnitWarrior(Foes.Items[i]).GetPosition);
+      Test := GetLength(GetPosition, TKMUnitWarrior(Foes.Items[i]).GetPosition);
       if Test < BestLength then
       begin
         BestLength := Test;
@@ -704,26 +704,26 @@ begin
 end;
 
 
-function TKMUnitWarrior.IsRanged: Boolean;
+function TKMUnitWarrior.IsRanged:boolean;
 begin
   Result := fResource.UnitDat[fUnitType].FightType = ft_Ranged;
 end;
 
 
-function TKMUnitWarrior.FindLinkUnit(aLoc: TKMPoint): TKMUnitWarrior;
-var I,K: Integer; FoundUnit: TKMUnit;
+function TKMUnitWarrior.FindLinkUnit(aLoc:TKMPoint):TKMUnitWarrior;
+var i,k:integer; FoundUnit:TKMUnit;
 begin
   Result := nil;
 
   //Replacing it with fTerrain.UnitsHitTestWithinRad sounds plausible, but would require
   //to change input parameters to include TKMUnitWarrior, fOwner, UnitType.
   //I think thats just not worth it
-  for I:=-LINK_RADIUS to LINK_RADIUS do
-  for K:=-LINK_RADIUS to LINK_RADIUS do
-  if (GetLength(I,K) < LINK_RADIUS) //Check within circle area
-  and fTerrain.TileInMapCoords(aLoc.X+I,aLoc.Y+K) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
+  for i:=-LINK_RADIUS to LINK_RADIUS do
+  for k:=-LINK_RADIUS to LINK_RADIUS do
+  if (GetLength(i,k) < LINK_RADIUS) //Check within circle area
+  and fTerrain.TileInMapCoords(aLoc.X+i,aLoc.Y+k) then //Do not pass negative coordinates to fTerrain.UnitsHitTest
   begin
-    FoundUnit := fTerrain.Land[aLoc.Y+K, aLoc.X+I].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
+    FoundUnit := fTerrain.Land[aLoc.Y+k, aLoc.X+i].IsUnit; //Use IsUnit rather than HitTest because it's faster and we don't care whether the unit is visible (as long as it's on an IsUnit)
     if (FoundUnit is TKMUnitWarrior) and
        (FoundUnit <> Self) and
        (FoundUnit.GetOwner = fOwner) and
@@ -953,8 +953,8 @@ begin
 end;
 
 
-function TKMUnitWarrior.FindEnemy: TKMUnit;
-var TestDir: TKMDirection;
+function TKMUnitWarrior.FindEnemy:TKMUnit;
+var TestDir:TKMDirection;
 begin
   Result := nil; //No one to fight
   if not ENABLE_FIGHTING then exit;
@@ -970,7 +970,7 @@ begin
 
     //Archers should only look for opponents when they are idle or when they are finishing another fight (function is called by TUnitActionFight)
     if (GetUnitAction is TUnitActionWalkTo)
-    and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(KMLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
+    and ((GetOrderTarget = nil) or GetOrderTarget.IsDeadOrDying or not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange))
     then
       Exit;
   end;
@@ -1080,7 +1080,7 @@ begin
     if IsRanged then
     begin
       //Archers should abandon walk to start shooting if there is a foe
-      if InRange(KMLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(GetLength(NextPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
       and (GetUnitAction is TUnitActionWalkTo)
       and not TUnitActionWalkTo(GetUnitAction).DoingExchange then
       begin
@@ -1090,7 +1090,7 @@ begin
           AbandonWalk;
       end;
       //But if we are already idle then just start shooting right away
-      if InRange(KMLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
+      if InRange(GetLength(GetPosition, ChosenFoe.GetPosition), GetFightMinRange, GetFightMaxRange)
         and(GetUnitAction is TUnitActionStay) then
       begin
         //Archers - If foe is reachable then turn in that direction and CheckForEnemy
@@ -1161,10 +1161,10 @@ begin
   end;
 
   //Take attack order
-  if (fOrder = wo_AttackUnit)
+  if (fOrder=wo_AttackUnit)
   and CanInterruptAction
   and (GetOrderTarget <> nil)
-  and not InRange(KMLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
+  and not InRange(GetLength(NextPosition, GetOrderTarget.GetPosition), GetFightMinRange, GetFightMaxRange) then
   begin
     FreeAndNil(fUnitTask); //e.g. TaskAttackHouse
     SetActionWalkToUnit(GetOrderTarget, GetFightMaxRange, ua_Walk);

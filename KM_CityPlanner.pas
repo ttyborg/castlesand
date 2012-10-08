@@ -3,40 +3,33 @@ unit KM_CityPlanner;
 interface
 uses
   Classes, Graphics, KromUtils, Math, SysUtils, TypInfo,
-  KM_Defaults, KM_Points, KM_CommonClasses, KM_TerrainFinder, KM_PerfLog;
+  KM_Defaults, KM_Points, KM_CommonClasses, KM_PerfLog;
 
 
 type
-  TFindNearest = (fnStone, fnTrees, fnSoil, fnWater, fnCoal, fnIron, fnGold);
-
-  TKMTerrainFinderCity = class(TKMTerrainFinderCommon)
-  protected
-    fOwner: TPlayerIndex;
-    function CanWalkHere(const X,Y: Word): Boolean; override;
-    function CanUse(const X,Y: Word): Boolean; override;
-  public
-    fType: TFindNearest;
-    constructor Create(aOwner: TPlayerIndex);
-  end;
+  //TCityInfluence = (ciAvoid, ciTrees);
 
   TKMCityPlanner = class
   private
     fOwner: TPlayerIndex;
-    fFinder: TKMTerrainFinderCity;
     fPerfLog: TKMPerfLog;
 
+    function FindNearestOre(aStart: TKMPoint; aRadius: Byte; aOreType: TResourceType; out aEnd: TKMPoint): Boolean;
     function NextToOre(aHouse: THouseType; aOreType: TResourceType; out aLoc: TKMPoint): Boolean;
     function NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     function NextToGrass(aTarget, aHouse: THouseType; out aLoc: TKMPoint): Boolean;
   public
+    //Stone, Wood, Farm, Wine, Coal,
+    //InfluenceMap: array of array of array [TCityInfluence] of Byte;
+
     constructor Create(aPlayer: TPlayerIndex);
     destructor Destroy; override;
 
-    function FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
     function FindPlaceForHouse(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
     procedure OwnerUpdate(aPlayer: TPlayerIndex);
+    procedure UpdateInfluence;
     procedure Save(SaveStream: TKMemoryStream);
     procedure Load(LoadStream: TKMemoryStream);
   end;
@@ -49,7 +42,7 @@ const
 
 
 implementation
-uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils, KM_AIFields;
+uses KM_Houses, KM_Terrain, KM_Player, KM_PlayersCollection, KM_Utils;
 
 
 { TKMCityPlanner }
@@ -57,7 +50,6 @@ constructor TKMCityPlanner.Create(aPlayer: TPlayerIndex);
 begin
   inherited Create;
   fOwner := aPlayer;
-  fFinder := TKMTerrainFinderCity.Create(fOwner);
 
   if DO_PERF_LOGGING then fPerfLog := TKMPerfLog.Create;
 end;
@@ -67,7 +59,6 @@ destructor TKMCityPlanner.Destroy;
 begin
   if DO_PERF_LOGGING then fPerfLog.SaveToFile(ExeDir + 'Logs\PerfLogCity'+IntToStr(fOwner)+'.txt');
   if DO_PERF_LOGGING then fPerfLog.Free;
-  fFinder.Free;
 
   inherited;
 end;
@@ -159,7 +150,7 @@ begin
   for K := Max(TargetLoc.X - 7, 1) to Min(TargetLoc.X + 7, fTerrain.MapX - 1) do
     if CanPlaceHouse(aHouse, K, I) then
     begin
-      Bid := KMLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
+      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -171,7 +162,6 @@ end;
 
 
 function TKMCityPlanner.NextToHouse(aTarget: array of THouseType; aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-const RAD = 15;
 var
   TargetHouseType: THouseType;
   TargetH: TKMHouse;
@@ -182,7 +172,8 @@ var
 begin
   Result := False;
 
-  TargetHouseType := aTarget[KaMRandom(Length(aTarget))];
+  I := KaMRandom(Length(aTarget));
+  TargetHouseType := aTarget[I];
 
   P := fPlayers[fOwner];
   TargetH := P.Houses.FindHouse(TargetHouseType, 0, 0, KaMRandom(P.Stats.GetHouseQty(TargetHouseType)) + 1);
@@ -191,12 +182,12 @@ begin
   BestBid := MaxSingle;
   TargetLoc := TargetH.GetEntrance;
 
-  for I := Max(TargetLoc.Y - RAD, 1) to Min(TargetLoc.Y + RAD, fTerrain.MapY - 1) do
-  for K := Max(TargetLoc.X - RAD, 1) to Min(TargetLoc.X + RAD, fTerrain.MapX - 1) do
+  for I := Max(TargetLoc.Y - 10, 1) to Min(TargetLoc.Y + 10, fTerrain.MapY - 1) do
+  for K := Max(TargetLoc.X - 10, 1) to Min(TargetLoc.X + 10, fTerrain.MapX - 1) do
     if P.CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLengthDiag(KMPoint(K,I), TargetLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 5;
-      if (Bid < BestBid) and (fAIFields.GetBestOwner(K,I) = fOwner) then
+      Bid := GetLength(KMPoint(K,I), TargetLoc) + KaMRandom * 3;
+      if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
         BestBid := Bid;
@@ -207,7 +198,6 @@ end;
 
 
 function TKMCityPlanner.NextToStone(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-const RAD = 32;
 var
   S: TKMHouse;
   I, K: Integer;
@@ -219,18 +209,18 @@ begin
 
   S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
   if S = nil then Exit;
+
   StoreLoc := S.GetPosition;
 
-  if not fTerrain.FindStone(KMPointBelow(S.GetPosition), RAD, KMPoint(0,0), StoneLoc) then Exit;
+  if not fTerrain.FindStone(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), StoneLoc) then Exit;
 
   BestBid := MaxSingle;
 
-  for I := StoneLoc.Loc.Y to Min(StoneLoc.Loc.Y + 5, fTerrain.MapY - 1) do
+  for I := Min(StoneLoc.Loc.Y + 2, fTerrain.MapY - 1) to Min(StoneLoc.Loc.Y + 4, fTerrain.MapY - 1) do
   for K := Max(StoneLoc.Loc.X - 5, 1) to Min(StoneLoc.Loc.X + 5, fTerrain.MapX - 1) do
-    if (fAIFields.GetBestOwner(K,I) = fOwner)
-    and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
+    if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) - fAIFields.InfluenceMinMap[fOwner,I,K] + KaMRandom * 4;
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -241,10 +231,71 @@ begin
 end;
 
 
-function TKMCityPlanner.FindNearest(const aStart: TKMPoint; aRadius: Byte; aType: TFindNearest; out aResultLoc: TKMPoint): Boolean;
+function TKMCityPlanner.FindNearestOre(aStart: TKMPoint; aRadius: Byte; aOreType: TResourceType; out aEnd: TKMPoint): Boolean;
+var
+  MapX, MapY: Word;
+  Visited: array of array of Byte;
+  BestDist: Byte;
+  BestLoc: TKMPoint;
+
+  //Uses a floodfill style algorithm but only on a small area (with aRadius)
+  procedure Visit(X,Y: Word; aWalkDistance: Byte);
+  var Xt, Yt: Word;
+  begin
+    Xt := aStart.X - X + aRadius;
+    Yt := aStart.Y - Y + aRadius;
+
+    //If new path is longer than old we don't care about it
+    if (aWalkDistance >= Visited[Xt,Yt]) then Exit;
+
+    //New path is new or better than old
+    if ((aOreType = rt_Coal) and (fTerrain.TileIsCoal(X, Y) > 1)
+      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True))
+    or ((aOreType = rt_IronOre) and (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
+      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True))
+    or ((aOreType = rt_GoldOre) and (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
+      and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True))
+    then
+    begin
+      BestDist := aWalkDistance;
+      BestLoc := KMPoint(X,Y);
+    end;
+
+    //Mark this tile as visited
+    Visited[Xt,Yt] := aWalkDistance;
+
+    //Run again on surrounding tiles
+    //We check only 4 neighbors, because that x6 times faster than 8 neighbors
+    //and we don't really care for perfect circle test
+    if (aWalkDistance + 2 <= BestDist) then
+    begin
+      if X-1 >= 1 then     Visit(X-1, Y, aWalkDistance+2);
+      if Y-1 >= 1 then     Visit(X, Y-1, aWalkDistance+2);
+      if Y+1 <= MapY then  Visit(X, Y+1, aWalkDistance+2);
+      if X+1 <= MapX then  Visit(X+1, Y, aWalkDistance+2);
+    end;
+  end;
+
+var I,K: Integer;
 begin
-  fFinder.fType := aType;
-  Result := fFinder.FindNearest(aStart, aRadius, CanOwn, aResultLoc);
+  Assert(aRadius <= 120, 'GetTilesWithinDistance can''t handle radii > 80');
+
+  //Assign Rad to local variable,
+  //when we find better Loc we reduce the Rad to skip any farther Locs
+  BestDist := aRadius * 2;
+  BestLoc := KMPoint(0,0);
+  MapX := fTerrain.MapX;
+  MapY := fTerrain.MapY;
+
+  SetLength(Visited, 2*aRadius+1, 2*aRadius+1);
+  for I := 0 to 2 * aRadius do
+  for K := 0 to 2 * aRadius do
+    Visited[I,K] := 255; //Initially all tiles are unexplored
+
+  Visit(aStart.X, aStart.Y, 0); //Starting tile is at walking distance zero
+
+  aEnd := BestLoc;
+  Result := BestLoc.X <> 0;
 end;
 
 
@@ -262,11 +313,7 @@ begin
   StoreLoc := S.GetPosition;
 
   //Look for nearest Ore
-  case aOreType of
-    rt_Coal:    if not FindNearest(StoreLoc, 40, fnCoal, P) then Exit;
-    rt_IronOre: if not FindNearest(StoreLoc, 40, fnIron, P) then Exit;
-    rt_GoldOre: if not FindNearest(StoreLoc, 40, fnGold, P) then Exit;
-  end;
+  if not FindNearestOre(StoreLoc, 40, aOreType, P) then Exit;
 
   aLoc := P;
   Result := True;
@@ -274,44 +321,43 @@ end;
 
 
 function TKMCityPlanner.NextToTrees(aHouse: THouseType; out aLoc: TKMPoint): Boolean;
-const
-  SEARCH_RAD = 20; //Search for forests within this radius
-  HUT_RAD = 5; //Search for the best place for a hut in this radius
 var
   S: TKMHouse;
   I, K: Integer;
   Bid, BestBid: Single;
   Tmp, StoreLoc: TKMPoint;
-  TreeLoc: TKMPoint;
-  Fx, Fy: Byte;
-  Tree: Boolean;
+  TreeLoc: TKMPointDir;
+  Trees: TKMPointDirList;
+  BestToPlant,SecondBestToPlant: TKMPointList;
 begin
   Result := False;
 
   S := fPlayers[fOwner].Houses.FindHouse(ht_Store, 0, 0, 1, True);
   if S = nil then Exit;
+
   StoreLoc := S.GetPosition;
 
-  //Find heart of the forest
-  BestBid := 0;
-  for I := Max(StoreLoc.Y - SEARCH_RAD, 1) to Min(StoreLoc.Y + SEARCH_RAD, fTerrain.MapY - 1) do
-  for K := Max(StoreLoc.X - SEARCH_RAD, 1) to Min(StoreLoc.X + SEARCH_RAD, fTerrain.MapX - 1) do
+  Trees := TKMPointDirList.Create;
+  BestToPlant := TKMPointList.Create;
+  SecondBestToPlant := TKMPointList.Create;
+  fTerrain.FindTree(KMPointBelow(S.GetPosition), 20, KMPoint(0,0), taAny, Trees, BestToPlant, SecondBestToPlant);
+  if not Trees.GetRandom(TreeLoc) then
   begin
-    Bid := fAIFields.Forest[I,K] + KaMRandom * 6; //Add some noise for varied results
-    if Bid > BestBid then
-    begin
-      TreeLoc := KMPoint(K, I);
-      BestBid := Bid;
-    end;
+    if not BestToPlant.GetRandom(Tmp) then
+      if not SecondBestToPlant.GetRandom(Tmp) then Exit;
+    TreeLoc := KMPointDir(Tmp,Dir_NA);
   end;
+  Trees.Free;
+  BestToPlant.Free;
+  SecondBestToPlant.Free;
 
   BestBid := MaxSingle;
-  for I := Max(TreeLoc.Y - HUT_RAD, 1) to Min(TreeLoc.Y + HUT_RAD, fTerrain.MapY - 1) do
-  for K := Max(TreeLoc.X - HUT_RAD, 1) to Min(TreeLoc.X + HUT_RAD, fTerrain.MapX - 1) do
-    if (fAIFields.GetBestOwner(K, I) = fOwner)
-    and fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
+
+  for I := Max(TreeLoc.Loc.Y - 5, 1) to Min(TreeLoc.Loc.Y + 6, fTerrain.MapY - 1) do
+  for K := Max(TreeLoc.Loc.X - 7, 1) to Min(TreeLoc.Loc.X + 7, fTerrain.MapX - 1) do
+    if fPlayers[fOwner].CanAddHousePlanAI(K, I, aHouse, False) then
     begin
-      Bid := KMLength(KMPoint(K,I), StoreLoc) + KaMRandom * 5;
+      Bid := GetLength(KMPoint(K,I), StoreLoc) + KaMRandom * 4;
       if Bid < BestBid then
       begin
         aLoc := KMPoint(K,I);
@@ -328,6 +374,68 @@ begin
 end;
 
 
+//todo: Move terrain parts to Terrain
+procedure TKMCityPlanner.UpdateInfluence;
+const
+  BSize = 3;
+  BLen = Sqr(BSize * 2 + 1);
+var
+  //CI: TCityInfluence;
+  S: TKMHouse;
+  I, K: Integer;
+  Tmp: array of array of Byte;
+  Bmp: TBitmap;
+begin
+  SetLength(Tmp, fTerrain.MapY, fTerrain.MapX);
+
+  //Avoid Gold/Iron
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+    Tmp[I, K] := Byte((fTerrain.TileIsIron(K, I) > 1)
+                                     or (fTerrain.TileIsGold(K, I) > 1)) * $FF;
+
+  //Bleed Gold/Iron to book space around mines for roads
+  for I := 3 to fTerrain.MapY - 1 do
+  for K := 2 to fTerrain.MapX - 2 do
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence
+                                    or Tmp[I, K]
+                                    or Tmp[I - 1, K - 1]
+                                    or Tmp[I - 1, K]
+                                    or Tmp[I - 1, K + 1]
+                                    or Tmp[I - 2, K - 1]
+                                    or Tmp[I - 2, K]
+                                    or Tmp[I - 2, K + 1];
+
+  //Avoid Coal
+  for I := 1 to fTerrain.MapY - 1 do
+  for K := 1 to fTerrain.MapX - 1 do
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or (Byte(fTerrain.TileIsCoal(K, I) > 1) * $FF);
+
+  //Leave some free space around Store
+  S := fPlayers[fOwner].FindHouse(ht_Store);
+  if S <> nil then
+  for I := Max(S.GetEntrance.Y - 4, 1) to Min(S.GetEntrance.Y + 3, fTerrain.MapY - 1) do
+  for K := Max(S.GetEntrance.X - 3, 1) to Min(S.GetEntrance.X + 3, fTerrain.MapX - 1) do
+    fTerrain.Land[I,K].Influence := fTerrain.Land[I,K].Influence or $FF;
+
+
+  if EXPORT_INFLUENCE then
+  //for CI := Low(TCityInfluence) to High(TCityInfluence) do
+  begin
+    Bmp := TBitmap.Create;
+    Bmp.PixelFormat := pf32bit;
+    Bmp.Width := fTerrain.MapX;
+    Bmp.Height := fTerrain.MapY;
+    for I := 1 to fTerrain.MapY - 1 do
+      for K := 1 to fTerrain.MapX - 1 do
+        Bmp.Canvas.Pixels[K,I] := fTerrain.Land[I,K].Influence * 65793;// or $FF000000;
+
+    Bmp.SaveToFile(ExeDir + 'Influence.bmp');
+    Bmp.Free;
+  end;
+end;
+
+
 procedure TKMCityPlanner.Save(SaveStream: TKMemoryStream);
 begin
   SaveStream.Write(fOwner);
@@ -338,46 +446,5 @@ procedure TKMCityPlanner.Load(LoadStream: TKMemoryStream);
 begin
   LoadStream.Read(fOwner);
 end;
-
-
-{ TKMTerrainFinderCity }
-constructor TKMTerrainFinderCity.Create(aOwner: TPlayerIndex);
-begin
-  inherited Create;
-
-  fOwner := aOwner;
-end;
-
-
-function TKMTerrainFinderCity.CanUse(const X, Y: Word): Boolean;
-begin
-  case fType of
-    fnCoal:
-        Result := (fTerrain.TileIsCoal(X, Y) > 1)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_CoalMine, True);
-    fnIron:
-        Result := (fTerrain.TileIsIron(X, Max(Y-1, 1)) > 0)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_IronMine, True);
-    fnGold:
-        Result := (fTerrain.TileIsGold(X, Max(Y-1, 1)) > 0)
-                    and fPlayers[fOwner].CanAddHousePlanAI(X, Y, ht_GoldMine, True);
-    else Result := False;
-  end;
-end;
-
-
-function TKMTerrainFinderCity.CanWalkHere(const X,Y: Word): Boolean;
-var
-  P: TPlayerIndex;
-begin
-  Result := False;
-
-  //Don't build on allies and/or enemies territory
-  P := fAIFields.GetBestOwner(X,Y);
-  if (P <> fOwner) and (P <> PLAYER_NONE) then Exit;
-
-  Result := True;
-end;
-
 
 end.

@@ -1,9 +1,5 @@
 ﻿Since r4001:
 <===================================================================================>
- +	Belarusian letter Ў had upper and lower case swapped in fonts
- +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
- +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
- +      Make Serfs face the house plan entrance when handing building materials to it
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -18,75 +14,41 @@
 	Clicking on the splash screen registers the click on the main menu once it is loaded
 	Translation manager should have an option to only show certain languages, e.g. DE translator can select just DE and EN rather than scrolling through all of them
 	In maps with elevated terrain near the top it is not possible to see units standing on the top few rows (example: 1000 Corpses)
-	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800x600 .. 1366x768
+	Screen resolution selecting is not enabled (see resolution_selector_not_available.jpg). Win lists all resolutions 800х600 .. 1366х768
 	Due to archers being less powerful many campaign missions cannot be won (e.g. first battle in TSK 2, TSK 8)
 	Rare stack overflow with flattening terrain recursively during stone mining near a house (which cannot be elevated) See example stonebug.jpg
 	Market cart should be an overlay like flagshtok to prevent duplication of its shadow (rendered when there are no wares)
-	Few terrain tiles (4th, 14th) have noticeable seams on their side when looked closely at
 	Copying very very long amounts of text into chat or connect IP edit boxes can cause errors when submitting them
 	Chasing down archers even with knights is ineffective, knight starts to attack and archers keep stepping away, then the knight stops and just stands there
 	Opening chat or sending a message at the right moment during the reconnect cycle can cause a crash because Networking.MyIndex does not exist (or is not you) in NetPlayersList
 	Using F11->File->Open/Edit Mission during an MP game will not unlock the mutex, and thus you can't enter the MP area after that until restarting the game (F11->Stop could cause the same problem?)
 
-	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing won't help)
-	Wooden house frames flicking on Onboard Intel HD Family Chipset (see images "Hidden House Frame Intel Onboard 1.jpg")
+	Water looks ugly brown when you zoom out too far due to water tiles having brown checkerboard pattern (anti-aliasing might help?)
 	Colored rectangle below cursor
 
 Improvements:
  wip	Dismiss button to make units walk into the school and disappear (gold is not refunded)
  wip	Simple dedicated server form which lets you set the properties of the INI for the server and start it [gemGreg]
- +	The map editor shows the number of fish in a water body like other resource deposits
- +	Holding shift while placing a house keeps the house selected instead of changing to road
- +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
-	L	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
-	L	Ctrl+C/V to copy chat messages with e.g. links or quotes
-	L	The story message on campaign map should fade when you move mouse over it, without jumping
-	L	Mutltiplayer spectator mode
-	L	256x256 icons for EXE (for vista/7/8 users)
-	L	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
-	L	Master server use MySQL for storage rather than .txt files
-	L	Chat logs
-	L	Wares need to be taken out of the barracks for trading at the market
-	M	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
-	L	Some way to delete multiplayer saves from within the KaM Remake
-	L	Keyboard shortcuts to zoom for people without a scrollwheel
-	L	Allow chat over multiplayer results screen
-	L	Add support for 1024x600 (1280x720) resolution in the map editor
-	L	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
-	L	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
-	L	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
-	M	Allow host to set a title for his lobby shown in a column on the server selection page ("noobs/pros only", "fight map only", "chat lobby", etc.)
-	L	Clicking a location on the lobby minimap selects that location if it's available
-
-	H	Refactor army management with TGroup layer
-	L	Multiplayer in-game player list and lobby description ordered (grouped) by teams
-	M	Scrolling around the map using middle mouse click, as in TPR
-	M	Sliders in lobby for selecting speed during peacetime and after peacetime
-	M	New column in load/replays menus: Date/time (stored internally in save format since file modified date is not very trustworthy) [Marcin]
-	M	Some way to visualise fog of war for the selected player in replays (and MapEd) (semi-transparent?) so you can understand player's perspective [Krom/Lewin]
-	L	New command !SKIP_HOUSE. If I want a map with no stone, then after building the inn the woodcutter and tower should become available (skips the stonemason)
-	M	Pause in multiplayer (only host can use it, maybe later have a lobby setting "clients may pause")
-	L	Add a command to let the AI repair houses without building new ones (wasn't possible in KaM)
-	L	"Checkpoints" in replays every 20 minutes or so to allow skipping forwards/backwards (saves entire game state which can be loaded) Using compression can keep the save file tiny.
-			Krom: Not sure how this will cope with 29hour games
-			Lewin: We can delete save points as the game goes longer. By the time we reach 29 hours we only keep save points from every 1-2 hours. For 90 minute games we keep one every 10 minutes.
-	L	Way to place roads/fields/destroyed buildings belonging to no player (for maps like Battle In The Ruined City where currently the roads don't always show depending on which locations are played) (maybe through special player like animals?
-	L	The close door button in a house also stops a new occupant from taking it, so you can make recruits go to the barracks instead of walking to watchtowers, and so you can prioritize for example which mines get occupied first. It should also block the "house not occupied" message.
-	LM	Place all the roads for all players, then all the houses for all players, then all the units for all players from the script, repositioning units that are on houses and do floodfill for houses once at the end rather than for each house
-	L	Changing teams in multiplayer
-			Lewin: When joining a team the team members must "accept" you before it occurs. Leaving a team must also require acceptance I guess, otherwise you can walk into an ally's village and become his enemy, and some people would surely do this. We might also need a "lock teams" option in the lobby for this to work.
-	L	Clicking on a player inserts "/whisper PlayerName " into chat to send private message
-	M	Display material delivery progress for houses under construction
-	L	Shortcuts for all soldier buttons: , & . to rotate, [ & ] to add/withdraw lines, x to charge, f for food?
-	L	Ability to mark maps as a favourite (gold star) so they appear at the top of the list (find your favourite maps without scrolling through whole list)
-	L	Add an option /givehost# to give hosting rights to another player in lobby
-	L	Option in the lobby to select starting with a small village, everything up to sawmill (placed automatically by city builder?)
-	L	Rally point for the barracks (with new beacon/flag)
-	L	If woodcutter is in "chop only" mode and he runs out of trees, send the player a message like other resource depleted messages
-	L	House not occupied message should mention which house it is ("This farm is not occupied")
-	L	Draw highlight on houses mentioned in an open message
-	L	Make hints more visible with background
-	L	Add script command to allow to add recruits into the Barracks in MapEd (only Barracks for simplicity, other houses dont need it)
+	Placing houses in MP should put a temp/fake visual markup until the real one can be added to make it appear responsive
+	Ctrl+C/V to copy chat messages with e.g. links or quotes
+	The story message on campaign map should fade between sides when you mouse over, rather than jumping
+	Mutltiplayer spectator mode
+	256x256 icons for EXE (for vista/7/8 users)
+	Artistic brushes for MapEd (those that place random types of trees and/or decorations)
+	Master server use MySQL for storage rather than .txt files
+	Chat logs
+	Wares need to be taken out of the barracks for trading at the market
+	Block delivery flags for specific wares in the barracks (also evacuates that ware to another barracks if there is one)
+	Some way to delete multiplayer saves from within the KaM Remake
+	Keyboard shortcuts to zoom for people without a scrollwheel
+	Allow chat over multiplayer results screen
+	Add support for 1024x600 (1280x720) resolution in the map editor
+	Economic goals such as produce X amount of resource A
+	Minimap preview in lobby could indicate teams somehow as well (border around the color circle?)
+	Pack textures into atlases with regard to GPU max supported texture resolution (512 or 1024 px)
+	Clicking and holding on the add/subtract buttons in weapons workshops could increase the number to save repeated clicking
+	Allow host to set a title for his lobby shown in a column on the server selection page ("beginners/pros only", "fight map only", etc.)
+	Clicking a location on the lobby minimap selects that location if it's available
 
  -	One type of pine tree cannot be cut (same as KaM, there are not even sprites for it falling down)
  -	The ingame briefing texture is too short, see attached picture
@@ -127,7 +89,6 @@ Fixed in r4001:
  +	The map editor no longer removes the terrain data used by Krom's Map Editor, so you can use terrain brushes there after saving with the Remake
  +	Leaders of archers would sometimes not fire after walking, instead they would lock up and stand still
  +	Fixed some crashes/bugs in the Linux dedicated server
- +	You won't get a victory if you defeat enemy towns until after recieving all scripted text messages
  +	Crash when selecting a high refresh rate then selecting a resolution that only supports lower refresh rates
  +	In full screen: press Alt-F4, click no, press Alt-F4 again. This time message box goes under game window.
  +	Players can insert illegal characters (according to fAllowedChars) into edits with copy/paste from another program
