@@ -203,9 +203,9 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := icGreen;
-    300..599: Result := icYellow;
-    600..999: Result := icOrange;
+    0..99   : Result := icGreen;
+    100..299: Result := icYellow;
+    300..499: Result := icOrange;
     else      Result := icRed;
   end;
 end;
