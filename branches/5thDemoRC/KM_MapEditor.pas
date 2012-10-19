@@ -2,19 +2,21 @@ unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
 uses Classes, SysUtils,
-  KM_Defaults, KM_Points, KM_Terrain;
+  KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units;
 
 
 type
-  TRawDeposit = (rdStone, rdCoal, rdIron, rdGold);
+  TRawDeposit = (rdStone, rdCoal, rdIron, rdGold, rdFish);
 
 const
   DEPOSIT_COLORS: array[TRawDeposit] of Cardinal = (
-  $FFBFBFBF, //rdStone
-  $FF606060, //rdCoal
-  $FFBF4040, //rdIron
-  $FF00FFFF //rdGold
+  $FFBFBFBF, //rdStone - gray
+  $FF606060, //rdCoal - black
+  $FFBF4040, //rdIron - iron
+  $FF00FFFF, //rdGold - gold
+  $FFE3BB5B  //rdFish - light blue
   );
+
 type
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
@@ -26,6 +28,7 @@ type
     function GetCount(aMat: TRawDeposit): Integer;
     function GetAmount(aMat: TRawDeposit; aIndex: Integer): Integer;
     function GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
+    function TileDepositExists(aMat: TRawDeposit; X,Y: Word): Boolean;
     function TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
     procedure FloodFill(const aMat: array of TRawDeposit);
     procedure RecalcAmounts(const aMat: array of TRawDeposit);
@@ -73,42 +76,72 @@ function TKMDeposits.GetLocation(aMat: TRawDeposit; aIndex: Integer): TKMPointF;
 begin
   Result := fAreaLoc[aMat, aIndex];
 end;
-
+//Check whether deposit exist and do proper action
+//TileIsWater is used to make an area from whole water body - not only connected fish
+function TKMDeposits.TileDepositExists(aMat: TRawDeposit; X,Y: Word) : Boolean;
+begin
+  if aMat = rdFish then
+    Result := fTerrain.TileIsWater(KMPoint(X+1,Y+1))
+  else
+    Result := TileDeposit(aMat,X,Y) > 0;
+end;
 
 //Get tile resource deposit
 function TKMDeposits.TileDeposit(aMat: TRawDeposit; X,Y: Word): Byte;
+var
+curUnit : TKMUnit;
 begin
   case aMat of
     rdStone: Result := 3*fTerrain.TileIsStone(X+1, Y+1); //3 stone produced by each time
     rdCoal:  Result := fTerrain.TileIsCoal(X+1, Y+1);
     rdIron:  Result := fTerrain.TileIsIron(X+1, Y+1);
     rdGold:  Result := fTerrain.TileIsGold(X+1, Y+1);
+    rdFish:  begin
+               curUnit := fTerrain.Land[Y + 1, X + 1].IsUnit;
+               if (curUnit <> nil) and (curUnit is TKMUnitAnimal) and (curUnit.UnitType = ut_Fish) then
+                 Result := 2*TKMUnitAnimal(curUnit).FishCount //You get 2 fish from each trip
+               else
+                 Result := 0;
+             end
     else     Result := 0;
   end;
 end;
-
 
 procedure TKMDeposits.FloodFill(const aMat: array of TRawDeposit);
 var
   R: TRawDeposit;
   AreaID: Word;
   Count: Integer;
-
+  //Procedure uses recurence to check test area then it creates one deposit
+  //Deposit is created when tiles are connected - but not diagonally
   procedure FillArea(X,Y: Word);
   begin
     //Untested area that matches passability
-    if (fArea[R,Y,X] = 0) and (TileDeposit(R,X,Y) > 0) then
+    if (fArea[R,Y,X] = 0) and (TileDepositExists(R,X,Y)) then
     begin
       fArea[R,Y,X] := AreaID;
       Inc(Count);
-      //Dont test diagonals to save time
-      if X-1 >= 0 then     FillArea(X-1, Y);
+      //We must test diagonals for at least fish since they can be taken from water through diagonals
+      if X-1 >= 0 then
+      begin
+        if Y-1 >= 0 then               FillArea(X-1, Y-1);
+                                       FillArea(X-1, Y);
+        if Y+1 <= fTerrain.MapY-1 then FillArea(X-1, Y+1);
+      end;
+
       if Y-1 >= 0 then     FillArea(X, Y-1);
       if Y+1 <= fTerrain.MapY-1 then FillArea(X, Y+1);
-      if X+1 <= fTerrain.MapX-1 then FillArea(X+1, Y);
+
+      if X+1 <= fTerrain.MapX-1 then
+      begin
+        if Y-1 >= 0 then               FillArea(X+1, Y-1);
+                                       FillArea(X+1, Y);
+        if Y+1 <= fTerrain.MapY-1 then FillArea(X+1, Y+1);
+      end;
     end;
   end;
 var I,K,J: Integer;
+
 begin
   Assert(fTerrain <> nil);
   for J := Low(aMat) to High(aMat) do
@@ -121,7 +154,7 @@ begin
     AreaID := 0;
     for I := 0 to fTerrain.MapY - 1 do
     for K := 0 to fTerrain.MapX - 1 do
-    if (fArea[R,I,K] = 0) and (TileDeposit(R,K,I) > 0) then
+    if (fArea[R,I,K] = 0) and (TileDepositExists(R,K,I)) then
     begin
       Inc(AreaID);
       Count := 0;
@@ -219,7 +252,7 @@ end;
 
 procedure TKMMapEditor.Update;
 begin
-  fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold]);
+  fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
   //fAIFields.UpdateNavMesh;
 end;
 

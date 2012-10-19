@@ -754,6 +754,7 @@ var
     MapEdShape: (hsCircle, hsSquare);
     MapEdSlope: Byte;
     MapEdSize: Byte;
+    MapEdSpeed: Byte;
   end;
 
 

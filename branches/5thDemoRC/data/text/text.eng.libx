@@ -1,5 +1,5 @@
 
-MaxID:2781
+MaxID:2813
 
 0:Sawmill
 1:Iron smithy
@@ -522,3 +522,25 @@ MaxID:2781
 2779:Attacking
 2780:Modifications to the game are not allowed in multiplayer.|Please reinstall to restore the original files.
 2781:Unsupported modifications
+2785:Elevate / Lower
+2787:Elevate (left click) / Lower (right click)
+2788:Unequalize / Flatten
+2790:Unequalize (left click) / Flatten (right click)
+2792:Square-shaped brush
+2793:Circle-shaped brush
+2794:Slide to change elevation slope: 1 = plateau ... 15 = peak
+2795:Slide to change brush size
+2797:Objects
+2798:Tiles
+2799:Brushes
+2800:Heights
+2804:Use right click to rotate the selected tile
+2805:Tick for randomized tile direction or use right click to rotate the selected tile
+2806:Random Direction
+2807:Size
+2808:Slope
+2809:Remove an object
+2810:Slide to change elevation speed: 1 = slow ... 15 = very fast
+2811:Speed
+2812:|Your woodcutter cannot find any further trees to fell and was instructed by you to not plant trees
+2813:Brush shape

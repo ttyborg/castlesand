@@ -6,7 +6,9 @@
 
 
 Improvements:
+ +	The map editor shows the number of fish in a water body like other resource deposits
  +	Make hints more visible with background
  +	Number of building materials delivered to an under construction house is shown when it is selected
  +	Holding shift while placing a house keeps the house selected instead of changing to road
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
+ +	Map editor has speed slider along with size and slope

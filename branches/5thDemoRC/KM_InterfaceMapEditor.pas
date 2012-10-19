@@ -83,6 +83,7 @@ type
       Label_Passability:TKMLabel;
       Button_PlayerSelect:array[0..MAX_PLAYERS-1]of TKMFlatButtonShape; //Animals are common for all
       Label_Stat,Label_Hint:TKMLabel;
+      Bevel_HintBG: TKMBevel;
       Label_MatAmount: TKMLabel;
       Shape_MatAmount: TKMShape;
       Label_DefenceID: TKMLabel;
@@ -101,7 +102,8 @@ type
         BrushCircle,BrushSquare:TKMButtonFlat;
         //BrushesTable:array[1..27] of TKMButtonFlat; // todo
       Panel_Heights:TKMPanel;
-        HeightSize,HeightShape:TKMTrackBar;
+        HeightSize, HeightSlope, HeightSpeed:TKMTrackBar;
+        HeightShapeLabel:TKMLabel;
         HeightCircle,HeightSquare:TKMButtonFlat;
         HeightElevate, HeightUnequalize: TKMButtonFlat;
       Panel_Tiles:TKMPanel;
@@ -272,7 +274,7 @@ begin
     Panel_Terrain.Show;
     Panel_Heights.Show;
     Label_MenuTitle.Caption:='Terrain - Heights';
-    Terrain_HeightChange(HeightCircle); //Select the default mode
+    Terrain_HeightChange(HeightElevate); //Select the default mode
   end else
 
   if (Sender = Button_Main[1])or(Sender = Button_Terrain[3]) then begin
@@ -403,8 +405,17 @@ procedure TKMapEdInterface.DisplayHint(Sender: TObject);
 begin
   if (fPrevHint = Sender) then exit; //Hint didn't changed
 
-  if Sender=nil then Label_Hint.Caption:=''
-                else Label_Hint.Caption:=TKMControl(Sender).Hint;
+  if (Sender=nil) or (TKMControl(Sender).Hint = '') then
+  begin
+    Label_Hint.Caption := '';
+    Bevel_HintBG.Hide;
+  end
+  else
+  begin
+    Label_Hint.Caption := TKMControl(Sender).Hint;
+    Bevel_HintBG.Show;
+    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+  end;
 
   fPrevHint := Sender;
 end;
@@ -470,8 +481,13 @@ begin
 
     Label_MissionName := TKMLabel.Create(Panel_Main, 8, 340, 184, 10, '<<<LEER>>>', fnt_Metal, taLeft);
 
+    Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+    Bevel_HintBG.BackAlpha := 0.5;
+    Bevel_HintBG.Hide;
+    Bevel_HintBG.Anchors := [akLeft, akBottom];
+
     Label_Stat:=TKMLabel.Create(Panel_Main,224+8,16,0,0,'',fnt_Outline,taLeft);
-    Label_Hint:=TKMLabel.Create(Panel_Main,224+8,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
+    Label_Hint := TKMLabel.Create(Panel_Main, 224 + 36, Panel_Main.Height - 21, 0, 0, '', fnt_Outline, taLeft);
     Label_Hint.Anchors := [akLeft, akBottom];
 
   Panel_Common := TKMPanel.Create(Panel_Main,0,300,224,768);
@@ -482,11 +498,11 @@ begin
     Button_Main[3] := TKMButton.Create(Panel_Common,  84, 72, 36, 36,  41, rxGui, bsGame);
     Button_Main[4] := TKMButton.Create(Panel_Common, 122, 72, 36, 36, 441, rxGui, bsGame);
     Button_Main[5] := TKMButton.Create(Panel_Common, 160, 72, 36, 36, 389, rxGui, bsGame);
-    Button_Main[1].Hint := fTextLibrary[TX_MAPEDITOR_TERRAIN];
-    Button_Main[2].Hint := fTextLibrary[TX_MAPEDITOR_VILLAGE];
-    Button_Main[3].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_VISUAL];
-    Button_Main[4].Hint := fTextLibrary[TX_MAPEDITOR_SCRIPTS_GLOBAL];
-    Button_Main[5].Hint := fTextLibrary[TX_MAPEDITOR_MENU];
+    Button_Main[1].Hint := fTextLibrary[TX_MAPED_TERRAIN];
+    Button_Main[2].Hint := fTextLibrary[TX_MAPED_VILLAGE];
+    Button_Main[3].Hint := fTextLibrary[TX_MAPED_SCRIPTS_VISUAL];
+    Button_Main[4].Hint := fTextLibrary[TX_MAPED_SCRIPTS_GLOBAL];
+    Button_Main[5].Hint := fTextLibrary[TX_MAPED_MENU];
     for i:=1 to 5 do Button_Main[i].OnClick := SwitchPage;
 
     Label_MenuTitle:=TKMLabel.Create(Panel_Common,8,112,184,36,'',fnt_Metal,taLeft); //Should be one-line
@@ -540,15 +556,21 @@ var i,k:Integer;
 begin
   Panel_Terrain := TKMPanel.Create(Panel_Common,0,128,196,28);
     Button_Terrain[1] := TKMButton.Create(Panel_Terrain,   8, 4, 36, 24, 383, rxGui, bsGame);
+    Button_Terrain[1].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_BRUSHES];
     Button_Terrain[2] := TKMButton.Create(Panel_Terrain,  48, 4, 36, 24, 388, rxGui, bsGame);
+    Button_Terrain[2].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_HEIGHTS];
     Button_Terrain[3] := TKMButton.Create(Panel_Terrain,  88, 4, 36, 24, 382, rxGui, bsGame);
+    Button_Terrain[3].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_TILES];
     Button_Terrain[4] := TKMButton.Create(Panel_Terrain, 128, 4, 36, 24, 385, rxGui, bsGame);
+    Button_Terrain[4].Hint := fTextLibrary[TX_MAPED_TERRAIN_HINTS_OBJECTS];
     for i:=1 to 4 do Button_Terrain[i].OnClick := SwitchPage;
 
     Panel_Brushes := TKMPanel.Create(Panel_Terrain,0,28,196,400);
       BrushSize   := TKMTrackBar.Create(Panel_Brushes, 8, 10, 100, 1, 12);
-      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 359);
-      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 352);
+      BrushCircle := TKMButtonFlat.Create(Panel_Brushes, 114, 8, 24, 24, 592);
+      BrushCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
+      BrushSquare := TKMButtonFlat.Create(Panel_Brushes, 142, 8, 24, 24, 593);
+      BrushSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
 
       TKMButtonFlat.Create(Panel_Brushes, 8, 30, 32, 32, 1, rxTiles);   // grass
 
@@ -560,30 +582,45 @@ begin
       BrushSquare.OnChange := TerrainBrush_Change;}
 
     Panel_Heights := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      HeightSize   := TKMTrackBar.Create(Panel_Heights, 8, 10, 100, 1, 15); //1..15(4bit) for size
-      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 114, 8, 24, 24, 359);
-      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 142, 8, 24, 24, 352);
-      HeightShape  := TKMTrackBar.Create(Panel_Heights, 8, 30, 100, 1, 15); //1..15(4bit) for slope shape
+      HeightSize   := TKMTrackBar.Create(Panel_Heights, 8, 40, 180, 1, 15); //1..15(4bit) for size
+      HeightSize.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE];
+      HeightSize.Hint :=   fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SIZE_HINT];
+      HeightSlope  := TKMTrackBar.Create(Panel_Heights, 8, 94, 180, 1, 15); //1..15(4bit) for slope shape
+      HeightSlope.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE];
+      HeightSlope.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SLOPE_HINT];
+      HeightSpeed  := TKMTrackBar.Create(Panel_Heights, 8, 148, 180, 1, 15); //1..15(4bit) for speed
+      HeightSpeed.Caption := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED];
+      HeightSpeed.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SPEED_HINT];
 
-      HeightElevate             := TKMButtonFlat.Create(Panel_Heights,8,70,180,20,0);
+      HeightShapeLabel := TKMLabel.Create(Panel_Heights, 8, 14, 110, 0, fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SHAPE], fnt_Metal, taLeft);
+      HeightCircle := TKMButtonFlat.Create(Panel_Heights, 128, 10, 24, 24, 592);
+      HeightCircle.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_CIRCLE];
+      HeightSquare := TKMButtonFlat.Create(Panel_Heights, 158, 10, 24, 24, 593);
+      HeightSquare.Hint := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_SQUARE];
+
+      HeightElevate             := TKMButtonFlat.Create(Panel_Heights, 8, 204, 180, 20, 0);
       HeightElevate.OnClick     := Terrain_HeightChange;
       HeightElevate.Down        := True;
-      HeightElevate.Caption     := 'Elevate';
+      HeightElevate.Caption     := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE];
       HeightElevate.CapOffsetY  := -12;
-      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights,8,100,180,20,0);
+      HeightElevate.Hint        := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_ELEVATE_HINT];
+      HeightUnequalize          := TKMButtonFlat.Create(Panel_Heights, 8, 234, 180, 20, 0);
       HeightUnequalize.OnClick  := Terrain_HeightChange;
-      HeightUnequalize.Caption  := 'Unequalize/flatten';
+      HeightUnequalize.Caption  := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE];
       HeightUnequalize.CapOffsetY  := -12;
+      HeightUnequalize.Hint      := fTextLibrary[TX_MAPED_TERRAIN_HEIGHTS_UNEQUALIZE_HINT];
 
       HeightSize.OnChange   := Terrain_HeightChange;
-      HeightShape.OnChange  := Terrain_HeightChange;
+      HeightSlope.OnChange  := Terrain_HeightChange;
+      HeightSpeed.OnChange  := Terrain_HeightChange;
       HeightCircle.OnClick  := Terrain_HeightChange;
       HeightSquare.OnClick  := Terrain_HeightChange;
 
     Panel_Tiles := TKMPanel.Create(Panel_Terrain,0,28,196,400);
-      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 188, 20, 'Random Direction', fnt_Metal);
-      TilesRandom.Checked := true;
+      TilesRandom := TKMCheckBox.Create(Panel_Tiles, 8, 4, 188, 20, fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM], fnt_Metal);
+      TilesRandom.Checked := True;
       TilesRandom.OnClick := Terrain_TilesChange;
+      TilesRandom.Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_RANDOM_HINT];
       TilesScroll := TKMScrollBar.Create(Panel_Tiles, 2, 30 + 4 + MAPED_TILES_ROWS * 32, 194, 20, sa_Horizontal, bsGame);
       TilesScroll.MaxValue := 256 div MAPED_TILES_ROWS - MAPED_TILES_COLS; // 16 - 6
       TilesScroll.Position := 0;
@@ -593,6 +630,7 @@ begin
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].Tag := (k-1)*MAPED_TILES_COLS+i; //Store ID
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnClick := Terrain_TilesChange;
         TilesTable[(i-1)*MAPED_TILES_ROWS+k].OnMouseWheel := TilesScroll.MouseWheel;
+        TilesTable[(i-1)*MAPED_TILES_ROWS+k].Hint := fTextLibrary[TX_MAPED_TERRAIN_TILES_MAIN_HINT];
       end;
       Terrain_TilesChange(TilesScroll); //This ensures that the displayed images get updated the first time
       Terrain_TilesChange(TilesTable[1]);
@@ -604,6 +642,7 @@ begin
       ObjectsScroll.Position := 0;
       ObjectsScroll.OnChange := Terrain_ObjectsChange;
       ObjectErase := TKMButtonFlat.Create(Panel_Objects, 8, 8,32,32,340);
+      ObjectErase.Hint := fTextLibrary[TX_MAPED_TERRAIN_OBJECTS_REMOVE];
       for I := 0 to 2 do for K := 0 to 2 do
       begin
         ObjectsTable[I*3+K] := TKMButtonFlat.Create(Panel_Objects, 8+I*65, 40+K*85,64,84,1,rxTrees); //RXid=1  // 1 2
@@ -723,7 +762,7 @@ begin
       ColorSwatch_Color.OnClick := Player_ColorClick;
 
     Panel_Block := TKMPanel.Create(Panel_Player,0,28,196,400);
-      TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block houses', fnt_Outline, taCenter);
+      TKMLabel.Create(Panel_Block, 100, 10, 184, 0, 'Block/Release houses', fnt_Outline, taCenter);
 
       for I := 1 to GUI_HOUSE_COUNT do
       if GUIHouseOrder[I] <> ht_None then begin
@@ -996,6 +1035,8 @@ begin
     Depo := fGame.MapEditor.Deposits;
     for R := Low(TRawDeposit) to High(TRawDeposit) do
       for I := 0 to Depo.Count[R] - 1 do
+      //Ignore water areas with 0 fish in them
+      if Depo.Amount[R, I] > 0 then
       begin
         Label_MatAmount.Caption := IntToStr(Depo.Amount[R, I]);
 
@@ -1147,7 +1188,8 @@ end;
 procedure TKMapEdInterface.Terrain_HeightChange(Sender: TObject);
 begin
   GameCursor.MapEdSize := HeightSize.Position;
-  GameCursor.MapEdSlope := HeightShape.Position;
+  GameCursor.MapEdSlope := HeightSlope.Position;
+  GameCursor.MapEdSpeed := HeightSpeed.Position;
 
   if Sender = HeightCircle then
   begin
@@ -1954,7 +1996,9 @@ begin
   begin
     GameCursor.SState := []; //Don't do real-time elevate when the mouse is over controls, only terrain
     Exit;
-  end;
+  end
+  else
+    DisplayHint(nil); //Clear shown hint
 
   fGame.UpdateGameCursor(X,Y,Shift);
   if GameCursor.Mode = cm_None then
@@ -2042,7 +2086,7 @@ begin
       cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
                 begin
                   MyPlayer.AddHouse(THouseType(GameCursor.Tag1), P.X, P.Y, true);
-                  Build_ButtonClick(Button_BuildRoad);
+                  if not(ssShift in Shift) then Build_ButtonClick(Button_BuildRoad);
                 end;
       cm_Elevate,
       cm_Equalize:; //handled in UpdateStateIdle
