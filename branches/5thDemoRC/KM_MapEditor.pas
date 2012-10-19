@@ -8,6 +8,14 @@ uses Classes, SysUtils,
 type
   TRawDeposit = (rdStone, rdCoal, rdIron, rdGold);
 
+const
+  DEPOSIT_COLORS: array[TRawDeposit] of Cardinal = (
+  $FFBFBFBF, //rdStone
+  $FF606060, //rdCoal
+  $FFBF4040, //rdIron
+  $FF00FFFF //rdGold
+  );
+type
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
   private

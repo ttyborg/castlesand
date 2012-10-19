@@ -6,7 +6,7 @@ uses
   {$IFDEF Unix} LCLIntf, LCLType, {$ENDIF}
   StrUtils, SysUtils, KromUtils, Math, Classes, Controls,
   KM_CommonTypes,
-  KM_InterfaceDefaults, KM_Terrain, KM_Pics, KM_Alerts,
+  KM_InterfaceDefaults, KM_Terrain, KM_Pics,
   KM_Controls, KM_Houses, KM_Units, KM_Units_Warrior, KM_Saves, KM_Defaults, KM_MessageStack, KM_CommonClasses, KM_Points;
 
 
@@ -143,6 +143,7 @@ type
       Sidebar_Middle: TKMImage;
       MinimapView: TKMMinimapView;
       Label_Stat, Label_PointerCount, Label_CmdQueueCount, Label_SoundsCount, Label_NetworkDelay, Label_Hint:TKMLabel;
+      Bevel_HintBG: TKMBevel;
 
       Image_MPChat, Image_MPAllies: TKMImage; //Multiplayer buttons
       Label_MPChatUnread: TKMLabel;
@@ -297,6 +298,8 @@ type
     Panel_House_Common:TKMPanel;
       Label_Common_Demand,Label_Common_Offer,Label_Common_Costs,
       Label_House_UnderConstruction,Label_House_Demolish:TKMLabel;
+      Image_HouseConstructionWood, Image_HouseConstructionStone: TKMImage;
+      Label_HouseConstructionWood, Label_HouseConstructionStone: TKMLabel;
       Button_House_DemolishYes,Button_House_DemolishNo:TKMButton;
       ResRow_Common_Resource:array[1..4]of TKMResourceRow; //4 bars is the maximum
       ResRow_Order:array[1..4]of TKMResourceOrderRow; //3 bars is the maximum
@@ -567,6 +570,7 @@ var I: Integer; LastVisiblePage: TKMPanel;
     for T := Low(TKMTabButtons) to High(TKMTabButtons) do Button_Main[T].Visible := ShowEm;
     Button_Back.Visible := not ShowEm;
     Label_MenuTitle.Visible := not ShowEm;
+
   end;
 
 begin
@@ -685,8 +689,17 @@ end;
 procedure TKMGamePlayInterface.DisplayHint(Sender: TObject);
 begin
   if (PrevHint = Sender) then Exit; //Hint didn't changed
-  if Sender = nil then Label_Hint.Caption := ''
-                else Label_Hint.Caption := TKMControl(Sender).Hint;
+  if (Sender = nil) or (TKMControl(Sender).Hint = '') then
+  begin
+    Label_Hint.Caption := '';
+    Bevel_HintBG.Hide;
+  end
+  else
+  begin
+    Label_Hint.Caption := TKMControl(Sender).Hint;
+    Bevel_HintBG.Show;
+    Bevel_HintBG.Width := 8+fResource.ResourceFont.GetTextSize(Label_Hint.Caption, Label_Hint.Font).X;
+  end;
   PrevHint := Sender;
 end;
 
@@ -801,7 +814,11 @@ begin
   Create_PlayMore_Page; //Must be created last, so that all controls behind are blocked
   Create_MPPlayMore_Page;
 
-  Label_Hint := TKMLabel.Create(Panel_Main,224+32,Panel_Main.Height-16,0,0,'',fnt_Outline,taLeft);
+  Bevel_HintBG := TKMBevel.Create(Panel_Main,224+32,Panel_Main.Height-23,300,21);
+  Bevel_HintBG.BackAlpha := 0.5;
+  Bevel_HintBG.Hide;
+  Bevel_HintBG.Anchors := [akLeft, akBottom];
+  Label_Hint := TKMLabel.Create(Panel_Main,224+36,Panel_Main.Height-21,0,0,'',fnt_Outline,taLeft);
   Label_Hint.Anchors := [akLeft, akBottom];
 
   //Controls without a hint will reset the Hint to ''
@@ -1526,7 +1543,14 @@ begin
     Label_HouseHealth.FontColor := $FFE0E0E0;
 
     HealthBar_House := TKMPercentBar.Create(Panel_House,129,57,55,15);
-    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,170,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
+    Label_House_UnderConstruction := TKMLabel.Create(Panel_House,100,110,184,100,fTextLibrary[TX_HOUSE_UNDER_CONSTRUCTION],fnt_Grey,taCenter);
+
+    Image_HouseConstructionWood  := TKMImage.Create(Panel_House,50,170,40,40,655);
+    Image_HouseConstructionWood.ImageCenter;
+    Image_HouseConstructionStone := TKMImage.Create(Panel_House,110,170,40,40,654);
+    Image_HouseConstructionStone.ImageCenter;
+    Label_HouseConstructionWood  := TKMLabel.Create(Panel_House,70,210,60,22,fResource.Resources[rt_Wood].Title,fnt_Grey,taCenter);
+    Label_HouseConstructionStone := TKMLabel.Create(Panel_House,130,210,60,22,fResource.Resources[rt_Stone].Title,fnt_Grey,taCenter);
 
     Label_House_Demolish := TKMLabel.Create(Panel_House,100,130,184,55,fTextLibrary[TX_HOUSE_DEMOLISH],fnt_Grey,taCenter);
     Label_House_Demolish.AutoWrap := True;
@@ -1964,6 +1988,12 @@ begin
     for i:=1 to Panel_House.ChildCount do
       Panel_House.Childs[i].Hide; //hide all
     Label_House_UnderConstruction.Show;
+    Image_HouseConstructionWood.Show;
+    Image_HouseConstructionStone.Show;
+    Label_HouseConstructionWood.Show;
+    Label_HouseConstructionStone.Show;
+    Label_HouseConstructionWood.Caption := IntToStr(Sender.GetBuildWoodDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].WoodCost);
+    Label_HouseConstructionStone.Caption := IntToStr(Sender.GetBuildStoneDelivered)+' / '+IntToStr(fResource.HouseDat[Sender.HouseType].StoneCost);
     Label_House.Show;
     Image_House_Logo.Show;
     Image_House_Worker.Show;
@@ -1984,6 +2014,10 @@ begin
   if Sender.BuildingRepair then Button_House_Repair.TexID:=39 else Button_House_Repair.TexID:=40;
   if Sender.WareDelivery then Button_House_Goods.TexID:=37 else Button_House_Goods.TexID:=38;
   Label_House_UnderConstruction.Hide;
+  Image_HouseConstructionWood.Hide;
+  Image_HouseConstructionStone.Hide;
+  Label_HouseConstructionWood.Hide;
+  Label_HouseConstructionStone.Hide;
   Label_House_Demolish.Hide;
   Button_House_DemolishYes.Hide;
   Button_House_DemolishNo.Hide;
@@ -3665,12 +3699,13 @@ begin
                     cm_Wine:  if KMSamePoint(LastDragPoint,KMPoint(0,0)) then fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wine);
                     cm_Wall:  fGame.GameInputProcess.CmdBuild(gic_BuildAddFieldPlan, P, ft_Wall);
                     cm_Houses:if MyPlayer.CanAddHousePlan(P, THouseType(GameCursor.Tag1)) then
-                              begin
-                                fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P, THouseType(GameCursor.Tag1));
-                                Build_ButtonClick(Button_BuildRoad);
-                              end
-                              else
-                                fSoundLib.Play(sfx_CantPlace,P,false,4.0);
+                      begin
+                        fGame.GameInputProcess.CmdBuild(gic_BuildHousePlan, P,
+                          THouseType(GameCursor.Tag1));
+                        if not (ssShift in Shift) then Build_ButtonClick(Button_BuildRoad); //If shift pressed do not reset cursor(keep selected building)
+                      end
+                      else
+                        fSoundLib.Play(sfx_CantPlace,P,false,4.0);
                     cm_Erase: if KMSamePoint(LastDragPoint,KMPoint(0,0)) then
                               begin
                                 H := MyPlayer.HousesHitTest(P.X, P.Y);

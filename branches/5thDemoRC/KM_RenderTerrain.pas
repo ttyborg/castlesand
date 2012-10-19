@@ -30,8 +30,10 @@ type
     procedure DoLighting;
     procedure DoWater(AnimStep: Integer);
     procedure DoShadows;
+    function VBOSupported:Boolean;
   public
     constructor Create;
+    destructor Destroy; override;
     procedure Render(aRect: TKMRect; AnimStep: Integer; aFOW: TKMFogOfWar);
     procedure RenderTile(Index: Byte; pX,pY,Rot: Integer);
   end;
@@ -58,13 +60,37 @@ begin
 
   fTextG := TRender.GenTexture(256, 1, @pData[0], tf_RGBA8);
 
-  fUseVBO := GL_VERSION_1_5;
+  fUseVBO := VBOSupported;
 
   if fUseVBO then
   begin
     glGenBuffers(1, @fVtxShd);
     glGenBuffers(1, @fIndShd);
   end;
+end;
+
+
+destructor TRenderTerrain.Destroy;
+begin
+  fUseVBO := VBOSupported; //Could have been set to false if 3D rendering is enabled, so reset it
+  if fUseVBO then
+  begin
+    //Since RenderTerrain is created fresh everytime fGame is created, we should clear
+    //the buffers to avoid memory leaks.
+    glDeleteBuffers(1, @fVtxShd);
+    glDeleteBuffers(1, @fIndShd);
+  end;
+  Inherited;
+end;
+
+
+function TRenderTerrain.VBOSupported:Boolean;
+begin
+  //Some GPUs don't comply with OpenGL 1.5 spec on VBOs, so check Assigned instead of GL_VERSION_1_5
+  Result := Assigned(glGenBuffers)        and Assigned(glBindBuffer)    and Assigned(glBufferData) and
+            Assigned(glEnableClientState) and Assigned(glVertexPointer) and Assigned(glClientActiveTexture) and
+            Assigned(glTexCoordPointer)   and Assigned(glDrawElements)  and Assigned(glDisableClientState) and
+            Assigned(glDeleteBuffers);
 end;
 
 
@@ -430,7 +456,7 @@ begin
   //VBO has proper vertice coords only for Light/Shadow
   //it cant handle 3D yet and because of FOW leaves terrain revealed, which is an exploit in MP
   //Thus we allow VBO only in 2D
-  fUseVBO := GL_VERSION_1_5 and not RENDER_3D;
+  fUseVBO := VBOSupported and not RENDER_3D;
 
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
 
