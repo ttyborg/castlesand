@@ -263,6 +263,16 @@ const
     $FF0040, $00FF40, $FFFF40, $FF0080, $FFFF80,
     $101080, $0080FF, $FFBF00);
 
+  //How many of resource gets produced per minute on AVERAGE
+  //Measured on a test map RES_COUNT / TIME
+  ProductionRate: array [WARE_MIN..WARE_MAX] of Single = (
+     88/120, 414/120, 390/120, 160/120, 160/120,
+    155/120, 218/120, 330/120, 120/120, 138/120,
+    336/120, 162/120, 324/120, 510/120,  84/180,
+     84/180, 190/120, 155/120, 170/120, 155/120,
+    200/120, 195/120, 195/120, 195/120, 200/120,
+    190/120,  69/120, 122/120);
+
 const //Using shortints instead of bools makes it look much neater in code-view
   CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
   0,0,1,0,0,
