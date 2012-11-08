@@ -1237,7 +1237,7 @@ begin
   //On the ther hand it does no harm to call Click first
   if (Button = mbLeft)
   and Assigned(fOnDoubleClick)
-  and (TimeGet - fTimeOfLastClick <= GetDoubleClickTime) then
+  and (GetTimeSince(fTimeOfLastClick) <= GetDoubleClickTime) then
   begin
     fTimeOfLastClick := 0;
     fOnDoubleClick(Self);
@@ -1536,7 +1536,7 @@ procedure TKMLabelScroll.Paint;
 var NewTop: Integer; Col: Cardinal;
 begin
   fRenderUI.SetupClipY(Top, Top+Height);
-  NewTop := EnsureRange(Top + Height - Integer(TimeGet - SmoothScrollToTop) div 50, -MINSHORT, MAXSHORT); //Compute delta and shift by it upwards (Credits page)
+  NewTop := EnsureRange(Top + Height - GetTimeSince(SmoothScrollToTop) div 50, -MINSHORT, MAXSHORT); //Compute delta and shift by it upwards (Credits page)
 
   if fEnabled then Col := FontColor
               else Col := $FF888888;
