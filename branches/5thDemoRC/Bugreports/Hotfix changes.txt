@@ -5,6 +5,7 @@
  +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
  +	A unit should not take a home that he can't walk to
  +	TSK 5 some purple scouts would sit in the top right corner and not attack
+ +	Fixed crashes related to TimeGet/GetTickCount overflowing
 
 
 Improvements:
