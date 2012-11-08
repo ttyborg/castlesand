@@ -1,6 +1,5 @@
 ﻿Since r4001:
 <===================================================================================>
- +	Belarusian letter Ў had upper and lower case swapped in fonts
 	Armour smithy has shields as 2nd ouput, armour workshop has shields as 1st output. Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Armour smithy has iron as 1st input, weapon smithy has iron as 2nd input (iron/coal swapped). Would make sense to match them (note: simpply swapping in KM_ResourceHouses causes game logic to be swapped with GUI)
 	Better understanding of coop missions in lobby (don't require user to set teams and AI players, don't reveal map in preview, etc.)
@@ -58,6 +57,27 @@ Improvements:
  -	In window mode, the taskbar is over the game window. (thats what it supposed to be, use fullscreen instead)
  - 	Warriors attacking enemy citizens don't listen to orders (thats a feature)
  -	Many texts will not change if I change the language in options menu (we are always working on it)
+
+
+
+Fixed in r4168:
+<===================================================================================>
+ +	Belarusian letter Ў had upper and lower case swapped in fonts
+ +	Intel 965/963 GPU does not comply with OGL 1.5 spec on VBOs, check Assigned instead of OGL version
+ +	Taking weapons from store>barracks should not be a lower priority than house>house deliveries
+ +	Network latency in KaM Remake was always far higher than necessary due to Nagle's algorithm being enabled by default for TCP (we now use TCP_NODELAY)
+ +	A unit should not take a home that he can't walk to
+ +	TSK 5 some purple scouts would sit in the top right corner and not attack
+
+
+Improvements:
+ +	The map editor shows the number of fish in a water body like other resource deposits
+ +	Make hints more visible with background
+ +	Number of building materials delivered to an under construction house is shown when it is selected
+ +	Holding shift while placing a house keeps the house selected instead of changing to road
+ +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
+ +	Map editor has speed slider along with size and slope
+ +	Marketplace trade values have been significantly changed
 
 
 
