@@ -782,7 +782,13 @@ begin
 
   //Prepare and save
   fPlayers.RemoveEmptyPlayers;
-  ForceDirectories(ExeDir + 'Maps\' + aMissionName);
+
+  if aMultiplayer then
+    ForceDirectories(ExeDir + 'MapsMP\' + aMissionName)
+  else
+    ForceDirectories(ExeDir + 'Maps\' + aMissionName);
+
+  fLog.AppendLog('Saving from map editor: '+MapNameToPath(aMissionName, 'map', aMultiplayer));
   fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
   fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
@@ -972,7 +978,7 @@ var
   i, NetIndex: integer;
   s: string;
 begin
-  fLog.AppendLog('Saving game');
+  fLog.AppendLog('Saving game: '+aPathName);
 
   if fGameMode in [gmMapEd, gmReplaySingle, gmReplayMulti] then
   begin

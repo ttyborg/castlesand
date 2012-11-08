@@ -14,3 +14,4 @@ Improvements:
  +	Holding shift while placing a house keeps the house selected instead of changing to road
  +	Limit number of builders per house, now with MP games having upto 40 builders that is needed a lot
  +	Map editor has speed slider along with size and slope
+ +	Marketplace trade values have been significantly changed
