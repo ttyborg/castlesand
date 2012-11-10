@@ -11,6 +11,8 @@ uses Classes, SysUtils,
 type
   TKMMasterServer = class
   private
+    fIsDedicated: Boolean;
+
     fHTTPClient: TKMHTTPClient; //To update server status and fetch server list
     fHTTPAnnouncementsClient: TKMHTTPClient; //To fetch the annoucenemnts at the same time as the server list
     fHTTPMapsClient: TKMHTTPClient; //To tell master server about the map we played
@@ -23,7 +25,7 @@ type
     procedure ReceiveAnnouncements(const S: string);
     procedure Error(const S: string);
   public
-    constructor Create(const aMasterServerAddress:string);
+    constructor Create(const aMasterServerAddress:string; aDedicated:Boolean);
     destructor Destroy; override;
 
     property OnError:TGetStrProc write fOnError;
@@ -47,7 +49,7 @@ const
   {$IFDEF FPC} COMPILER = 'FPC'; {$ENDIF}
 
 
-constructor TKMMasterServer.Create(const aMasterServerAddress:string);
+constructor TKMMasterServer.Create(const aMasterServerAddress:string; aDedicated:Boolean);
 begin
   inherited Create;
   fHTTPClient := TKMHTTPClient.Create;
@@ -56,6 +58,7 @@ begin
   fHTTPClient.OnReceive := nil;
   fHTTPClient.OnError := Error;
   fMasterServerAddress := aMasterServerAddress;
+  fIsDedicated := aDedicated;
 end;
 
 
@@ -92,7 +95,7 @@ begin
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
                      +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
-                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER));
+                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER)+'&dedicated='+UrlEncode(IntToStr(byte(fIsDedicated))));
 end;
 
 
