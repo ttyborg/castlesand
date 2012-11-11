@@ -84,7 +84,7 @@ type
     procedure Clear; virtual;
     procedure AddEntry(aLoc: TKMPoint);
     function  RemoveEntry(aLoc: TKMPoint): Integer; virtual;
-    procedure DeleteEntry(aIndex: Integer);
+    procedure DeleteEntry(aIndex:Integer);
     procedure Insert(ID: Integer; aLoc: TKMPoint);
     function  GetRandom(out Point: TKMPoint): Boolean;
     function  GetClosest(aLoc: TKMPoint; out Point: TKMPoint): Boolean;
@@ -100,7 +100,7 @@ type
   public
     Tag, Tag2: array of Cardinal; //0..Count-1
     procedure Clear; override;
-    procedure AddEntry(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0); reintroduce;
+    procedure AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal); reintroduce;
     procedure SortByTag;
     function RemoveEntry(aLoc: TKMPoint): Integer; override;
     procedure SaveToStream(SaveStream: TKMemoryStream); override;
@@ -424,8 +424,9 @@ begin
   begin
     Point := fItems[0];
     for I := 1 to fCount - 1 do
-    if KMLengthSqr(fItems[I], aLoc) < KMLengthSqr(Point, aLoc) then
+    if GetLength(fItems[I], aLoc) < GetLength(Point, aLoc) then
       Point := fItems[I];
+    Result := True;
   end;
 end;
 
@@ -496,7 +497,7 @@ begin
 end;
 
 
-procedure TKMPointList.LoadFromStream(LoadStream: TKMemoryStream);
+procedure TKMPointList.LoadFromStream(LoadStream:TKMemoryStream);
 begin
   LoadStream.Read(fCount);
   SetLength(fItems, fCount);
@@ -512,7 +513,7 @@ begin
 end;
 
 
-procedure TKMPointTagList.AddEntry(aLoc: TKMPoint; aTag: Cardinal; aTag2: Cardinal = 0);
+procedure TKMPointTagList.AddEntry(aLoc: TKMPoint; aTag,aTag2: Cardinal);
 begin
   inherited AddEntry(aLoc);
 

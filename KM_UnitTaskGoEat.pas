@@ -99,37 +99,42 @@ begin
       end;
    3: //Typically when unit comes to Inn he is at 13%
       //Order is Bread-Sausages-Wine-Fish
+      //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
+      //Bread    = +40%
+      //Sausages = +60%
+      //Wine     = +20% (We changed this to +30% for balance)
+      //Fish     = +50%
       //We allow unit to eat foods until he is over 90% condition
       if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Bread)>0) then
       begin
         fInn.ResTakeFromIn(rt_Bread);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Bread);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Bread);
         SetActionLockedStay(29*4, ua_Eat, False);
-        Feed(UNIT_MAX_CONDITION * BREAD_RESTORE);
+        Feed(UNIT_MAX_CONDITION * 0.4);
         fInn.UpdateEater(PlaceID, rt_Bread);
       end else
         SetActionLockedStay(0,ua_Walk);
    4: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Sausages)>0) then begin
         fInn.ResTakeFromIn(rt_Sausages);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Sausages);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Sausages);
         SetActionLockedStay(29*4, ua_Eat, False);
-        Feed(UNIT_MAX_CONDITION * SAUSAGE_RESTORE);
+        Feed(UNIT_MAX_CONDITION * 0.6);
         fInn.UpdateEater(PlaceID, rt_Sausages);
       end else
         SetActionLockedStay(0,ua_Walk);
    5: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Wine)>0) then begin
         fInn.ResTakeFromIn(rt_Wine);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Wine);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Wine);
         SetActionLockedStay(29*4, ua_Eat, False);
-        Feed(UNIT_MAX_CONDITION * WINE_RESTORE);
+        Feed(UNIT_MAX_CONDITION * 0.3);
         fInn.UpdateEater(PlaceID, rt_Wine);
       end else
         SetActionLockedStay(0,ua_Walk);
    6: if (Condition<UNIT_MAX_CONDITION*0.9)and(fInn.CheckResIn(rt_Fish)>0) then begin
         fInn.ResTakeFromIn(rt_Fish);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(rt_Fish);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(rt_Fish);
         SetActionLockedStay(29*4, ua_Eat, False);
-        Feed(UNIT_MAX_CONDITION * FISH_RESTORE);
+        Feed(UNIT_MAX_CONDITION * 0.5);
         fInn.UpdateEater(PlaceID, rt_Fish);
       end else
         SetActionLockedStay(0,ua_Walk);

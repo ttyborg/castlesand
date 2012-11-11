@@ -37,13 +37,9 @@ type
     procedure UpdateState;
     procedure Paint;
 
-    procedure Save(SaveStream: TKMemoryStream);
-    procedure Load(LoadStream: TKMemoryStream);
+    procedure Save(SaveStream:TKMemoryStream);
+    procedure Load(LoadStream:TKMemoryStream);
   end;
-
-
-var
-  fProjectiles: TKMProjectiles;
 
 
 implementation
@@ -143,7 +139,7 @@ begin
   if TimeToHit <> 0 then
   begin
     Jitter := ProjectileJitter[aProjType]
-            + KMLength(KMPointF(0,0), TargetVector) * ProjectilePredictJitter[aProjType];
+            + GetLength(KMPointF(0,0),TargetVector) * ProjectilePredictJitter[aProjType];
 
     //Calculate the target position relative to start position (the 0;0)
     Target.X := TargetPosition.X + TargetVector.X*TimeToHit + KaMRandomS(Jitter);
@@ -163,7 +159,7 @@ begin
     if fTerrain.TileInMapCoords(Round(Target.X), Round(Target.Y)) then //Arrows may fly off map, UnitsHitTest doesn't like negative coordinates
     begin
       U := fTerrain.UnitsHitTest(Round(Target.X), Round(Target.Y));
-      if (U <> nil) and (fPlayers.CheckAlliance(aOwner,U.Owner) = at_Ally) then
+      if (U <> nil) and (fPlayers.CheckAlliance(aOwner,U.GetOwner) = at_Ally) then
         Target := aTarget.PositionF; //Shoot at the target's current position instead
     end;
 
@@ -197,42 +193,42 @@ end;
 { Return flight time (archers like to know when they hit target before firing again) }
 function TKMProjectiles.AddItem(aStart,aAim,aEnd:TKMPointF; aSpeed,aArc,aMaxLength:single; aProjType:TProjectileType; aOwner:TPlayerIndex):word;
 const //TowerRock position is a bit different for reasons said below
-  OffsetX: array [TProjectileType] of Single = (0.5, 0.5, 0.5, -0.25); //Recruit stands in entrance, Tower middleline is X-0.75
-  OffsetY: array [TProjectileType] of Single = (0.2, 0.2, 0.2, -0.5); //Add towers height
+  OffsetX:array[TProjectileType] of single = (0.5,0.5,0.5,-0.25); //Recruit stands in entrance, Tower middleline is X-0.75
+  OffsetY:array[TProjectileType] of single = (0.2,0.2,0.2,-0.5); //Add towers height
 var
-  I: Integer;
+  i:integer;
 begin
-  I := -1;
+  i := -1;
   repeat
-    inc(I);
-    if I >= length(fItems) then
-      SetLength(fItems, I+8); //Add new
-  until(fItems[I].fSpeed = 0);
+    inc(i);
+    if i >= length(fItems) then
+      SetLength(fItems, i+8); //Add new
+  until(fItems[i].fSpeed = 0);
 
   //Fill in basic info
-  fItems[I].fType   := aProjType;
-  fItems[I].fSpeed  := aSpeed;
-  fItems[I].fArc    := aArc;
-  fItems[I].fOwner  := aOwner;
-  fItems[I].fAim    := aAim;
+  fItems[i].fType   := aProjType;
+  fItems[i].fSpeed  := aSpeed;
+  fItems[i].fArc    := aArc;
+  fItems[i].fOwner  := aOwner;
+  fItems[i].fAim    := aAim;
   //Don't allow projectile to land off map, (we use fTaret for hit tests, FOW, etc.) but on borders is fine
-  fItems[I].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
-  fItems[I].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
-  fItems[I].fShotFrom := aStart;
+  fItems[i].fTarget.X := EnsureRange(aEnd.X, 0, fTerrain.MapX-0.01);
+  fItems[i].fTarget.Y := EnsureRange(aEnd.Y, 0, fTerrain.MapY-0.01);
+  fItems[i].fShotFrom := aStart;
 
-  fItems[I].fScreenStart.X := aStart.X + OffsetX[aProjType];
-  fItems[I].fScreenStart.Y := fTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
-  fItems[I].fScreenEnd.X := fItems[I].fTarget.X + 0.5; //projectile hits on Unit's chest height
-  fItems[I].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[I].fTarget).Y + 0.5;
+  fItems[i].fScreenStart.X := aStart.X + OffsetX[aProjType];
+  fItems[i].fScreenStart.Y := fTerrain.FlatToHeight(aStart).Y + OffsetY[aProjType];
+  fItems[i].fScreenEnd.X := fItems[i].fTarget.X + 0.5; //projectile hits on Unit's chest height
+  fItems[i].fScreenEnd.Y := fTerrain.FlatToHeight(fItems[i].fTarget).Y + 0.5;
 
-  fItems[I].fPosition := 0; //projectile position on its route
-  fItems[I].fLength   := KMLength(fItems[I].fScreenStart, fItems[I].fScreenEnd); //route length
-  fItems[I].fMaxLength:= aMaxLength;
+  fItems[i].fPosition := 0; //projectile position on its route
+  fItems[i].fLength   := GetLength(fItems[i].fScreenStart.X - fItems[i].fScreenEnd.X, fItems[i].fScreenStart.Y - fItems[i].fScreenEnd.Y); //route length
+  fItems[i].fMaxLength:= aMaxLength;
 
   if (MyPlayer.FogOfWar.CheckTileRevelation(KMPointRound(aStart).X, KMPointRound(aStart).Y, true) >= 255) then
     fSoundLib.Play(ProjectileLaunchSounds[aProjType], aStart);
 
-  Result := round(fItems[I].fLength / fItems[I].fSpeed);
+  Result := round(fItems[i].fLength / fItems[i].fSpeed);
 end;
 
 
@@ -258,38 +254,38 @@ begin
         begin
           U := fTerrain.UnitsHitTestF(fTarget);
           //Projectile can miss depending on the distance to the unit
-          if (U = nil) or ((1 - Math.min(KMLength(U.PositionF, fTarget), 1)) > KaMRandom) then
+          if (U = nil) or ((1-Math.min(GetLength(U.PositionF,fTarget),1)) > KaMRandom) then
           begin
             case fType of
               pt_Arrow,
               pt_SlingRock,
               pt_Bolt:      if (U <> nil) and not U.IsDeadOrDying and U.Visible and not (U is TKMUnitAnimal)
                             //Can't hit units past max range because that's unintuitive/confusing to player
-                            and (KMLengthSqr(fShotFrom, U.PositionF) <= Sqr(fMaxLength)) then
+                            and (GetLength(fShotFrom, U.PositionF) <= fMaxLength) then
                             begin
                               Damage := 0;
                               if fType = pt_Arrow then Damage := fResource.UnitDat[ut_Bowman].Attack;
                               if fType = pt_Bolt then Damage := fResource.UnitDat[ut_Arbaletman].Attack;
                               if fType = pt_SlingRock then Damage := fResource.UnitDat[ut_Slingshot].Attack;
-                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].GetDefenceVsProjectiles, 1); //Not needed, but animals have 0 defence
-                              if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
+                              Damage := Damage div Math.max(fResource.UnitDat[U.UnitType].Defence, 1); //Not needed, but animals have 0 defence
+                              if (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
                               and (Damage >= KaMRandom(101))
                               and U.HitPointsDecrease(1) then
-                                fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
+                                fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
                             end
                             else
                             begin
                               H := fPlayers.HousesHitTest(Round(fTarget.X), Round(fTarget.Y));
                               if (H <> nil)
-                              and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.Owner)= at_Enemy))
+                              and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, H.GetOwner)= at_Enemy))
                               and H.AddDamage(1) then //House was destroyed
-                                fPlayers[fOwner].Stats.HouseDestroyed(H.HouseType);
+                                fPlayers.Player[fOwner].Stats.HouseDestroyed(H.HouseType);
                             end;
               pt_TowerRock: if (U <> nil) and not U.IsDeadOrDying and U.Visible
                             and not (U is TKMUnitAnimal)
-                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.Owner)= at_Enemy))
+                            and (FRIENDLY_FIRE or (fPlayers.CheckAlliance(fOwner, U.GetOwner)= at_Enemy))
                             and U.HitPointsDecrease(U.HitPointsMax) then //Instant death
-                              fPlayers[fOwner].Stats.UnitKilled(U.UnitType);
+                              fPlayers.Player[fOwner].Stats.UnitKilled(U.UnitType);
             end;
           end;
           RemItem(i);
@@ -324,8 +320,8 @@ begin
 
       MixValue := fItems[i].fPosition / fItems[i].fLength; // 0 >> 1
       MixValueMax := fItems[i].fPosition / fItems[i].fMaxLength; // 0 >> 1
-      P := KMLerp(fItems[i].fScreenStart, fItems[i].fScreenEnd, MixValue);
-      PTileBased := KMLerp(fItems[i].fShotFrom, fItems[i].fTarget, MixValue);
+      P := mix(fItems[i].fScreenEnd, fItems[i].fScreenStart, MixValue);
+      PTileBased := mix(fItems[i].fTarget, fItems[i].fShotFrom, MixValue);
       case fItems[i].fType of
         pt_Arrow, pt_SlingRock, pt_Bolt:
           begin

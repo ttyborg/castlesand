@@ -56,39 +56,35 @@ type
     procedure HousePlanRemoved(aType: THouseType);
     procedure HouseStarted(aType: THouseType);
     procedure HouseEnded(aType: THouseType);
-    procedure HouseCreated(aType: THouseType; aWasBuilt: Boolean);
+    procedure HouseCreated(aType: THouseType; aWasBuilt:boolean);
     procedure HouseLost(aType: THouseType);
     procedure HouseSelfDestruct(aType: THouseType);
     procedure HouseDestroyed(aType: THouseType);
-    procedure UnitCreated(aType: TUnitType; aWasTrained: Boolean);
+    procedure UnitCreated(aType: TUnitType; aWasTrained:boolean);
     procedure UnitLost(aType: TUnitType);
     procedure UnitKilled(aType: TUnitType);
 
     property Ratio[aRes: TResourceType; aHouse: THouseType]: Byte read GetRatio write SetRatio;
 
     //Output
-    function GetHouseQty(aType: THouseType): Integer; overload;
-    function GetHouseQty(aType: array of THouseType): Integer; overload;
-    function GetHouseWip(aType: THouseType): Integer; overload;
-    function GetHouseWip(aType: array of THouseType): Integer; overload;
+    function GetHouseQty(aType: THouseType): Integer;
+    function GetHouseWip(aType: THouseType): Integer;
     function GetUnitQty(aType: TUnitType): Integer;
-    function GetResourceQty(aRT: TResourceType): Integer;
-    function GetArmyCount: Integer;
+    function GetArmyCount:Integer;
     function GetCitizensCount: Integer;
-    function GetCanBuild(aType: THouseType): Boolean;
+    function GetCanBuild(aType: THouseType):boolean;
 
-    function GetCitizensTrained: Cardinal;
-    function GetCitizensLost: Cardinal;
-    function GetCitizensKilled: Cardinal;
-    function GetHousesBuilt: Cardinal;
-    function GetHousesLost: Cardinal;
-    function GetHousesDestroyed: Cardinal;
-    function GetWarriorsTrained: Cardinal;
-    function GetWarriorsKilled: Cardinal;
-    function GetWarriorsLost: Cardinal;
-    function GetGoodsProduced(aRT: TResourceType): Cardinal; overload;
-    function GetGoodsProduced: Cardinal; overload;
-    function GetWeaponsProduced: Cardinal;
+    function GetCitizensTrained:cardinal;
+    function GetCitizensLost:cardinal;
+    function GetCitizensKilled:cardinal;
+    function GetHousesBuilt:cardinal;
+    function GetHousesLost:cardinal;
+    function GetHousesDestroyed:cardinal;
+    function GetWarriorsTrained:cardinal;
+    function GetWarriorsKilled:cardinal;
+    function GetWarriorsLost:cardinal;
+    function GetGoodsProduced:cardinal;
+    function GetWeaponsProduced:cardinal;
 
     property GraphCount: Integer read fGraphCount;
     property GraphHouses: TCardinalArray read fGraphHouses;
@@ -255,7 +251,7 @@ begin
 end;
 
 
-//How many complete houses are there
+//How many houses are there
 function TKMPlayerStats.GetHouseQty(aType: THouseType): Integer;
 var H: THouseType;
 begin
@@ -267,31 +263,6 @@ begin
                   Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
     else        Result := Houses[aType].Initial + Houses[aType].Built - Houses[aType].SelfDestruct - Houses[aType].Lost;
   end;
-end;
-
-
-//How many complete houses are there
-function TKMPlayerStats.GetHouseQty(aType: array of THouseType): Integer;
-var
-  I: Integer;
-  H: THouseType;
-begin
-  Result := 0;
-  if (Length(aType) = 0) then
-    Assert(False, 'Quering wrong house type')
-  else
-  if (Length(aType) = 1) and (aType[0] = ht_Any) then
-  begin
-    for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid then
-      Result := Result + Houses[H].Initial + Houses[H].Built - Houses[H].SelfDestruct - Houses[H].Lost;
-  end
-  else
-  for I := Low(aType) to High(aType) do
-    if fResource.HouseDat[aType[I]].IsValid then
-      Result := Result + Houses[aType[I]].Initial + Houses[aType[I]].Built - Houses[aType[I]].SelfDestruct - Houses[aType[I]].Lost
-    else
-      Assert(False, 'Quering wrong house type');
 end;
 
 
@@ -310,31 +281,6 @@ begin
 end;
 
 
-//How many houses are planned and in progress
-function TKMPlayerStats.GetHouseWip(aType: array of THouseType): Integer;
-var
-  I: Integer;
-  H: THouseType;
-begin
-  Result := 0;
-  if (Length(aType) = 0) then
-    Assert(False, 'Quering wrong house type')
-  else
-  if (Length(aType) = 1) and (aType[0] = ht_Any) then
-  begin
-    for H := Low(THouseType) to High(THouseType) do
-    if fResource.HouseDat[H].IsValid then
-      Result := Result + Houses[H].Started + Houses[H].Planned - Houses[H].Ended - Houses[H].PlanRemoved;
-  end
-  else
-  for I := Low(aType) to High(aType) do
-    if fResource.HouseDat[aType[I]].IsValid then
-      Result := Result + Houses[aType[I]].Started + Houses[aType[I]].Planned - Houses[aType[I]].Ended - Houses[aType[I]].PlanRemoved
-    else
-      Assert(False, 'Quering wrong house type');
-end;
-
-
 function TKMPlayerStats.GetUnitQty(aType: TUnitType): Integer;
 var UT: TUnitType;
 begin
@@ -349,21 +295,6 @@ begin
                     for UT := WARRIOR_EQUIPABLE_MIN to WARRIOR_EQUIPABLE_MAX do
                       dec(Result, Units[UT].Trained); //Trained soldiers use a recruit
                 end;
-  end;
-end;
-
-
-function TKMPlayerStats.GetResourceQty(aRT: TResourceType): Integer;
-var RT: TResourceType;
-begin
-  Result := 0;
-  case aRT of
-    rt_None:    ;
-    rt_All:     for RT := WARE_MIN to WARE_MAX do
-                  Result := Result + Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
-    rt_Warfare: for RT := WARFARE_MIN to WARFARE_MAX do
-                  Result := Goods[RT].Initial + Goods[RT].Produced - Goods[RT].Consumed;
-    else        Result := Goods[aRT].Initial + Goods[aRT].Produced - Goods[aRT].Consumed;
   end;
 end;
 
@@ -432,7 +363,7 @@ end;
 
 
 //The value includes only citizens, Warriors are counted separately
-function TKMPlayerStats.GetCitizensTrained: Cardinal;
+function TKMPlayerStats.GetCitizensTrained:cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -441,7 +372,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensLost: Cardinal;
+function TKMPlayerStats.GetCitizensLost:cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -450,7 +381,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetCitizensKilled: Cardinal;
+function TKMPlayerStats.GetCitizensKilled:cardinal;
 var UT: TUnitType;
 begin
   Result := 0;
@@ -459,7 +390,7 @@ begin
 end;
 
 
-function TKMPlayerStats.GetHousesBuilt: Cardinal;
+function TKMPlayerStats.GetHousesBuilt:cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -469,7 +400,7 @@ end;
 
 
 
-function TKMPlayerStats.GetHousesLost: Cardinal;
+function TKMPlayerStats.GetHousesLost:cardinal;
 var HT: THouseType;
 begin
   Result := 0;
@@ -513,13 +444,6 @@ begin
   Result := 0;
   for UT := WARRIOR_MIN to WARRIOR_MAX do
     Inc(Result, Units[UT].Killed);
-end;
-
-
-function TKMPlayerStats.GetGoodsProduced(aRT: TResourceType): Cardinal;
-begin
-  //todo: Handle rt_SpecialTypes
-  Result := Goods[aRT].Produced;
 end;
 
 

@@ -9,15 +9,15 @@ uses Classes, DateUtils, Math, SysUtils, KM_Defaults, KM_Points
 
   function KMGetCursorDirection(X,Y: integer): TKMDirection;
 
-  function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
-  function GetPositionFromIndex(aOrigin: TKMPoint; aIndex: Byte): TKMPointI;
+  function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
+  function GetPositionFromIndex(aOrigin:TKMPoint; aIndex:byte):TKMPointI;
 
-  function FixDelim(const aString: string): string;
+  function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
+  function FixDelim(const aString:string):string;
 
   procedure ConvertRGB2HSB(aR, aG, aB: Integer; out oH, oS, oB: Single);
   procedure ConvertHSB2RGB(aHue, aSat, aBri: Single; out R, G, B: Byte);
-  function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
-  function GetPingColor(aPing: Word): Cardinal;
+  function GetPingColor(aPing:word):cardinal;
   function FlagColorToTextColor(aColor: Cardinal): Cardinal;
   function TimeToString(aTime: TDateTime): string;
 
@@ -114,7 +114,7 @@ begin
 end;
 
 
-function KMGetCursorDirection(X,Y: Integer): TKMDirection;
+function KMGetCursorDirection(X,Y: integer): TKMDirection;
 var Ang, Dist: Single;
 begin
   Dist := GetLength(X, Y);
@@ -134,29 +134,24 @@ end;
 {Returns point where unit should be placed regarding direction & offset from Commanders position}
 // 23145     231456
 // 6789X     789xxx
-function GetPositionInGroup2(OriginX, OriginY: Word; aDir: TKMDirection; aIndex, aUnitPerRow: Word; MapX, MapY: Word; out aTargetCanBeReached: Boolean): TKMPoint;
-const
-  DirAngle: array [TKMDirection] of Word   = (0, 0, 45, 90, 135, 180, 225, 270, 315);
-  DirRatio: array [TKMDirection] of Single = (0, 1, 1.41, 1, 1.41, 1, 1.41, 1, 1.41);
-var
-  PlaceX, PlaceY, ResultX, ResultY: integer;
+function GetPositionInGroup2(OriginX, OriginY:integer; aDir:TKMDirection; aI, aUnitPerRow:integer; MapX,MapY:integer; out aTargetCanBeReached:boolean):TKMPoint;
+const DirAngle:array[TKMDirection]of word =   (0,    0,    45,   90,   135,  180,   225,  270,   315);
+const DirRatio:array[TKMDirection]of single = (0,    1,  1.41,    1,  1.41,    1,  1.41,    1,  1.41);
+var PlaceX, PlaceY, ResultX, ResultY:integer;
 begin
-  Assert(aUnitPerRow > 0);
-  if aIndex = 0 then
-  begin
-    ResultX := OriginX;
-    ResultY := OriginY;
-  end
-  else
-  begin
-    if aIndex <= aUnitPerRow div 2 then
-      Dec(aIndex);
-    PlaceX := aIndex mod aUnitPerRow - aUnitPerRow div 2;
-    PlaceY := aIndex div aUnitPerRow;
-
-    ResultX := OriginX + Round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
-    ResultY := OriginY + Round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
+  Assert(aUnitPerRow>0);
+  if aI=1 then begin
+    PlaceX := 0;
+    PlaceY := 0;
+  end else begin
+    if aI <= aUnitPerRow div 2 + 1 then
+      dec(aI);
+    PlaceX := (aI-1) mod aUnitPerRow - aUnitPerRow div 2;
+    PlaceY := (aI-1) div aUnitPerRow;
   end;
+
+  ResultX := OriginX + round( PlaceX*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) - PlaceY*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) );
+  ResultY := OriginY + round( PlaceX*DirRatio[aDir]*sin(DirAngle[aDir]/180*pi) + PlaceY*DirRatio[aDir]*cos(DirAngle[aDir]/180*pi) );
 
   aTargetCanBeReached := InRange(ResultX, 1, MapX-1) and InRange(ResultY, 1, MapY-1);
   //Fit to bounds
@@ -172,15 +167,14 @@ const
 //Ring#  1  2  3  4   5   6   7    8    9    10
         (0, 1, 9, 25, 49, 81, 121, 169, 225, 289);
 var
-  Ring, Span, Span2, Orig: Byte;
-  Off1,Off2,Off3,Off4,Off5: Byte;
+  Ring, Span, Span2, Orig:byte;
+  Off1,Off2,Off3,Off4,Off5:byte;
 begin
   //Quick solution
-  if aIndex = 0 then
-  begin
+  if aIndex=0 then begin
     Result.X := aOrigin.X;
     Result.Y := aOrigin.Y;
-    Exit;
+    exit;
   end;
 
   //Find ring in which Index is located
@@ -208,6 +202,14 @@ begin
 end;
 
 
+function MapNameToPath(const aMapName, aExtension:string; aIsMultiplayer:boolean):string;
+begin
+  if aIsMultiplayer then Result := ExeDir+'MapsMP\'
+                    else Result := ExeDir+'Maps\';
+  Result := Result+aMapName+'\'+aMapName+'.'+aExtension;
+end;
+
+
 //Use this function to convert platform-specific path delimiters
 function FixDelim(const aString: string): string;
 begin
@@ -218,9 +220,9 @@ end;
 function GetPingColor(aPing: Word): Cardinal;
 begin
   case aPing of
-    0..299  : Result := icGreen;
-    300..599: Result := icYellow;
-    600..999: Result := icOrange;
+    0..99   : Result := icGreen;
+    100..299: Result := icYellow;
+    300..499: Result := icOrange;
     else      Result := icRed;
   end;
 end;
@@ -337,18 +339,6 @@ begin
   R := Round(Rt * 255);
   G := Round(Gt * 255);
   B := Round(Bt * 255);
-end;
-
-
-function ApplyBrightness(aColor: Cardinal; aBrightness: Byte): Cardinal;
-begin
-  Result := Round((aColor and $FF) / 255 * aBrightness)
-            or
-            Round((aColor shr 8 and $FF) / 255 * aBrightness) shl 8
-            or
-            Round((aColor shr 16 and $FF) / 255 * aBrightness) shl 16
-            or
-            (aColor and $FF000000);
 end;
 
 

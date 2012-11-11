@@ -49,7 +49,7 @@ type
 
 
 implementation
-uses KM_AIFields, KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior, KM_UnitGroups;
+uses KM_PlayersCollection, KM_Resource, KM_Units, KM_Units_Warrior;
 
 
 { TKMMinimap }
@@ -185,26 +185,11 @@ var
   FOW,ID: Byte;
   I,J,K: Integer;
   U: TKMUnit;
+  W: TKMUnitWarrior;
   P: TKMPoint;
   DoesFit: Boolean;
   Light: Smallint;
-  Owner: TPlayerIndex;
-  Group: TKMUnitGroup;
 begin
-  if OVERLAY_INFLUENCES then
-  begin
-    for I := 0 to fMapY - 1 do
-    for K := 0 to fMapX - 1 do
-    begin
-      Owner := fAIFields.Influences.GetBestOwner(K,I);
-      if Owner <> PLAYER_NONE then
-        fBase[I*fMapX + K] := ApplyBrightness(fPlayers[Owner].FlagColor, Byte(Max(fAIFields.Influences.Ownership[Owner,I,K],0)))
-      else
-        fBase[I*fMapX + K] := $FF000000;
-    end;
-    Exit;
-  end;
-
   for I := 0 to fMapY - 1 do
   for K := 0 to fMapX - 1 do
   begin
@@ -216,13 +201,13 @@ begin
       fBase[I*fMapX + K] := $FF000000
     else
       if fMyTerrain.Land[I+1,K+1].TileOwner <> -1 then
-        fBase[I*fMapX + K] := fPlayers[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
+        fBase[I*fMapX + K] := fPlayers.Player[fMyTerrain.Land[I+1,K+1].TileOwner].FlagColor
       else
       begin
         U := fMyTerrain.Land[I+1,K+1].IsUnit;
         if U <> nil then
-          if U.Owner <> PLAYER_ANIMAL then
-            fBase[I*fMapX + K] := fPlayers[U.Owner].FlagColor
+          if U.GetOwner <> PLAYER_ANIMAL then
+            fBase[I*fMapX + K] := fPlayers.Player[U.GetOwner].FlagColor
           else
             fBase[I*fMapX + K] := fResource.UnitDat[U.UnitType].MinimapColor
         else
@@ -239,13 +224,15 @@ begin
   //Scan all players units and paint all virtual group members in MapEd
   if fIsMapEditor then
     for I := 0 to fPlayers.Count - 1 do
-    for K := 0 to fPlayers[I].UnitGroups.Count - 1 do
+    for K := 0 to fPlayers[I].Units.Count - 1 do
+    if fPlayers[I].Units[K] is TKMUnitWarrior then
     begin
-      Group := fPlayers[I].UnitGroups[K];
-      for J := 1 to Group.MapEdCount - 1 do
+      W := TKMUnitWarrior(fPlayers[I].Units[K]);
+      for J := 1 to W.fMapEdMembersCount do
       begin
-        //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1, hence the +1 -1 fixes
-        P := GetPositionInGroup2(Group.Position.X, Group.Position.Y, Group.Direction, J, Group.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
+        //GetPositionInGroup2 operates with 1..N terrain, while Minimap uses 0..N-1
+        //hence the +1 -1 fixes
+        P := GetPositionInGroup2(W.GetPosition.X, W.GetPosition.Y, W.Direction, J+1, W.UnitsPerRow, fMapX+1, fMapY+1, DoesFit);
         if not DoesFit then Continue; //Don't render units that are off the map in the map editor
         fBase[(P.Y - 1) * fMapX + P.X - 1] := fPlayers[I].FlagColor;
       end;

@@ -46,7 +46,7 @@ type
 
 
 implementation
-uses KM_Resource, KM_Utils;
+uses KM_Resource, KM_CommonTypes, KM_Utils;
 
 
 constructor TUnitWorkPlan.Create;
@@ -167,10 +167,10 @@ end;
 
 function TUnitWorkPlan.ChooseTree(aLoc, aAvoid:TKMPoint; aRadius:Integer; aPlantAct: TPlantAct; aUnit:TKMUnit; out Tree:TKMPointDir; out PlantAct: TPlantAct):Boolean;
 var
-  I: Integer;
+  i:Integer;
   T: TKMPoint;
   TreeList: TKMPointDirList;
-  BestToPlant, SecondBestToPlant: TKMPointList;
+  BestToPlant,SecondBestToPlant: TKMPointList;
 begin
   TreeList := TKMPointDirList.Create;
   BestToPlant := TKMPointList.Create;
@@ -192,9 +192,9 @@ begin
   begin
     PlantAct := taPlant;
     //First try stumps list
-    for I := BestToPlant.Count - 1 downto 0 do
-      if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[I], gs_WoodCutterPlant) then
-        BestToPlant.DeleteEntry(I);
+    for i:=BestToPlant.Count-1 downto 0 do
+      if not TKMUnitCitizen(aUnit).CanWorkAt(BestToPlant[i], gs_WoodCutterPlant) then
+        BestToPlant.DeleteEntry(i);
     Result := BestToPlant.GetRandom(T);
     //Trees must always be planted facing north as that is the direction the animation uses
     if Result then
@@ -202,13 +202,12 @@ begin
     else
     begin
       //Try empty places list
-      for I := SecondBestToPlant.Count - 1 downto 0 do
-        if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[I], gs_WoodCutterPlant) then
-          SecondBestToPlant.DeleteEntry(I);
+      for i:=SecondBestToPlant.Count-1 downto 0 do
+        if not TKMUnitCitizen(aUnit).CanWorkAt(SecondBestToPlant[i], gs_WoodCutterPlant) then
+          SecondBestToPlant.DeleteEntry(i);
       Result := SecondBestToPlant.GetRandom(T);
       //Trees must always be planted facing north as that is the direction the animation uses
-      if Result then
-        Tree := KMPointDir(T, dir_N);
+      if Result then Tree := KMPointDir(T, dir_N);
     end;
   end;
 
@@ -234,7 +233,6 @@ begin
                       begin
                         fIssued := ChooseTree(aLoc, KMPoint(0,0), fResource.UnitDat[aUnit.UnitType].MiningRange, aPlantAct, aUnit, Tmp, PlantAct);
                         if fIssued then
-                        begin
                           case PlantAct of
                             taCut:    begin //Cutting uses DirNW,DirSW,DirSE,DirNE (1,3,5,7) of ua_Work
                                         ResourcePlan(rt_None,0,rt_None,0,rt_Trunk);
@@ -245,11 +243,6 @@ begin
                                       end;
                             else      fIssued := False;
                           end;
-                        end
-                        else
-                          if (aPlantAct = taCut)
-                          and not fTerrain.CanFindTree(aLoc, fResource.UnitDat[aUnit.UnitType].MiningRange) then
-                            ResourceDepleted := True; //No more trees to cut
                       end;
     ut_Miner:         if aHome = ht_CoalMine then
                       begin

@@ -2,7 +2,7 @@ unit KM_Units;
 {$I KaM_Remake.inc}
 interface
 uses
-  Classes, Math, SysUtils, KromUtils, TypInfo, Types,
+  Classes, Math, SysUtils, KromUtils, TypInfo,
   KM_CommonClasses, KM_Defaults, KM_Utils, KM_Terrain, KM_Houses, KM_Points;
 
 //Memo on directives:
@@ -60,22 +60,21 @@ type
 
   TKMUnit = class
   protected //Accessible for child classes
-    fID: Integer; //unique unit ID, used for save/load to sync to
+    fID:integer; //unique unit ID, used for save/load to sync to
     fUnitType: TUnitType;
     fUnitTask: TUnitTask;
     fCurrentAction: TUnitAction;
-    fThought: TUnitThought;
-    fHitPoints: Byte;
-    fHitPointCounter: Cardinal; //Counter for hit point restoration, separate cos it resets on first hit
-    fCondition: Integer; //Unit condition, when it reaches zero unit should die (rarely can be negative due to WalkExchange)
-    fTicker: Cardinal; //ticks of life for the unit (allows to spread updates)
-    fOwner: TPlayerIndex;
-    fHome: TKMHouse;
+    fThought:TUnitThought;
+    fHitPoints:byte;
+    fHitPointCounter: cardinal;
+    fCondition:integer; //Unit condition, when it reaches zero unit should die
+    fOwner:TPlayerIndex;
+    fHome:TKMHouse;
     fPosition: TKMPointF;
-    fVisible: Boolean;
-    fIsDead: Boolean;
-    fKillASAP: Boolean;
-    fPointerCount: Word;
+    fVisible:boolean;
+    fIsDead:boolean;
+    fKillASAP:boolean;
+    fPointerCount:integer;
     fInHouse: TKMHouse; //House we are currently in
     fCurrPosition: TKMPoint; //Where we are now
     fPrevPosition: TKMPoint; //Where we were
@@ -84,11 +83,14 @@ type
 
     function GetDesiredPassability: TPassability;
     function GetHitPointsMax: Byte;
-    procedure SetDirection(aValue: TKMDirection);
-    procedure SetAction(aAction: TUnitAction; aStep: Integer = 0);
+    procedure SetDirection(aValue:TKMDirection);
+    procedure SetAction(aAction: TUnitAction; aStep:integer=0);
     procedure SetNextPosition(aLoc: TKMPoint);
+    function GetSlide(aCheck:TCheckAxis): single;
     function CanAccessHome: Boolean;
 
+    procedure UpdateHunger;
+    procedure UpdateFOW;
     procedure UpdateThoughts;
     function UpdateVisibility:boolean;
     procedure UpdateHitPoints;
@@ -96,14 +98,14 @@ type
     AnimStep: Integer;
     IsExchanging: Boolean; //Current walk is an exchange, used for sliding
 
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
     constructor Load(LoadStream: TKMemoryStream); dynamic;
     procedure SyncLoad; virtual;
     destructor Destroy; override;
 
     function GetUnitPointer: TKMUnit; //Returns self and adds one to the pointer counter
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
-    property GetPointerCount: Word read fPointerCount;
+    property GetPointerCount: Integer read fPointerCount;
 
     procedure KillUnit; virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
@@ -132,14 +134,14 @@ type
     procedure Feed(Amount: Single);
     procedure AbandonWalk;
     property DesiredPassability: TPassability read GetDesiredPassability;
-    property Owner: TPlayerIndex read fOwner;
+    property GetOwner:TPlayerIndex read fOwner;
     property GetHome:TKMHouse read fHome;
     property GetUnitAction: TUnitAction read fCurrentAction;
     property UnitTask: TUnitTask read fUnitTask;
     property UnitType: TUnitType read fUnitType;
     function GetUnitActText:string;
     property Condition: integer read fCondition write fCondition;
-    function  HitPointsDecrease(aAmount: Byte): Boolean;
+    function  HitPointsDecrease(aAmount:integer):boolean;
     property HitPointsMax: Byte read GetHitPointsMax;
     procedure CancelUnitTask;
     property Visible: boolean read fVisible write fVisible;
@@ -170,7 +172,6 @@ type
     procedure VertexAdd(aFrom, aTo: TKMPoint);
     procedure Walk(aFrom, aTo: TKMPoint);
     function GetActivityText: string; virtual;
-    function GetSlide(aCheck: TCheckAxis): Single;
 
     procedure Save(SaveStream: TKMemoryStream); virtual;
     function UpdateState: Boolean; virtual;
@@ -206,16 +207,16 @@ type
   private
     fCarry: TResourceType;
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
-    constructor Load(LoadStream: TKMemoryStream); override;
-    procedure Save(SaveStream: TKMemoryStream); override;
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
+    constructor Load(LoadStream:TKMemoryStream); override;
+    procedure Save(SaveStream:TKMemoryStream); override;
 
     procedure Deliver(aFrom: TKMHouse; toHouse: TKMHouse; Res: TResourceType; aID: integer); overload;
     procedure Deliver(aFrom: TKMHouse; toUnit: TKMUnit; Res: TResourceType; aID: integer); overload;
     function TryDeliverFrom(aFrom: TKMHouse): Boolean;
 
     property Carry: TResourceType read fCarry;
-    procedure CarryGive(Res: TResourceType);
+    procedure CarryGive(Res:TResourceType);
     procedure CarryTake;
     procedure SetNewDelivery(aDelivery:TUnitTask);
 
@@ -241,7 +242,7 @@ type
   private
     fFishCount:byte; //1-5
   public
-    constructor Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex); overload;
+    constructor Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex); overload;
     constructor Load(LoadStream: TKMemoryStream); override;
     property FishCount: byte read fFishCount;
     function ReduceFish:boolean;
@@ -259,7 +260,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace: boolean = true; RequiredWalkConnect: Byte = 0): TKMUnit;
-    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
+    function AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; aDir: TKMDirection; aUnitPerRow, aUnitCount: word; aMapEditor: boolean = false): TKMUnit;
     property Units[aIndex: Integer]: TKMUnit read GetUnit write SetUnit; default; //Use instead of Items[.]
     procedure RemoveUnit(aUnit: TKMUnit);
     procedure OwnerUpdate(aOwner: TPlayerIndex);
@@ -308,7 +309,7 @@ function TKMUnitCitizen.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result:=false;
-  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -332,16 +333,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
       end;
   end;
 
@@ -351,16 +352,16 @@ end;
 
 
 function TKMUnitCitizen.CanWorkAt(aLoc:TKMPoint; aGatheringScript:TGatheringScript):Boolean;
-var I: Integer;
+var i:Integer;
 begin
   case aGatheringScript of
     gs_WoodCutterPlant: begin
                           //Woodcutters should not plant trees on our own or our ally's house plans
                           //(it's very annoying if they do)
                           Result := True;
-                          for I := 0 to fPlayers.Count - 1 do
-                            if (I = fOwner) or (fPlayers[fOwner].Alliances[I] = at_Ally) then
-                              Result := Result and not fPlayers[I].BuildList.HousePlanList.HasPlan(aLoc);
+                          for i:=0 to fPlayers.Count-1 do
+                            if (i = fOwner) or (fPlayers.CheckAlliance(fOwner, i) = at_Ally) then
+                              Result := Result and not fPlayers[i].BuildList.HousePlanList.HasPlan(aLoc);
                         end;
     else Result := True;
   end;
@@ -375,11 +376,10 @@ begin
 end;
 
 
-function TKMUnitCitizen.UpdateState: Boolean;
-var
-  H: TKMHouseInn;
+function TKMUnitCitizen.UpdateState:boolean;
+var H:TKMHouseInn;
 begin
-  Result := True; //Required for override compatibility
+  Result:=true; //Required for override compatibility
   if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitCitizen.UpdateState',fCurrPosition);
 
   //Reset unit activity if home was destroyed, except when unit is dying or eating (finish eating/dying first)
@@ -410,25 +410,23 @@ begin
     Idle..}
 
 
-  //See if need to get to eat
-  if fCondition < UNIT_MIN_CONDITION then
+  if fCondition<UNIT_MIN_CONDITION then
   begin
-    H := fPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
-    if H <> nil then
-      fUnitTask := TTaskGoEat.Create(H, Self)
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    if H<>nil then
+      fUnitTask := TTaskGoEat.Create(H,Self)
     else
       if (fHome <> nil) and not fVisible then
-        //If we inside home - go out and return (I suspect that was same task as TTaskGoEat in KaM though)
-        fUnitTask := TTaskGoOutShowHungry.Create(Self)
+        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
   end;
 
-  if fUnitTask = nil then //If Unit still got nothing to do, nevermind hunger
-    if fHome = nil then
+  if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
+    if fHome=nil then
       if FindHome then
         fUnitTask := TTaskGoHome.Create(Self) //Home found - go there
       else begin
         fThought := th_Quest; //Always show quest when idle, unlike serfs who randomly show it
-        SetActionStay(20, ua_Walk) //There's no home, but there will hopefully be one soon so don't sleep too long
+        SetActionStay(60, ua_Walk) //There's no home
       end
     else
       if fVisible then //Unit is not at home, but it has one
@@ -439,12 +437,11 @@ begin
           SetActionStay(60, ua_Walk) //Home can't be reached
       end else begin
         fUnitTask := InitiateMining; //Unit is at home, so go get a job
-        if fUnitTask = nil then //We didn't find any job to do - rest at home
+        if fUnitTask=nil then //We didn't find any job to do - rest at home
           SetActionStay(fResource.HouseDat[fHome.HouseType].WorkerRest*10, ua_Walk);
       end;
 
-  if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState', fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitCitizen.UpdateState',fCurrPosition);
 end;
 
 
@@ -453,16 +450,15 @@ var
   Msg: Word;
 begin
   case fHome.HouseType of
-    ht_Quary:       Msg := TX_MSG_STONE_DEPLETED;
-    ht_CoalMine:    Msg := TX_MSG_COAL_DEPLETED;
-    ht_IronMine:    Msg := TX_MSG_IRON_DEPLETED;
-    ht_GoldMine:    Msg := TX_MSG_GOLD_DEPLETED;
-    ht_Woodcutters: Msg := TX_MSG_WOODCUTTER_DEPLETED;
-    ht_FisherHut:   if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
-                      Msg := TX_MSG_FISHERMAN_TOO_FAR
-                    else
-                      Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
-    else            Msg := 0;
+    ht_Quary:     Msg := TX_MSG_STONE_DEPLETED;
+    ht_CoalMine:  Msg := TX_MSG_COAL_DEPLETED;
+    ht_IronMine:  Msg := TX_MSG_IRON_DEPLETED;
+    ht_GoldMine:  Msg := TX_MSG_GOLD_DEPLETED;
+    ht_FisherHut: if not fTerrain.CanFindFishingWater(KMPointBelow(fHome.GetEntrance), fResource.UnitDat[fUnitType].MiningRange) then
+                    Msg := TX_MSG_FISHERMAN_TOO_FAR
+                  else
+                    Msg := TX_MSG_FISHERMAN_CANNOT_CATCH;
+    else         Msg := 0;
   end;
 
   Assert(Msg <> 0, fResource.HouseDat[fHome.HouseType].HouseName+' resource cant possibly deplet');
@@ -518,7 +514,7 @@ function TKMUnitRecruit.FindHome:boolean;
 var H:TKMHouse;
 begin
   Result  := false;
-  H := fPlayers[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
+  H := fPlayers.Player[fOwner].Houses.FindEmptyHouse(fUnitType,fCurrPosition);
   if H<>nil then begin
     fHome  := H.GetHousePointer;
     Result := true;
@@ -540,16 +536,16 @@ begin
   case fCurrentAction.fActionType of
     ua_Walk:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
         if fResource.UnitDat[fUnitType].SupportsAction(ua_WalkArm) then
-          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
+          fRenderPool.AddUnit(fUnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
       end;
     ua_Work..ua_Eat:
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
     ua_WalkArm .. ua_WalkBooty2:
       begin
-        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
-        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
+        fRenderPool.AddUnit(fUnitType, ua_Walk, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
+        fRenderPool.AddUnit(fUnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
       end;
   end;
 
@@ -593,14 +589,14 @@ begin
 
   fThought := th_None;
 
-  if fCondition < UNIT_MIN_CONDITION then
+  if fCondition<UNIT_MIN_CONDITION then
   begin
-    H := fPlayers[fOwner].FindInn(fCurrPosition,Self,not fVisible);
-    if H <> nil then
-      fUnitTask := TTaskGoEat.Create(H,Self)
+    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self,not fVisible);
+    if H<>nil then
+      fUnitTask:=TTaskGoEat.Create(H,Self)
     else
       if (fHome <> nil) and not fVisible then
-        fUnitTask := TTaskGoOutShowHungry.Create(Self);
+        fUnitTask:=TTaskGoOutShowHungry.Create(Self)
   end;
 
   if fUnitTask=nil then //If Unit still got nothing to do, nevermind hunger
@@ -628,9 +624,9 @@ begin
 end;
 
 
-function TKMUnitRecruit.InitiateActivity: TUnitTask;
+function TKMUnitRecruit.InitiateActivity:TUnitTask;
 var
-  Enemy: TKMUnit;
+  Enemy:TKMUnit;
 begin
   Result := nil;
 
@@ -650,7 +646,7 @@ end;
 
 
 { TKMSerf }
-constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnitSerf.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited;
   fCarry := rt_None;
@@ -677,7 +673,7 @@ begin
   //Remember current task
   T := fUnitTask;
   //Try to get a new one
-  fPlayers[Owner].Deliveries.Queue.AskForDelivery(Self, aFrom);
+  fPlayers.Player[GetOwner].Deliveries.Queue.AskForDelivery(Self, aFrom);
 
   //Return True if we've got a new deliery
   Result := fUnitTask <> T;
@@ -706,14 +702,14 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, Act, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fUnitTask is TTaskDie then exit; //Do not show unnecessary arms
 
   if Carry <> rt_None then
     fRenderPool.AddUnitCarry(Carry, Direction, AnimStep, XPaintPos, YPaintPos)
   else
-    fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, false);
+    fRenderPool.AddUnit(UnitType, ua_WalkArm, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, false);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
@@ -729,36 +725,33 @@ end;
 
 function TKMUnitSerf.UpdateState:boolean;
 var
-  H: TKMHouseInn;
-  OldThought: TUnitThought;
-  WasIdle: Boolean;
+  H:TKMHouseInn;
+  OldThought:TUnitThought;
+  WasIdle:Boolean;
 begin
-  Result := True; //Required for override compatibility
+  Result:=true; //Required for override compatibility
   WasIdle := IsIdle;
-  if fCurrentAction = nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at start of TKMUnitSerf.UpdateState',fCurrPosition);
   if inherited UpdateState then exit;
 
-  OldThought := fThought;
-  fThought := th_None;
+  OldThought:=fThought;
+  fThought:=th_None;
 
-  if fCondition < UNIT_MIN_CONDITION then
-  begin
-    H := fPlayers[fOwner].FindInn(fCurrPosition, Self);
-    if H <> nil then
-      fUnitTask := TTaskGoEat.Create(H, Self);
+  if fCondition<UNIT_MIN_CONDITION then begin
+    H:=fPlayers.Player[fOwner].FindInn(fCurrPosition,Self);
+    if H<>nil then
+      fUnitTask:=TTaskGoEat.Create(H,Self);
   end;
 
   //Only show quest thought if we have been idle since the last update (not HadTask)
   //and not thinking anything else (e.g. death)
-  if fUnitTask = nil then
-  begin
-    if WasIdle and (OldThought = th_None) and (KaMRandom(2) = 0) then
-      fThought := th_Quest;
+  if fUnitTask=nil then begin
+    if WasIdle and (OldThought=th_None) and (KaMRandom(2)=0) then
+      fThought:=th_Quest;
     SetActionStay(60,ua_Walk); //Stay idle
   end;
 
-  if fCurrentAction = nil then
-    raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState', fCurrPosition);
+  if fCurrentAction=nil then raise ELocError.Create(fResource.UnitDat[UnitType].UnitName+' has no action at end of TKMUnitSerf.UpdateState',fCurrPosition);
 end;
 
 
@@ -827,7 +820,7 @@ begin
   XPaintPos := fPosition.X + UNIT_OFF_X + GetSlide(ax_X);
   YPaintPos := fPosition.Y + UNIT_OFF_Y + GetSlide(ax_Y);
 
-  fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers[fOwner].FlagColor, true);
+  fRenderPool.AddUnit(UnitType, fCurrentAction.fActionType, Direction, AnimStep, XPaintPos, YPaintPos, fPlayers.Player[fOwner].FlagColor, true);
 
   if fThought <> th_None then
     fRenderPool.AddUnitThought(fThought, XPaintPos, YPaintPos);
@@ -844,7 +837,7 @@ begin
 
   if fCondition < UNIT_MIN_CONDITION then
   begin
-    H := fPlayers[fOwner].FindInn(fCurrPosition, Self);
+    H := fPlayers.Player[fOwner].FindInn(fCurrPosition, Self);
     if H <> nil then
       fUnitTask := TTaskGoEat.Create(H, Self);
   end;
@@ -862,7 +855,7 @@ end;
 
 
 { TKMUnitAnimal }
-constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnitAnimal.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited;
 
@@ -965,27 +958,27 @@ end;
 
 
 { TKMUnit }
-constructor TKMUnit.Create(aID: Cardinal; aUnitType: TUnitType; PosX, PosY: Word; aOwner: TPlayerIndex);
+constructor TKMUnit.Create(aID: Cardinal; aUnitType:TUnitType; PosX, PosY:integer; aOwner: TPlayerIndex);
 begin
   inherited Create;
   fID           := aID;
-  fTicker       := fID; //Units update states will be spread more evenly that way
   fPointerCount := 0;
   fIsDead       := false;
   fKillASAP     := false;
   fThought      := th_None;
   fHome         := nil;
   fInHouse      := nil;
-  fPosition     := KMPointF(PosX, PosY);
-  fCurrPosition := KMPoint(PosX, PosY);
+  fPosition.X   := PosX;
+  fPosition.Y   := PosY;
+  fCurrPosition := KMPoint(PosX,PosY);
   fPrevPosition := fCurrPosition; //Init values
   fNextPosition := fCurrPosition; //Init values
   fOwner        := aOwner;
   fUnitType     := aUnitType;
-  fDirection    := dir_S;
+  Direction     := dir_S;
   fVisible      := true;
   IsExchanging  := false;
-  AnimStep      := UnitStillFrames[fDirection]; //Use still frame at begining, so units don't all change frame on first tick
+  AnimStep      := UnitStillFrames[Direction]; //Use still frame at begining, so units don't all change frame on first tick
   //Units start with a random amount of condition ranging from 0.5 to 0.7 (KaM uses 0.6 for all units)
   //By adding the random amount they won't all go eat at the same time and cause crowding, blockages, food shortages and other problems.
   if (fGame <> nil) and (fGame.GameMode <> gmMapEd) then
@@ -1067,7 +1060,6 @@ begin
 
   LoadStream.Read(fThought, SizeOf(fThought));
   LoadStream.Read(fCondition);
-  LoadStream.Read(fTicker);
   LoadStream.Read(fHitPoints);
   LoadStream.Read(fHitPointCounter);
   LoadStream.Read(fInHouse, 4);
@@ -1127,7 +1119,7 @@ begin
   //if not KMSamePoint(fCurrPosition,NextPosition) then
   //  Assert(false, 'Not sure where to die?');
 
-  if fHome <> nil then
+  if fHome<>nil then
   begin
     fHome.GetHasOwner := false;
     fPlayers.CleanUpHousePointer(fHome);
@@ -1163,6 +1155,9 @@ end;
 // CloseUnit - erase all unit data and hide it from further access
 procedure TKMUnit.KillUnit;
 begin
+  if fPlayers.Selected = Self then
+    fPlayers.Selected := nil;
+
   //Don't kill unit if it's already dying
   if fUnitTask is TTaskDie then
     Exit;
@@ -1177,7 +1172,7 @@ begin
 
   //Update statistics
   if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
-    fPlayers[fOwner].Stats.UnitLost(fUnitType);
+    fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
 
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
@@ -1190,8 +1185,6 @@ procedure TKMUnit.SetPosition(aPos: TKMPoint);
 begin
   //This is only used by the map editor, set all positions to aPos
   Assert(fGame.GameMode = gmMapEd);
-  if not fTerrain.CanPlaceUnit(aPos, UnitType) then Exit;
-
   fTerrain.UnitRem(fCurrPosition);
   fCurrPosition := aPos;
   fNextPosition := aPos;
@@ -1214,22 +1207,16 @@ end;
 
 
 //Return TRUE if unit was killed
-function TKMUnit.HitPointsDecrease(aAmount: Byte): Boolean;
+function TKMUnit.HitPointsDecrease(aAmount:integer):boolean;
 begin
-  Result := False;
-  Assert(aAmount > 0, '0 damage should be handled outside so not to reset HPCounter');
-
+  Result := false;
   //When we are first hit reset the counter
-  if fHitPoints = HitPointsMax then
-    fHitPointCounter := 1;
-
-  // Sign of aAmount does not affect (how come it ever did 0_o)
-  fHitPoints := Max(fHitPoints - aAmount, 0);
-  if (fHitPoints = 0) and not IsDeadOrDying then
-  begin
-    //Make sure to kill only once
+  if (aAmount > 0) and (fHitPoints = HitPointsMax) then fHitPointCounter := 1;
+  // Sign of aAmount does not affect
+  fHitPoints := EnsureRange(fHitPoints - abs(aAmount), 0, HitPointsMax);
+  if (fHitPoints = 0) and not IsDeadOrDying then begin //Kill only once
     KillUnit;
-    Result := True;
+    Result := true;
   end;
 end;
 
@@ -1275,19 +1262,16 @@ begin
   fPrevPosition := NextPosition;
   fNextPosition := aLoc;
   //If we're not using dynamic fog of war we only need to update it when the unit steps on a new tile
-  if not FOG_OF_WAR_ENABLE and (fOwner <> PLAYER_ANIMAL) then
+  if (not FOG_OF_WAR_ENABLE) and (fOwner <> PLAYER_ANIMAL) then
     fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
 //Only ClearUnit can set fDirection to NA, no other circumstances it is allowed
-procedure TKMUnit.SetDirection(aValue: TKMDirection);
+procedure TKMUnit.SetDirection(aValue:TKMDirection);
 begin
-  Assert(aValue <> dir_NA);
+  Assert(aValue<>dir_NA);
   fDirection := aValue;
-
-  //if fCurrentAction is TUnitActionStay then
-  //  AnimStep := UnitStillFrames[fDirection];
 end;
 
 
@@ -1331,7 +1315,7 @@ end;
 procedure TKMUnit.SetActionStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
   //When standing still in walk, use default frame
-  if (aAction = ua_Walk) and aStayStill then
+  if (aAction = ua_Walk)and(aStayStill) then
   begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
@@ -1356,7 +1340,7 @@ end;
 procedure TKMUnit.SetActionLockedStay(aTimeToStay:integer; aAction: TUnitActionType; aStayStill:boolean=true; aStillFrame:byte=0; aStep:integer=0);
 begin
   //When standing still in walk, use default frame
-  if (aAction = ua_Walk) and aStayStill then
+  if (aAction = ua_Walk)and(aStayStill) then
   begin
     aStillFrame := UnitStillFrames[Direction];
     aStep := UnitStillFrames[Direction];
@@ -1395,12 +1379,12 @@ procedure TKMUnit.SetActionWalkToUnit(aUnit:TKMUnit; aDistance:single; aActionTy
 begin
   if (GetUnitAction is TUnitActionWalkTo) and not TUnitActionWalkTo(GetUnitAction).CanAbandonExternal then Assert(false);
 
-  Assert(aDistance >= 1, 'Should not walk to units place');
+  Assert(aDistance>=1,'Should not walk to units place');
   SetAction(TUnitActionWalkTo.Create( Self,               //Who's walking
                                       aUnit.fCurrPosition,//Target position
                                       aActionType,        //
                                       aDistance,          //Proximity
-                                      False,              //If we were pushed
+                                      false,              //If we were pushed
                                       aUnit,              //Unit
                                       nil                 //House
                                       ));
@@ -1486,7 +1470,7 @@ end;
 
 procedure TKMUnit.Feed(Amount: Single);
 begin
-  fCondition := Math.min(fCondition + Round(Amount), UNIT_MAX_CONDITION);
+  fCondition := Math.min(fCondition + round(Amount), UNIT_MAX_CONDITION);
 end;
 
 
@@ -1499,7 +1483,7 @@ end;
 
 function TKMUnit.CanGoEat: Boolean;
 begin
-  Result := fPlayers[fOwner].FindInn(fCurrPosition,Self) <> nil;
+  Result := fPlayers.Player[fOwner].FindInn(fCurrPosition,Self) <> nil;
 end;
 
 
@@ -1554,11 +1538,34 @@ end;
 function TKMUnit.CanStepTo(X,Y: Integer): Boolean;
 begin
   Result := fTerrain.TileInMapCoords(X,Y)
-        and (fTerrain.Land[Y,X].IsUnit = nil)
         and (fTerrain.CheckPassability(KMPoint(X,Y), DesiredPassability))
         and (not KMStepIsDiag(GetPosition, KMPoint(X,Y)) //Only check vertex usage if the step is diagonal
              or (not fTerrain.HasVertexUnit(KMGetDiagVertex(GetPosition, KMPoint(X,Y)))))
-        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)));
+        and (fTerrain.CanWalkDiagonaly(GetPosition, KMPoint(X,Y)))
+        and (fTerrain.Land[Y,X].IsUnit = nil);
+end;
+
+
+procedure TKMUnit.UpdateHunger;
+begin
+  if fCondition>0 then //Make unit hungry as long as they are not currently eating in the inn
+    if not((fUnitTask is TTaskGoEat) and (TTaskGoEat(fUnitTask).Eating)) then
+      dec(fCondition);
+
+  //Feed the unit automatically. Don't align it with dec(fCondition) cos FOW uses it as a timer
+  if (not DO_UNIT_HUNGER)and(fCondition<UNIT_MIN_CONDITION+100) then fCondition := UNIT_MAX_CONDITION;
+
+  //Unit killing could be postponed by few ticks, hence fCondition could be <0
+  if fCondition <= 0 then
+    KillUnit;
+end;
+
+
+//Can use fCondition as a sort of counter to reveal terrain X times a sec
+procedure TKMUnit.UpdateFOW;
+begin
+  if fCondition mod 10 = 0 then
+    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
 end;
 
 
@@ -1593,7 +1600,7 @@ begin
       begin
         //There is no space for this unit so it must be destroyed
         if (fPlayers<>nil) and (fOwner <> PLAYER_NONE) and (fOwner <> PLAYER_ANIMAL) then
-          fPlayers[fOwner].Stats.UnitLost(fUnitType);
+          fPlayers.Player[fOwner].Stats.UnitLost(fUnitType);
         FreeAndNil(fCurrentAction);
         FreeAndNil(fUnitTask);
         CloseUnit(false); //Close the unit without removing tile usage (because this unit was in a house it has none)
@@ -1609,9 +1616,8 @@ begin
       fTerrain.UnitAdd(fCurrPosition, Self); //Unit was not occupying tile while inside the house, hence just add do not remove
       if GetUnitAction is TUnitActionGoInOut then
       begin
-        if (Self is TKMUnitWarrior) and (fInHouse is TKMHouseBarracks) then
-          fPlayers[fOwner].UnitGroups.WarriorTrained(TKMUnitWarrior(Self));
-        SetActionLockedStay(0, ua_Walk); //Abandon the walk out in this case
+        TUnitActionGoInOut(GetUnitAction).DoLinking; //Warriors will be linked as normal
+        SetActionLockedStay(0,ua_Walk); //Abandon the walk out in this case
       end;
       if (UnitTask is TTaskGoEat) and (TTaskGoEat(UnitTask).Eating) then
       begin
@@ -1651,26 +1657,25 @@ end;
 
 
 function TKMUnit.GetActivityText: string;
-const
-  TASK_TEXT: array[TUnitTaskName] of Integer = (
-      -1,-1,                   //utn_Unknown, utn_SelfTrain
-      TX_UNIT_TASK_DELVERING,  //utn_Deliver
-      TX_UNIT_TASK_ROAD,       //utn_BuildRoad
-      TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
-      TX_UNIT_TASK_FIELD,      //utn_BuildField
-      -1,                      //utn_BuildWall (unused)
-      TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
-      TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
-      TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair
-      TX_UNIT_TASK_HOME,       //utn_GoHome
-      TX_UNIT_TASK_INN,        //utn_GoEat
-      -1,                      //utn_Mining (overridden by Citizen)
-      -1,                      //utn_Die (never visible)
-      TX_UNIT_TASK_INN,        //utn_GoOutShowHungry
-      -1,                      //utn_AttackHouse (overridden by Warrior)
-      -1                       //utn_ThrowRock (never visible)
-    );
-begin
+const TASK_TEXT: array[TUnitTaskName] of Integer = (
+-1,-1,                   //utn_Unknown, utn_SelfTrain
+TX_UNIT_TASK_DELVERING,  //utn_Deliver
+TX_UNIT_TASK_ROAD,       //utn_BuildRoad
+TX_UNIT_TASK_WINEFIELD,  //utn_BuildWine
+TX_UNIT_TASK_FIELD,      //utn_BuildField
+-1,                      //utn_BuildWall (unused)
+TX_UNIT_TASK_HOUSE_SITE, //utn_BuildHouseArea
+TX_UNIT_TASK_HOUSE,      //utn_BuildHouse
+TX_UNIT_TASK_REPAIRING,  //utn_BuildHouseRepair
+TX_UNIT_TASK_HOME,       //utn_GoHome
+TX_UNIT_TASK_INN,        //utn_GoEat
+-1,                      //utn_Mining (overridden by Citizen)
+-1,                      //utn_Die (never visible)
+TX_UNIT_TASK_INN,        //utn_GoOutShowHungry
+-1,                      //utn_AttackHouse (overridden by Warrior)
+-1                       //utn_ThrowRock (never visible)
+);
+begin                  
   if (fUnitTask <> nil) and (TASK_TEXT[fUnitTask.TaskName] <> -1) then
     Result := fTextLibrary[TASK_TEXT[fUnitTask.TaskName]]
   else
@@ -1682,11 +1687,9 @@ procedure TKMUnit.UpdateHitPoints;
 begin
   //Use fHitPointCounter as a counter to restore hit points every X ticks (Humbelum says even when in fights)
   if HITPOINT_RESTORE_PACE = 0 then Exit; //0 pace means don't restore
-
-  if (fHitPointCounter mod HITPOINT_RESTORE_PACE = 0) and (fHitPoints < HitPointsMax) then
-    Inc(fHitPoints);
-
-  Inc(fHitPointCounter); //Increasing each tick by 1 would require 13,6 years to overflow Cardinal
+  if fHitPointCounter mod HITPOINT_RESTORE_PACE = 0 then
+    fHitPoints := Min(fHitPoints + 1, HitPointsMax);
+  fHitPointCounter := fHitPointCounter mod High(Cardinal) + 1;
 end;
 
 
@@ -1778,7 +1781,6 @@ begin
 
   SaveStream.Write(fThought, SizeOf(fThought));
   SaveStream.Write(fCondition);
-  SaveStream.Write(fTicker);
   SaveStream.Write(fHitPoints);
   SaveStream.Write(fHitPointCounter);
 
@@ -1831,23 +1833,9 @@ begin
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
 
-  Inc(fTicker);
-
-  //Update hunger
-  if (fTicker mod CONDITION_PACE = 0)
-  and (fCondition > 0)
-  and not ((fUnitTask is TTaskGoEat) and TTaskGoEat(fUnitTask).Eating) then
-    //Make unit hungry as long as they are not currently eating in the inn
-    Dec(fCondition);
-
-  //Unit killing could be postponed by few ticks, hence fCondition could be <0
-  if fCondition <= 0 then
-    KillUnit;
-
+  UpdateHunger;
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
-  if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then
-    fPlayers.RevealForTeam(fOwner, fCurrPosition, fResource.UnitDat[fUnitType].Sight, FOG_OF_WAR_INC);
-
+  if FOG_OF_WAR_ENABLE then UpdateFOW;
   UpdateThoughts;
   UpdateHitPoints;
   if UpdateVisibility then exit; //incase units home was destroyed. Returns true if the unit was killed due to lack of space
@@ -2066,7 +2054,7 @@ end;
 
 { AutoPlace means should we find a spot for this unit or just place it where we are told.
   Used for creating units still inside schools }
-function TKMUnitsCollection.Add(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
+function TKMUnitsCollection.Add(aOwner: shortint; aUnitType: TUnitType; PosX, PosY: Integer; AutoPlace:boolean=true; RequiredWalkConnect:byte=0): TKMUnit;
 var
   ID: Cardinal;
   P: TKMPoint;
@@ -2111,31 +2099,59 @@ begin
 end;
 
 
-function TKMUnitsCollection.AddGroup(aOwner: TPlayerIndex; aUnitType: TUnitType; PosX, PosY: Word; aDir: TKMDirection; aUnitPerRow, aUnitCount: Word; aMapEditor: Boolean = False): TKMUnit;
-var
-  U: TKMUnit;
-  I: Integer;
-  UnitPosition: TKMPoint;
-  DoesFit: Boolean;
+function TKMUnitsCollection.AddGroup(aOwner:TPlayerIndex;  aUnitType:TUnitType; PosX, PosY:integer; aDir:TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor:boolean=false):TKMUnit;
+var U:TKMUnit; Commander,W:TKMUnitWarrior; i:integer; UnitPosition:TKMPoint; DoesFit: boolean;
 begin
   Assert(aDir <> dir_NA);
-  Assert(aUnitType in [WARRIOR_MIN..WARRIOR_MAX]);
-
-  aUnitPerRow := Math.min(aUnitPerRow, aUnitCount); //Can have more rows than units
-
-  for I := 0 to aUnitCount - 1 do
+  aUnitPerRow := Math.min(aUnitPerRow,aUnitCount); //Can have more rows than units
+  if not (aUnitType in [WARRIOR_MIN..WARRIOR_MAX]) then
   begin
-    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, I, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
-    if not DoesFit then Continue;
-
-    U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
-    if U = nil then Continue;
-
-    fPlayers[aOwner].Stats.UnitCreated(aUnitType, false);
-    U.Direction := aDir;
-    U.AnimStep  := UnitStillFrames[aDir];
+    for i:=1 to aUnitCount do
+    begin
+      UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+      U := Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y); //U will be _nil_ if unit didn't fit on map
+      if U<>nil then
+      begin
+        fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+        U.Direction := aDir;
+        U.AnimStep  := UnitStillFrames[aDir];
+      end;
+    end;
+    Result := nil; //Dunno what to return here
+    exit; // Don't do anything else for citizens
   end;
-  Result := nil; //Dunno what to return here
+
+  //Add commander first
+  Commander := TKMUnitWarrior(Add(aOwner, aUnitType, PosX, PosY));
+  Result := Commander;
+
+  if Commander=nil then exit; //Don't add group without a commander
+  fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+
+  Commander.Direction := aDir;
+  Commander.AnimStep  := UnitStillFrames[aDir];
+  Commander.OrderLocDir := KMPointDir(Commander.OrderLocDir.Loc, aDir); //So when they click Halt for the first time it knows where to place them
+
+  //In MapEditor we need only fMapEdMembersCount property, without actual members
+  if aMapEditor then begin
+    Commander.fMapEdMembersCount := aUnitCount-1; //Skip commander
+    Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
+    exit;
+  end;
+
+  for i:=2 to aUnitCount do begin //Commander already placed
+    UnitPosition := GetPositionInGroup2(PosX, PosY, aDir, i, aUnitPerRow, fTerrain.MapX, fTerrain.MapY, DoesFit);
+    W := TKMUnitWarrior(Add(aOwner, aUnitType, UnitPosition.X, UnitPosition.Y, true, fTerrain.GetWalkConnectID(KMPoint(PosX,PosY)))); //W will be _nil_ if unit didn't fit on map
+    if W<>nil then
+    begin
+      fPlayers.Player[aOwner].Stats.UnitCreated(aUnitType, false);
+      W.Direction := aDir;
+      W.AnimStep  := UnitStillFrames[aDir];
+      Commander.AddMember(W);
+      W.fCondition := Commander.fCondition; //Whole group will have same condition
+    end;
+  end;
+  Commander.UnitsPerRow := aUnitPerRow; //Must be set at the end AFTER adding members
 end;
 
 
@@ -2148,34 +2164,34 @@ end;
 
 
 procedure TKMUnitsCollection.OwnerUpdate(aOwner:TPlayerIndex);
-var I: Integer;
+var i:integer;
 begin
-  for I := 0 to Count - 1 do
-    Units[I].fOwner := aOwner;
+  for i:=0 to Count-1 do
+    Units[i].fOwner := aOwner;
 end;
 
 
 function TKMUnitsCollection.HitTest(X, Y: Integer; const UT:TUnitType = ut_Any): TKMUnit;
-var I: Integer;
+var i:integer;
 begin
-  Result := nil;
-  for I := 0 to Count - 1 do
-    if Units[I].HitTest(X,Y,UT) and not Units[I].IsDead then
+  Result:= nil;
+  for i:=0 to Count-1 do
+    if Units[i].HitTest(X,Y,UT) and (not Units[i].IsDead) then
     begin
-      Result := Units[I];
-      Exit;
+      Result := Units[i];
+      exit;
     end;
 end;
 
 
 function TKMUnitsCollection.GetUnitByID(aID: Integer): TKMUnit;
-var I: Integer;
+var i:integer;
 begin
   Result := nil;
-  for I := 0 to Count - 1 do
-    if aID = Units[I].ID then
+  for i := 0 to Count-1 do
+    if aID = Units[i].ID then
     begin
-      Result := Units[I];
+      Result := Units[i];
       exit;
     end;
 end;
@@ -2188,6 +2204,7 @@ begin
     if KMInRect(Units[I].PositionF, aRect)
     and not Units[I].IsDeadOrDying
     and Units[I].Visible
+    and (not (Units[I] is TKMUnitWarrior) or TKMUnitWarrior(Units[I]).IsCommander)
     and (MyPlayer.FogOfWar.CheckRevelation(Units[I].PositionF, True) > FOG_OF_WAR_MIN) then
       List.Add(Units[I]);
 end;
@@ -2203,7 +2220,7 @@ begin
   for i := 0 to Count - 1 do
     if not Units[i].IsDeadOrDying and Units[i].fVisible then
     begin
-      Dist := KMLengthSqr(Units[i].GetPosition, aPoint);
+      Dist := GetLength(Units[i].GetPosition, aPoint);
       if Dist < BestDist then
       begin
         BestDist := Dist;
@@ -2222,28 +2239,26 @@ begin
 end;
 
 
-procedure TKMUnitsCollection.Save(SaveStream: TKMemoryStream);
-var I: Integer;
+procedure TKMUnitsCollection.Save(SaveStream:TKMemoryStream);
+var i:integer;
 begin
   SaveStream.Write('Units');
   SaveStream.Write(Count);
-  for I := 0 to Count - 1 do
+  for i := 0 to Count - 1 do
   begin
     //We save unit type to know which unit class to load
-    SaveStream.Write(Units[I].UnitType, SizeOf(Units[I].UnitType));
-    Units[I].Save(SaveStream);
+    SaveStream.Write(Units[i].UnitType, SizeOf(Units[i].UnitType));
+    Units[i].Save(SaveStream);
   end;
 end;
 
 
-procedure TKMUnitsCollection.Load(LoadStream: TKMemoryStream);
-var
-  I, NewCount: Integer;
-  UnitType: TUnitType;
+procedure TKMUnitsCollection.Load(LoadStream:TKMemoryStream);
+var i,UnitCount:integer; UnitType:TUnitType;
 begin
   LoadStream.ReadAssert('Units');
-  LoadStream.Read(NewCount);
-  for I := 0 to NewCount - 1 do
+  LoadStream.Read(UnitCount);
+  for i := 0 to UnitCount - 1 do
   begin
     LoadStream.Read(UnitType, SizeOf(UnitType));
     case UnitType of
@@ -2261,19 +2276,18 @@ end;
 
 
 procedure TKMUnitsCollection.SyncLoad;
-var
-  I: Integer;
+var i:integer;
 begin
-  for I := 0 to Count - 1 do
+  for i:=0 to Count-1 do
   begin
-    case Units[I].fUnitType of
-      ut_Serf:                  TKMUnitSerf(Items[I]).SyncLoad;
-      ut_Worker:                TKMUnitWorker(Items[I]).SyncLoad;
+    case Units[i].fUnitType of
+      ut_Serf:                  TKMUnitSerf(Items[i]).SyncLoad;
+      ut_Worker:                TKMUnitWorker(Items[i]).SyncLoad;
       ut_WoodCutter..ut_Fisher,{ut_Worker,}ut_StoneCutter..ut_Metallurgist:
-                                TKMUnitCitizen(Items[I]).SyncLoad;
-      ut_Recruit:               TKMUnitRecruit(Items[I]).SyncLoad;
-      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[I]).SyncLoad;
-      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[I]).SyncLoad;
+                                TKMUnitCitizen(Items[i]).SyncLoad;
+      ut_Recruit:               TKMUnitRecruit(Items[i]).SyncLoad;
+      WARRIOR_MIN..WARRIOR_MAX: TKMUnitWarrior(Items[i]).SyncLoad;
+      ANIMAL_MIN..ANIMAL_MAX:   TKMUnitAnimal(Items[i]).SyncLoad;
     end;
   end;
 end;
@@ -2283,7 +2297,7 @@ procedure TKMUnitsCollection.UpdateState;
 var
   I: integer;
 begin
-  for I := Count - 1 downto 0 do
+  for I:=Count-1 downto 0 do
   if not Units[I].IsDead then
     Units[I].UpdateState
   else //Else try to destroy the unit object if all pointers are freed

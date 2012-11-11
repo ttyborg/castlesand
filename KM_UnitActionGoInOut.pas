@@ -3,7 +3,7 @@ unit KM_UnitActionGoInOut;
 interface
 uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
-  KM_Houses, KM_Units, KM_UnitGroups;
+  KM_Houses, KM_Units;
 
 
 type
@@ -37,6 +37,7 @@ type
     property GetHasStarted: boolean read fHasStarted;
     property GetWaitingForPush: boolean read fWaitingForPush;
     function GetDoorwaySlide(aCheck: TCheckAxis): Single;
+    procedure DoLinking; //Public because we need it when the barracks is destroyed
     function Execute: TActionResult; override;
     procedure Save(SaveStream: TKMemoryStream); override;
   end;
@@ -208,7 +209,7 @@ begin
     if (U <> nil)
     and (U.GetUnitAction is TUnitActionStay)
     and not TUnitActionStay(U.GetUnitAction).Locked
-    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.Owner,fUnit.Owner) = at_Ally)) then
+    and (not (U is TKMUnitWarrior) or (fPlayers.CheckAlliance(U.GetOwner,fUnit.GetOwner) = at_Ally)) then
       Result := U;
   end;
 end;
@@ -247,13 +248,28 @@ begin
   and (fUnit.GetHome = fHouse) then //And is the house we are walking from
     fHouse.fCurrentAction.SubActionRem([ha_Flagpole]);
 
-  //Warriors attempt to link as they leave the house
-  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
-    fPlayers[fUnit.Owner].UnitGroups.WarriorTrained(TKMUnitWarrior(fUnit));
+  DoLinking; //Warriors attempt to link as they leave the house
 
   //We are walking straight
   if fStreet.X = fDoor.X then
    IncDoorway;
+end;
+
+
+procedure TUnitActionGoInOut.DoLinking;
+var LinkUnit: TKMUnitWarrior;
+begin
+  if (fUnit is TKMUnitWarrior) and (fHouse is TKMHouseBarracks) then
+  begin
+    case fPlayers.Player[fUnit.GetOwner].PlayerType of
+      pt_Human:    begin
+                     LinkUnit := TKMUnitWarrior(fUnit).FindLinkUnit(fStreet);
+                     if LinkUnit <> nil then
+                       TKMUnitWarrior(fUnit).OrderLinkTo(LinkUnit);
+                   end;
+      pt_Computer: fPlayers[fUnit.GetOwner].AI.WarriorEquipped(TKMUnitWarrior(fUnit));
+    end;
+  end;
 end;
 
 
@@ -350,7 +366,7 @@ begin
     Distance := Distance / 1.41; {sqrt (2) = 1.41421 }
 
   fStep := fStep - Distance * shortint(fDirection);
-  fUnit.PositionF := KMLerp(fDoor, fStreet, fStep);
+  fUnit.PositionF := Mix(KMPointF(fStreet), KMPointF(fDoor), fStep);
   fUnit.Visible := (fHouse = nil) or (fHouse.IsDestroyed) or (fStep > 0); //Make unit invisible when it's inside of House
 
   if (fStep <= 0) or (fStep >= 1) then

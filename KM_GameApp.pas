@@ -5,7 +5,7 @@ uses
   Windows, Classes, Controls, Dialogs, ExtCtrls, KromUtils, Math, SysUtils, TypInfo,
   KM_CommonTypes, KM_Defaults,
   KM_Campaigns, KM_Game,
-  KM_InterfaceMainMenu,
+  KM_InterfaceDefaults, KM_InterfaceMainMenu,
   KM_Locales, KM_Music, KM_Networking, KM_Settings, KM_TextLibrary, KM_Render;
 
 type
@@ -98,7 +98,7 @@ implementation
 uses
   KM_Log,
   {$IFDEF USE_MAD_EXCEPT} KM_Exceptions, {$ENDIF}
-  KM_Maps, KM_Resource, KM_Sound, KM_Utils;
+  KM_Resource, KM_Sound, KM_Utils;
 
 
 { Creating everything needed for MainMenu, game stuff is created on StartGame }
@@ -525,7 +525,7 @@ end;
 
 procedure TKMGameApp.NewMultiplayerMap(const aFileName: string);
 begin
-  LoadGameFromScript(TKMapsCollection.FullPath(aFileName, '.dat', True), aFileName, '', 0, gmMulti);
+  LoadGameFromScript(MapNameToPath(aFileName, 'dat', True), aFileName, '', 0, gmMulti);
 
   //Copy the chat and typed lobby message to the in-game chat
   if fGame <> nil then

@@ -1,10 +1,10 @@
 unit KM_Player;
 {$I KaM_Remake.inc}
 interface
-uses Classes, KromUtils, SysUtils, Math,
+uses Classes, KromUtils, SysUtils,
   KM_CommonClasses, KM_Defaults, KM_Points,
   KM_ArmyEvaluation, KM_BuildList, KM_DeliverQueue, KM_FogOfWar,
-  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units, KM_UnitGroups, KM_MapEditor;
+  KM_Goals, KM_Houses, KM_Terrain, KM_AI, KM_PlayerStats, KM_Units;
 
 
 type
@@ -23,7 +23,6 @@ type
     property Units: TKMUnitsCollection read fUnits;
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true): TKMUnit;
-    procedure RemGroup(Position: TKMPoint); virtual;
     procedure RemUnit(Position: TKMPoint);
     function UnitsHitTest(X, Y: Integer; const UT: TUnitType = ut_Any): TKMUnit;
 
@@ -47,7 +46,6 @@ type
     fHouses: TKMHousesCollection;
     fRoadsList: TKMPointList; //Used only once to speedup mission loading, then freed
     fStats: TKMPlayerStats;
-    fUnitGroups: TKMUnitGroups;
 
     fPlayerName: string;
     fPlayerType: TPlayerType;
@@ -71,7 +69,6 @@ type
     property Goals: TKMGoals read fGoals;
     property FogOfWar: TKMFogOfWar read fFogOfWar;
     property ArmyEval: TKMArmyEvaluation read fArmyEval;
-    property UnitGroups: TKMUnitGroups read fUnitGroups;
 
     procedure SetPlayerID(aNewIndex: TPlayerIndex);
     property PlayerName: string read fPlayerName write fPlayerName;
@@ -86,7 +83,7 @@ type
 
     function AddUnit(aUnitType: TUnitType; Position: TKMPoint; AutoPlace: Boolean=true; WasTrained: Boolean = False): TKMUnit; reintroduce;
     procedure AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
-    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnitGroup;
+    function AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean = False): TKMUnit;
 
     function TrainUnit(aUnitType: TUnitType; Position: TKMPoint): TKMUnit;
     procedure TrainingDone(aUnit: TKMUnit);
@@ -104,7 +101,6 @@ type
     procedure ToggleFakeFieldPlan(aLoc: TKMPoint; aFieldType: TFieldType);
     procedure AddHousePlan(aHouseType: THouseType; aLoc: TKMPoint);
     procedure AddHouseWIP(aHouseType: THouseType; aLoc: TKMPoint; out House: TKMHouse);
-    procedure RemGroup(Position: TKMPoint); override;
     procedure RemHouse(Position: TKMPoint; DoSilent: Boolean; IsEditor: Boolean = False);
     procedure RemHousePlan(Position: TKMPoint);
     procedure RemFieldPlan(Position: TKMPoint; aMakeSound:Boolean);
@@ -113,7 +109,6 @@ type
     function FindHouse(aType: THouseType; aPosition: TKMPoint; Index: Byte=1): TKMHouse; overload;
     function FindHouse(aType: THouseType; Index: Byte=1): TKMHouse; overload;
     function HousesHitTest(X, Y: Integer): TKMHouse;
-    function GroupsHitTest(X, Y: Integer): TKMUnitGroup;
     procedure GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList: TKMPointTagList);
 
     function GetFieldsCount: Integer;
@@ -138,7 +133,7 @@ type
 
 implementation
 uses KM_PlayersCollection, KM_Resource, KM_ResourceHouse, KM_Sound, KM_Game,
-  KM_Units_Warrior, KM_TextLibrary, KM_AIFields;
+  KM_Units_Warrior, KM_TextLibrary;
 
 
 { TKMPlayerCommon }
@@ -165,23 +160,13 @@ end;
 
 procedure TKMPlayerCommon.Paint;
 begin
-  if fGame.IsMapEditor and not (mlUnits in fGame.MapEditor.VisibleLayers) then Exit;
-
   fUnits.Paint;
-end;
-
-
-procedure TKMPlayerCommon.RemGroup(Position: TKMPoint);
-begin
-  Assert(fGame.IsMapEditor);
 end;
 
 
 procedure TKMPlayerCommon.RemUnit(Position: TKMPoint);
 var U: TKMUnit;
 begin
-  Assert(fGame.IsMapEditor);
-
   U := fUnits.HitTest(Position.X, Position.Y);
   if U <> nil then
     fUnits.RemoveUnit(U);
@@ -234,7 +219,6 @@ begin
   fDeliveries   := TKMDeliveries.Create;
   fBuildList    := TKMBuildList.Create;
   fArmyEval     := TKMArmyEvaluation.Create(Self);
-  fUnitGroups   := TKMUnitGroups.Create;
 
   fPlayerName   := '';
   fPlayerType   := pt_Computer;
@@ -253,7 +237,6 @@ begin
   FreeThenNil(fArmyEval);
   FreeThenNil(fRoadsList);
   FreeThenNil(fHouses);
-  FreeThenNil(fUnitGroups);
 
   //Should be freed after Houses and Units, as they write Stats on Destroy
   FreeThenNil(fStats);
@@ -288,11 +271,16 @@ end;
 procedure TKMPlayer.AddUnitAndLink(aUnitType: TUnitType; Position: TKMPoint);
 var
   U: TKMUnit;
+  W: TKMUnitWarrior;
 begin
   U := AddUnit(aUnitType, Position);
 
   if (U <> nil) and (U is TKMUnitWarrior) then
-    fUnitGroups.WarriorTrained(TKMUnitWarrior(U));
+  begin
+    W := TKMUnitWarrior(U).FindLinkUnit(U.GetPosition);
+    if W <> nil then
+      TKMUnitWarrior(U).OrderLinkTo(W);
+  end;
 end;
 
 
@@ -320,9 +308,9 @@ begin
 end;
 
 
-function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnitGroup;
+function TKMPlayer.AddUnitGroup(aUnitType: TUnitType; Position: TKMPoint; aDir: TKMDirection; aUnitPerRow, aUnitCount:word; aMapEditor: Boolean=false): TKMUnit;
 begin
-  Result := fUnitGroups.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount);
+  Result := fUnits.AddGroup(fPlayerIndex, aUnitType, Position.X, Position.Y, aDir, aUnitPerRow, aUnitCount, aMapEditor);
   //Add unit to statistic inside the function for some units may not fit on map
 end;
 
@@ -391,7 +379,7 @@ begin
   //Don't allow placing on allies plans either
   if Result then
     for I := 0 to fPlayers.Count - 1 do
-      if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
+      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
         Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
                          and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
@@ -409,7 +397,7 @@ begin
   //Don't allow placing on allies plans either
   if Result then
     for I := 0 to fPlayers.Count - 1 do
-      if (I <> fPlayerIndex) and (fAlliances[I] = at_Ally) then
+      if (I <> fPlayerIndex) and (fPlayers.CheckAlliance(fPlayerIndex, I) = at_Ally) then
         Result := Result and (fPlayers[i].fBuildList.FieldworksList.HasField(aLoc) = ft_None)
                          and not fPlayers[i].fBuildList.HousePlanList.HasPlan(aLoc);
 end;
@@ -435,7 +423,7 @@ begin
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
-      if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
+      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
       begin
         Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
@@ -448,32 +436,25 @@ end;
 
 
 function TKMPlayer.CanAddHousePlanAI(aX, aY: Word; aHouseType: THouseType; aIgnoreInfluence: Boolean): Boolean;
-var
-  I, K, J, S, T, Tx, Ty: Integer;
-  HA: THouseArea;
-  EnterOff: ShortInt;
+var I,K,J,S,T,Tx,Ty: Integer; HA: THouseArea;
 begin
   //Check if we can place house on terrain, this also makes sure the house is
   //at least 1 tile away from map border (skip that below)
-  Result := fTerrain.CanPlaceHouse(KMPoint(aX, aY), aHouseType);
+  Result := fTerrain.CanPlaceHouse(kmPoint(aX, aY), aHouseType);
   if not Result then Exit;
 
   HA := fResource.HouseDat[aHouseType].BuildArea;
-  EnterOff := fResource.HouseDat[aHouseType].EntranceOffsetX;
   for I := 1 to 4 do
   for K := 1 to 4 do
   if HA[I,K] <> 0 then
   begin
-    Tx := aX + K - 3 - EnterOff;
+    Tx := aX - fResource.HouseDat[aHouseType].EntranceOffsetX + K - 3;
     Ty := aY + I - 4;
 
     //Make sure tile in map coords and there's no road below
     Result := Result and not fTerrain.CheckPassability(KMPoint(Tx, Ty), CanWalkRoad);
 
-    //Check if tile's blocked
-    Result := Result and (aIgnoreInfluence or not AI_GEN_INFLUENCE_MAPS or (fAIFields.Influences.AvoidBuilding[Ty, Tx] = 0));
-
-    //Make sure we can add road below house, full width + 1 on each side
+    //Make sure we can add road below house, full width
     if (I = 4) then
       Result := Result and fTerrain.CheckPassability(KMPoint(Tx - 1, Ty + 1), CanMakeRoads)
                        and fTerrain.CheckPassability(KMPoint(Tx    , Ty + 1), CanMakeRoads)
@@ -483,7 +464,7 @@ begin
 
     //This tile must not contain fields/houses of allied players or self
     for J := 0 to fPlayers.Count - 1 do
-      if (J = fPlayerIndex) or (fAlliances[J] = at_Ally) then
+      if (J = fPlayerIndex) or (fPlayers.CheckAlliance(fPlayerIndex, J) = at_Ally) then
       begin
         Result := Result and (fPlayers[J].fBuildList.FieldworksList.HasField(KMPoint(Tx,Ty)) = ft_None);
         //Surrounding tiles must not be a house
@@ -491,6 +472,8 @@ begin
           for T := -1 to 1 do
             Result := Result and not fPlayers[J].fBuildList.HousePlanList.HasPlan(KMPoint(Tx+S,Ty+T));
       end;
+
+    Result := Result and (aIgnoreInfluence or (fTerrain.Land[Ty,Tx].Influence = 0));
   end;
 end;
 
@@ -628,16 +611,6 @@ begin
 end;
 
 
-procedure TKMPlayer.RemGroup(Position: TKMPoint);
-var Group: TKMUnitGroup;
-begin
-  inherited;
-
-  Group := fUnitGroups.HitTest(Position.X, Position.Y);
-  if Group <> nil then
-    fUnitGroups.RemGroup(Group);
-end;
-
 //This is called immediately when the user clicks erase on a field plan.
 //We know that an erase command is queued and will be processed in some ticks,
 //so we AddFakeDeletedField which lets the user think the field was removed,
@@ -672,7 +645,7 @@ begin
   //Will return nil if no suitable inn is available
   Result := nil;
   I := 1;
-  BestMatch := MaxSingle;
+  BestMatch := 9999;
   if UnitIsAtHome then inc(Loc.Y); //From outside the door of the house
 
   H := TKMHouseInn(FindHouse(ht_Inn));
@@ -682,7 +655,7 @@ begin
     and aUnit.CanWalkTo(Loc, KMPointBelow(H.GetEntrance), CanWalk, 0) then
     begin
       //Take the closest inn out of the ones that are suitable
-      Dist := KMLengthSqr(H.GetPosition, Loc);
+      Dist := GetLength(H.GetPosition, Loc);
       if Dist < BestMatch then
       begin
         Result := H;
@@ -702,19 +675,13 @@ begin
 end;
 
 
-function TKMPlayer.GroupsHitTest(X, Y: Integer): TKMUnitGroup;
-begin
-  Result:= fUnitGroups.HitTest(X, Y);
-end;
-
-
 function TKMPlayer.GetColorIndex: Byte;
-var I: Integer;
+var i: Integer;
 begin
   Result := 3; //3 = Black which can be the default when a non-palette 32 bit color value is used
-  for I := 0 to 255 do
-    if fResource.Palettes.DefDal.Color32(I) = fFlagColor then
-      Result := I;
+  for i:=0 to 255 do
+    if fResource.Palettes.DefDal.Color32(i) = fFlagColor then
+      Result := i;
 end;
 
 
@@ -805,7 +772,7 @@ procedure TKMPlayer.GetHouseMarks(aLoc: TKMPoint; aHouseType: THouseType; aList:
       if KMSamePoint(aList[I], aPoint) then
         aList.RemoveEntry(aPoint);
 
-    aList.AddEntry(aPoint, aID);
+    aList.AddEntry(aPoint, aID, 0);
   end;
 
 var
@@ -871,7 +838,6 @@ begin
   fGoals.Save(SaveStream);
   fHouses.Save(SaveStream);
   fStats.Save(SaveStream);
-  fUnitGroups.Save(SaveStream);
 
   SaveStream.Write(fPlayerIndex);
   SaveStream.Write(fPlayerName);
@@ -893,7 +859,6 @@ begin
   fGoals.Load(LoadStream);
   fHouses.Load(LoadStream);
   fStats.Load(LoadStream);
-  fUnitGroups.Load(LoadStream);
 
   LoadStream.Read(fPlayerIndex);
   LoadStream.Read(s); fPlayerName := s;
@@ -907,7 +872,6 @@ end;
 procedure TKMPlayer.SyncLoad;
 begin
   inherited;
-  fUnitGroups.SyncLoad;
   fHouses.SyncLoad;
   fDeliveries.SyncLoad;
   fBuildList.SyncLoad;
@@ -923,9 +887,6 @@ end;
 
 procedure TKMPlayer.UpdateState(aTick: Cardinal);
 begin
-  //Update Groups logic before Units
-  fUnitGroups.UpdateState;
-
   inherited;
 
   fHouses.UpdateState;
@@ -940,7 +901,7 @@ begin
 
   if (aTick + Byte(fPlayerIndex)) mod 20 = 0 then
   begin
-    fAI.UpdateState(aTick);
+    fAI.UpdateState;
     //fArmyEval.UpdateState;
   end;
 
@@ -954,9 +915,6 @@ end;
 procedure TKMPlayer.Paint;
 begin
   inherited;
-  if fGame.IsMapEditor and not(mlHouses in fGame.MapEditor.VisibleLayers) then exit;
-
-  fUnitGroups.Paint;
   fHouses.Paint;
 end;
 

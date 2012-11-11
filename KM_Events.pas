@@ -176,7 +176,6 @@ procedure TKMEventsManager.Proc(aTrigger: TEventTrigger; aPlayer: TPlayerIndex; 
 var I: Integer;
 begin
   //Process in reverse as we delete handled events
-  //todo: make that in normal direction since some actions may affect other triggers
   for I := fEvents.Count - 1 downto 0 do
   if Events[I].Handle(MakeTrigger(aTrigger, aPlayer, aParams)) then
   begin

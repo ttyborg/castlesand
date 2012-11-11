@@ -18,17 +18,6 @@ const
   );
 
 type
-  TMapEdLayer = (mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences, mlRevealFOW);  //Enum representing mapEditor visible layers
-  TMapEdLayerSet = set of TMapEdLayer;                                   //Set of above enum
-
-  TMarkerType = (mtNone, mtDefence, mtRevealFOW);
-
-  TKMMapEdMarker = record
-    MarkerType: TMarkerType;
-    Owner: TPlayerIndex;
-    Index: SmallInt;
-  end;
-
   //Scans the map and reports raw resources deposits info
   TKMDeposits = class
   private
@@ -54,16 +43,14 @@ type
   TKMMapEditor = class
   private
     fDeposits: TKMDeposits;
-    fRevealers: array [0..MAX_PLAYERS-1] of TKMPointTagList;
-    fVisibleLayers: TMapEdLayerSet;
-    function GetRevealer(aIndex: Byte): TKMPointTagList;
+    fShowDefencePositions: Boolean;
+    fShowDeposits: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
     property Deposits: TKMDeposits read fDeposits;
-    property Revealers[aIndex: Byte]: TKMPointTagList read GetRevealer;
-    property VisibleLayers: TMapEdLayerSet read fVisibleLayers write fVisibleLayers;
-    function HitTest(X,Y: Integer): TKMMapEdMarker;
+    property ShowDefencePositions: Boolean read fShowDefencePositions;
+    property ShowDeposits: Boolean read fShowDeposits;
     procedure Update;
     procedure Paint;
   end;
@@ -245,103 +232,41 @@ end;
 
 { TKMMapEditor }
 constructor TKMMapEditor.Create;
-var
-  I: Integer;
 begin
   inherited Create;
 
   fDeposits := TKMDeposits.Create;
 
-  fVisibleLayers := [mlObjects, mlHouses, mlUnits, mlDeposits, mlDefences];
-
-  for I := Low(fRevealers) to High(fRevealers) do
-    fRevealers[I] := TKMPointTagList.Create;
+  //fShowDefencePositions := True;
+  fShowDeposits := True;
 end;
 
 
 destructor TKMMapEditor.Destroy;
-var
-  I: Integer;
 begin
   FreeAndNil(fDeposits);
 
-  for I := Low(fRevealers) to High(fRevealers) do
-    fRevealers[I].Free;
-
   inherited;
-end;
-
-
-function TKMMapEditor.GetRevealer(aIndex: Byte): TKMPointTagList;
-begin
-  Result := fRevealers[aIndex];
-end;
-
-
-function TKMMapEditor.HitTest(X, Y: Integer): TKMMapEdMarker;
-var I,K: Integer;
-begin
-  if mlDefences in fVisibleLayers then
-  begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
-        if (fPlayers[I].AI.DefencePositions[K].Position.Loc.X = X)
-        and (fPlayers[I].AI.DefencePositions[K].Position.Loc.Y = Y) then
-        begin
-          Result.MarkerType := mtDefence;
-          Result.Owner := I;
-          Result.Index := K;
-          Exit;
-        end;
-  end;
-
-  if mlRevealFOW in fVisibleLayers then
-  begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fRevealers[I].Count - 1 do
-        if (fRevealers[I][K].X = X) and (fRevealers[I][K].Y = Y) then
-        begin
-          Result.MarkerType := mtRevealFOW;
-          Result.Owner := I;
-          Result.Index := K;
-          Exit;
-        end;
-  end;
-
-  //Else nothing is found
-  Result.MarkerType := mtNone;
-  Result.Owner := PLAYER_NONE;
-  Result.Index := -1;
 end;
 
 
 procedure TKMMapEditor.Update;
 begin
   fDeposits.UpdateAreas([rdStone, rdCoal, rdIron, rdGold, rdFish]);
-  fAIFields.AfterMissionInit;
-  fAIFields.UpdateState(0);
+  //fAIFields.UpdateNavMesh;
 end;
 
 
 procedure TKMMapEditor.Paint;
 var I, K: Integer; MapLoc: TKMPoint;
 begin
-  if mlDefences in fVisibleLayers then
+  if fShowDefencePositions then
   begin
     for I := 0 to fPlayers.Count - 1 do
       for K := 0 to fPlayers[I].AI.DefencePositions.Count - 1 do
       begin
         MapLoc := fPlayers[I].AI.DefencePositions[K].Position.Loc;
         fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fPlayers[I].AI.DefencePositions[K].Radius, $20FF8000, $FFFF8000);
-      end;
-  end;
-  if mlRevealFOW in fVisibleLayers then
-  begin
-    for I := 0 to fPlayers.Count - 1 do
-      for K := 0 to fRevealers[I].Count - 1 do
-      begin
-        MapLoc := fRevealers[I][K];
-        fRenderAux.CircleOnTerrain(MapLoc.X, MapLoc.Y, fRevealers[I].Tag[K], $20FFFFFF, $FFFFFFFF);
       end;
   end;
 end;

@@ -30,8 +30,8 @@ const
   MENU_SIZE_MIN_X       = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_SIZE_MIN_Y       = 576;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r4146';       //Should be updated for every release (each time save format is changed)
-  GAME_VERSION          = '5th Multiplayer Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
+  GAME_REVISION         = 'r4179';       //Should be updated for every release (each time save format is changed)
+  GAME_VERSION          = '5th Multiplayer Demo Update 1 ' + GAME_REVISION;       //Game version string displayed in menu corner
   NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
@@ -41,14 +41,14 @@ const
 
 var
   //These should be True
-  MAKE_ANIM_TERRAIN     :Boolean = False;  //Should we animate water and swamps
-  MAKE_TEAM_COLORS      :Boolean = False;  //Whenever to make team colors or not, saves RAM for debug
-  DYNAMIC_TERRAIN       :Boolean = True;  //Update terrain each tick to grow things
+  MAKE_ANIM_TERRAIN     :Boolean = True;  //Should we animate water and swamps
+  MAKE_TEAM_COLORS      :Boolean = True;  //Whenever to make team colors or not, saves RAM for debug
+  DO_UNIT_HUNGER        :Boolean = True;  //Wherever units get hungry or not
   CHEATS_ENABLED        :Boolean = True;  //Enable cheats in game (add_resource, instant_win, etc)
   FREE_POINTERS         :Boolean = True;  //If True, units/houses will be freed and removed from the list once they are no longer needed
-  CAP_MAX_FPS           :Boolean = False;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
+  CAP_MAX_FPS           :Boolean = True;  //Should limit rendering performance to avoid GPU overheating (disable to measure debug performance)
   CRASH_ON_REPLAY       :Boolean = True;  //Crash as soon as replay consistency fails (random numbers mismatch)
-  BLOCK_DUPLICATE_APP   :Boolean = False;  //Do not allow to run multiple games at once (to prevent MP cheating)
+  BLOCK_DUPLICATE_APP   :Boolean = True;  //Do not allow to run multiple MP games at once (to prevent MP cheating)
 
   //Implemented
   MOUSEWHEEL_ZOOM_ENABLE:Boolean = True; //Should we allow to zoom in game or not
@@ -66,8 +66,8 @@ var
   USE_CCL_WALKCONNECT   :Boolean = False; //Use CCL instead of FloodFill for walk-connect (CCL is generaly worse. It's a bit slower, counts 1 tile areas and needs more AreaIDs to work / makes sparsed IDs)
   FOG_OF_WAR_ENABLE     :Boolean = False; //Whenever dynamic fog of war is enabled or not
   SHOW_DISMISS_BUTTON   :Boolean = False; //The button to order citizens go back to school
-  AI_GEN_NAVMESH        :Boolean = True; //Generate navmesh for AI to plan attacks/defenses
-  AI_GEN_INFLUENCE_MAPS :Boolean = True; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_INFLUENCE_MAPS :Boolean = False; //Generate influence maps for AI to plan attacks/defenses
+  AI_GEN_NAVMESH        :Boolean = False; //Generate navmesh for AI to plan attacks/defenses
 
   //These are debug things, should be False
   {User interface options}
@@ -79,7 +79,7 @@ var
   OVERLAY_RESOLUTIONS   :Boolean = False; //Render constraining frame
   {Gameplay display}
   SKIP_RENDER           :Boolean = False; //Skip all the rendering in favor of faster logic
-  SKIP_SOUND            :Boolean = True; //Skip all the sounds in favor of faster logic
+  SKIP_SOUND            :Boolean = False; //Skip all the sounds in favor of faster logic
   AGGRESSIVE_REPLAYS    :Boolean = False; //Write a command gic_TempDoNothing every tick in order to find exactly when a replay mismatch occurs
   SHOW_TERRAIN_WIRES    :Boolean = False; //Makes terrain height visible
   SHOW_TERRAIN_PASS     :Byte = 0; //Byte(TPassability)
@@ -89,24 +89,19 @@ var
   SHOW_GROUND_LINES     :Boolean = False; //Show a line below all sprites to mark the ground height used in Z-Order
   SHOW_UNIT_MOVEMENT    :Boolean = False; //Draw unit movement overlay (occupied tile), Only if unit interaction enabled
   SHOW_WALK_CONNECT     :Boolean = False; //Show floodfill areas of interconnected areas
+  SHOW_INFLUENCE_MAP    :Byte = 0; //Show AI influence maps
   TEST_VIEW_CLIP_INSET  :Boolean = False; //Renders smaller area to see if everything gets clipped well
   OUTLINE_ALL_SPRITES   :Boolean = False; //Render outline around every sprite
   SHOW_ATTACK_RADIUS    :Boolean = False; //Render towers/archers attack radius
   DISPLAY_SOUNDS        :Boolean = False; //Display sounds on map
   RENDER_3D             :Boolean = False; //Experimental 3D render
   HOUSE_BUILDING_STEP   :Single = 0;
-  OVERLAY_NAVMESH       :Boolean = False; //Show navmesh
-  OVERLAY_DEFENCES      :Boolean = False; //Show AI defence perimeters
-  OVERLAY_INFLUENCES    :Boolean = False; //Show influence maps
-  OVERLAY_AVOID         :Boolean = False; //Show avoidance map
-  OVERLAY_FOREST        :Boolean = False; //Show forest map
   {Stats}
   SHOW_SPRITE_COUNT     :Boolean = False; //display rendered controls/sprites count
   SHOW_POINTER_COUNT    :Boolean = False; //Show debug total count of unit/house pointers being tracked
   SHOW_CMDQUEUE_COUNT   :Boolean = False; //Show how many commands were processed and stored by TGameInputProcess
   SHOW_NETWORK_DELAY    :Boolean = False; //Show the current delay in multiplayer game
   SHOW_ARMYEVALS        :Boolean = False; //Show result of enemy armies evaluation
-  SHOW_AI_WARE_BALANCE  :Boolean = False; //Show wares balance (Produced - Consumed)
   INI_HITPOINT_RESTORE  :Boolean = False; //Use the hitpoint restore rate from the INI file to compare with KaM
   SLOW_MAP_SCAN         :Boolean = False; //Scan maps with a pause to emulate uncached file access
   SLOW_SAVE_SCAN        :Boolean = False; //Scan saves with a pause to emulate uncached file access
@@ -115,12 +110,11 @@ var
   UNLOCK_CAMPAIGN_MAPS  :Boolean = False; //Unlock more maps for debug
   FREE_ROCK_THROWING    :Boolean = False; //Throwing a rock from Tower costs nothing. To debug throw algoritm
   REDUCE_SHOOTING_RANGE :Boolean = False; //Reduce shooting range for debug
-  MULTIPLAYER_CHEATS    :Boolean = True; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
-  DEBUG_CHEATS          :Boolean = True; //Cheats for debug (place scout and reveal map) which can be turned On from menu
-  MULTIPLAYER_SPEEDUP   :Boolean = True; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
+  MULTIPLAYER_CHEATS    :Boolean = False; //Allow cheats and debug overlays (e.g. CanWalk) in Multiplayer
+  DEBUG_CHEATS          :Boolean = False; //Cheats for debug (place scout and reveal map) which can be turned On from menu
+  MULTIPLAYER_SPEEDUP   :Boolean = False; //Allow you to use F8 to speed up multiplayer for debugging (only effects local client)
   SKIP_EXE_CRC          :Boolean = False; //Don't check KaM_Remake.exe CRC before MP game (useful for testing with different versions)
   ALLOW_MP_MODS         :Boolean = False; //Don't let people enter MP mode if they are using mods (unit.dat, house.dat, etc.)
-  ALLOW_NO_HUMAN_IN_SP  :Boolean = True; //Allow to load SP maps without Human player (usefull for AI testing)
   {Data output}
   WRITE_DECODED_MISSION :Boolean = False; //Save decoded mission as txt file
   WRITE_DELIVERY_LOG    :Boolean = False; //Write even more output into log + slows down game noticably
@@ -138,7 +132,6 @@ const
 
 const
   MAX_PLAYERS       = 8;    //Maximum players per map
-  MAX_AI_PLANS      = 4;    //How many houses AI is allowed to plan at once (after establishing Materials supply)
   AUTOSAVE_COUNT    = 3;    //How many autosaves to backup
 
 var
@@ -147,29 +140,14 @@ var
 const //Here we store options that are hidden somewhere in code
   GOLD_TO_SCHOOLS_IMPORTANT = True;       //Whenever gold delivery to schools is highly important
   FOOD_TO_INN_IMPORTANT = True;           //Whenever food delivery to inns is highly important
-
-  //Unit condition
-  CONDITION_PACE            = 10;         //Check unit conditions only once per 10 ticks
-  UNIT_MAX_CONDITION        = 45*60;      //Minutes of life. In KaM it's 45min
-  UNIT_MIN_CONDITION        = 6*60;       //If unit condition is less it will look for Inn. In KaM it's 6min
-  TROOPS_FEED_MAX           = 0.75;       //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
-  UNIT_CONDITION_BASE       = 0.6;        //Base amount of health a unit starts with (measured in KaM)
-  UNIT_CONDITION_RANDOM     = 0.1;        //Random jitter of unit's starting health (KaM did not have this, all units started the same)
-  TROOPS_TRAINED_CONDITION  = 0.6;        //Condition troops start with when trained (measured from KaM)
-
-  //Units are fed acording to this: (from knightsandmerchants.de tips and tricks)
-  //Bread    = +40%
-  //Sausages = +60%
-  //Wine     = +20% (We changed this to +30% for balance)
-  //Fish     = +50%
-  BREAD_RESTORE = 0.4;
-  SAUSAGE_RESTORE = 0.6;
-  WINE_RESTORE = 0.3;
-  FISH_RESTORE = 0.5;
-
-
-  DEFAULT_HITPOINT_RESTORE  = 100;        //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
-  TIME_BETWEEN_MESSAGES     = 4*600;      //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
+  UNIT_MAX_CONDITION = 45*600;            //*min of life. In KaM it's 45min
+  UNIT_MIN_CONDITION = 6*600;             //If unit condition is less it will look for Inn. In KaM it's 6min
+  TIME_BETWEEN_MESSAGES = 4*600;          //Time between messages saying house is unoccupied or unit is hungry. In KaM it's 4 minutes
+  TROOPS_FEED_MAX = 0.75;                 //Maximum amount of condition a troop can have to order food (more than this means they won't order food)
+  UNIT_CONDITION_BASE = 0.6;              //Base amount of health a unit starts with (measured in KaM)
+  UNIT_CONDITION_RANDOM = 0.1;            //Random jitter of unit's starting health (KaM did not have this, all units started the same)
+  TROOPS_TRAINED_CONDITION = 0.6;         //Condition troops start with when trained (measured from KaM)
+  DEFAULT_HITPOINT_RESTORE = 100;         //1 hitpoint is restored to units every X ticks (using Humbelum's advice)
 
   //Archer properties
   RANGE_ARBALETMAN_MAX  = 10.99; //KaM: Unit standing 10 tiles from us will be shot, 11 tiles not
@@ -198,28 +176,17 @@ const //Here we store options that are hidden somewhere in code
   CHARTS_SAMPLING_FOR_TACTICS = 50; //Each 5sec, cos average game length is much shorter
 
 type
-  TPlayerIndex = {type} ShortInt;
+  TPlayerIndex = shortint;
   TPlayerArray = array [0..MAX_PLAYERS-1] of TPlayerIndex;
 
 const
   PLAYER_NONE = -1; //No player
   PLAYER_ANIMAL = -2; //animals
 
-var
-  //Values are empirical
-  OWN_MARGIN   :Byte = 160;
-  OWN_THRESHOLD:Byte = 96;
-
-
 {Cursors}
 type
-  TKMCursorMode = (
-    cmNone, cmErase, cmRoad, cmField, cmWine, cmWall, cmHouses, // Gameplay
-    cmElevate, cmEqualize, cmTiles, cmObjects, cmUnits, cmMarkers // MapEditor
-    );
-
-const
-  MARKER_REVEAL = 1;
+  TCursorMode = ( cm_None, cm_Erase, cm_Road, cm_Field, cm_Wine, cm_Wall, cm_Houses, //Gameplay
+                  cm_Elevate, cm_Equalize, cm_Tiles, cm_Objects, cm_Units); //MapEditor
 
 const
   MAPED_TILES_COLS = 6;
@@ -259,13 +226,12 @@ type //Indexing should start from 1.
 }
 
 
-type
-  //Which MapEditor page is being shown
-  TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units, esp_Reveal);
+//Which MapEditor page is being shown. Add more as they are needed.
+type TKMMapEdShownPage = (esp_Unknown, esp_Terrain, esp_Buildings, esp_Units);
 
-  TKMissionMode = (mm_Normal, mm_Tactic);
+    TKMissionMode = (mm_Normal, mm_Tactic);
 
-  TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
+    TAllianceType = (at_Enemy=0, at_Ally=1); //Must match KaM script IDs for now
 
 {Resources}
 type
@@ -307,8 +273,8 @@ const
     200/120, 195/120, 195/120, 195/120, 200/120,
     190/120,  69/120, 122/120);
 
-  //Using shortints instead of bools makes it look much neater in code-view
-  CheatStorePattern: array [WARE_MIN..WARE_MAX] of Byte = (
+const //Using shortints instead of bools makes it look much neater in code-view
+  CheatStorePattern: array[WARE_MIN..WARE_MAX]of byte = (
   0,0,1,0,0,
   0,1,0,1,0,
   1,0,0,0,1,
@@ -337,18 +303,19 @@ type
     CanWalk,        // General passability of tile for any walking units
     CanWalkRoad,    // Type of passability for Serfs when transporting goods, only roads have it
     CanBuild,       // Can we build a house on this tile?
+    CanBuildIron,   // Special allowance for Iron Mines
+    CanBuildGold,   // Special allowance for Gold Mines
     CanMakeRoads,   // Thats less strict than house building, roads Can be placed almost everywhere where units Can walk, except e.g. bridges
+    CanMakeFields,  // Thats more strict than roads, cos e.g. on beaches you Can't make fields
+    CanPlantTrees,  // If Forester Can plant a tree here, dunno if it's the same as fields
     CanFish,        // Water tiles where fish Can move around
     CanCrab,        // Sand tiles where crabs Can move around
     CanWolf,        // Soil tiles where wolfs Can move around
     CanElevate,     // Nodes which are forbidden to be elevated by workers (house basements, water, etc..)
     CanWorker,      // Like CanWalk but allows walking on building sites
-    CanOwn,         // For AI ownership
     CanFactor       // Allows vertex (top left) to be factored as a neighbour in flattening algorithm
     );
   TPassabilitySet = set of TPassability;
-
-  THeightPass = (hpWalking, hpBuilding, hpBuildingMines);
 
 type
   TWalkConnect = (
@@ -376,21 +343,20 @@ type
     ut_Wolf,         ut_Fish,         ut_Watersnake,   ut_Seastar,
     ut_Crab,         ut_Waterflower,  ut_Waterleaf,    ut_Duck);
 
-const
-  UNIT_MIN = ut_Serf;
-  UNIT_MAX = ut_Duck;
-  CITIZEN_MIN = ut_Serf;
-  CITIZEN_MAX = ut_Recruit;
-  WARRIOR_MIN = ut_Militia;
-  WARRIOR_MAX = ut_Horseman;
-  WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
-  WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
-  HUMANS_MIN = ut_Serf;
-  HUMANS_MAX = ut_Horseman;
-  ANIMAL_MIN = ut_Wolf;
-  ANIMAL_MAX = ut_Duck;
+const UNIT_MIN = ut_Serf;
+      UNIT_MAX = ut_Duck;
+      CITIZEN_MIN = ut_Serf;
+      CITIZEN_MAX = ut_Recruit;
+      WARRIOR_MIN = ut_Militia;
+      WARRIOR_MAX = ut_Horseman;
+      WARRIOR_EQUIPABLE_MIN = ut_Militia; //Available from barracks
+      WARRIOR_EQUIPABLE_MAX = ut_Barbarian;
+      HUMANS_MIN = ut_Serf;
+      HUMANS_MAX = ut_Horseman;
+      ANIMAL_MIN = ut_Wolf;
+      ANIMAL_MAX = ut_Duck;
 
-  WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
+      WARRIORS_IRON = [ut_Swordsman, ut_Arbaletman, ut_Hallebardman, ut_Cavalry];
 
 type
   TCheckAxis = (ax_X, ax_Y);
@@ -466,8 +432,10 @@ type
         utn_GoEat,     utn_Mining,         utn_Die,        utn_GoOutShowHungry,  utn_AttackHouse,
         utn_ThrowRock);
 
+type
   TUnitActionName = (uan_Stay, uan_WalkTo, uan_GoInOut, uan_AbandonWalk, uan_Fight, uan_StormAttack, uan_Steer);
 
+type
   TUnitActionType = (ua_Walk=120, ua_Work, ua_Spec, ua_Die, ua_Work1,
                      ua_Work2, ua_WorkEnd, ua_Eat, ua_WalkArm, ua_WalkTool,
                      ua_WalkBooty, ua_WalkTool2, ua_WalkBooty2, ua_Unknown);
@@ -475,12 +443,12 @@ type
 
   //What player has ordered us to do
   TWarriorOrder = (
-    woNone, //No orders
-    woWalk, //Walk somewhere
-    woWalkOut, //Walk out of Barracks
-    woAttackUnit, //Attack someone
-    woAttackHouse, //Attack house
-    woStorm //Do Storm attack
+    wo_None, //No orders
+    wo_Walk, //Walk somewhere
+    wo_WalkOut, //Walk out of Barracks
+    wo_AttackUnit, //Attack someone
+    wo_AttackHouse, //Attack house
+    wo_Storm //Do Storm attack
   );
 
   //What we are doing at the moment
@@ -548,10 +516,7 @@ type
   THouseActionSet = set of THouseActionType;
 
 const
-  HOUSE_MIN = ht_ArmorSmithy;
-  HOUSE_MAX = ht_Woodcutters;
-
-  HouseAction: array [THouseActionType] of string = (
+  HouseAction:array[THouseActionType] of string = (
   'ha_Work1', 'ha_Work2', 'ha_Work3', 'ha_Work4', 'ha_Work5', //Start, InProgress, .., .., Finish
   'ha_Smoke', 'ha_FlagShtok', 'ha_Idle',
   'ha_Flag1', 'ha_Flag2', 'ha_Flag3',
@@ -573,17 +538,17 @@ const
 
 
 const
-  //Tiles table made by JBSnorro, thanks to him :)
-  MapEdTileRemap: array [1..256] of Integer = (
-     1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
-    27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
-    28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
-    29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
-    30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
-    31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
-    18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
-    17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
-    // 247 - doesn't work in game, replaced with random road
+//Tiles table made by JBSnorro, thanks to him :)
+MapEdTileRemap:array[1..256]of integer = (
+ 1,73,74,75,37,21,22, 38, 33, 34, 32,181,173,177,129,130,131,132,133, 49,193,197,217,225,  0,  0, 45, 24, 13, 23,208,224,
+27,76,77,78,36,39,40,198,100,101,102,189,169,185,134,135,136,137,138,124,125,126,229,218,219,220, 46, 11,  5,  0, 26,216,
+28,79,80,81,35,88,89, 90, 70, 71, 72,182,174,178,196,139,140,141,142,127,128,  0,230,226,227,228, 47,204,205,206,203,207,
+29,82,83,84,85,86,87,  0,112,113,114,190,170,186,161,162,163,164,165,106,107,108,233,234,231,  0, 48,221,213,214,199,200,
+30,94,95,96,57,58,59,  0,103,104,105,183,175,179,157,202,158,159,160,117,118,119,209,210,241,245,194,248, 65, 66,195, 25,
+31, 9,19,20,41,42,43, 44,  6,  7, 10,191,171,187,149,150,151,152, 16,242,243,244,235,238,239,240,  0, 50,172, 52,222,223,
+18,67,68,69,91,92,93,  0,  3,  4,  2,184,176,180,145,146,147,148,  8,115,116,120,236,237,143,144,  0, 53,167, 55,215,232,
+17,97,98,99, 0, 0, 0,  0, 12, 14, 15,192,168,188,153,154,155,156,  0,121,122,123,211,212,201,  0,246,166, 51, 54,  0,  0);
+// 247 - doesn't work in game, replaced with random road
 
 {Terrain}
 type
@@ -627,12 +592,10 @@ type
                     vu_NWSE,    //Vertex is used NW-SE like this: \
                     vu_NESW);   //Vertex is used NE-SW like this: /
 
-  TChopableAge = (caAge1, caAge2, caAge3, caAgeFull, caAgeFall, caAgeStump);
-
 const
   //Chopable tree, Chopdown animation,
-  //Age1, Age2, Age3, Age4, Falling, Stump
-  ChopableTrees: array [1..13, TChopableAge] of byte = (
+  //Age1, Age2, Age3, Age4, Falling, Stomp
+  ChopableTrees: array [1..13, 1..6] of byte = (
   //For grass
   (  88,  89,  90,  90,  91,  37), //These two are very look alike
   (  97,  98,  99, 100, 101,  41), //yet different in small detail and fall direction
@@ -791,11 +754,11 @@ var
   ExeDir: string;
 
   GameCursor: record
-    Float: TKMPointF;     //Precise cursor position in map coords
-    Cell: TKMPoint;       //Cursor position cell
-    SState: TShiftState;  //Thats actually used to see if Left or Right mouse button is pressed
-    Mode: TKMCursorMode;  //Modes used in game (building, unit, road, etc..)
-    Tag1: Byte;           //Tag to know building type, unit type etc.
+    Float: TKMPointF;    //Precise cursor position in map coords
+    Cell: TKMPoint;      //Cursor position cell
+    SState: TShiftState; //Thats actually used to see if Left or Right mouse button is pressed
+    Mode: TCursorMode;   //Modes used in game (building, unit, road, etc..)
+    Tag1: Byte;    //Tag to know building type, unit type etc.
 
     MapEdDir: Byte;
     MapEdShape: (hsCircle, hsSquare);

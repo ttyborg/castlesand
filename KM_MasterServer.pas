@@ -9,30 +9,27 @@ uses Classes, SysUtils,
 
 
 type
-  //Interaction with MasterServer
   TKMMasterServer = class
   private
-    fIsDedicated: Boolean;
-
     fHTTPClient: TKMHTTPClient; //To update server status and fetch server list
     fHTTPAnnouncementsClient: TKMHTTPClient; //To fetch the annoucenemnts at the same time as the server list
     fHTTPMapsClient: TKMHTTPClient; //To tell master server about the map we played
     fMasterServerAddress: string;
-    fOnError: TGetStrProc;
-    fOnServerList: TGetStrProc;
-    fOnAnnouncements: TGetStrProc;
+    fOnError:TGetStrProc;
+    fOnServerList:TGetStrProc;
+    fOnAnnouncements:TGetStrProc;
 
-    procedure ReceiveServerList(const S: string);
+    procedure Receive(const S: string);
     procedure ReceiveAnnouncements(const S: string);
     procedure Error(const S: string);
   public
-    constructor Create(const aMasterServerAddress:string; aDedicated:Boolean);
+    constructor Create(const aMasterServerAddress:string);
     destructor Destroy; override;
 
-    property OnError: TGetStrProc write fOnError;
-    property OnServerList: TGetStrProc write fOnServerList;
-    property OnAnnouncements: TGetStrProc write fOnAnnouncements;
-    procedure AnnounceServer(aName, aPort: string; aPlayerCount, aTTL: Integer);
+    property OnError:TGetStrProc write fOnError;
+    property OnServerList:TGetStrProc write fOnServerList;
+    property OnAnnouncements:TGetStrProc write fOnAnnouncements;
+    procedure AnnounceServer(aName, aPort:string; aPlayerCount, aTTL:integer);
     procedure QueryServer;
     procedure FetchAnnouncements(const aLang: string);
     procedure SendMapInfo(const aMapName: string; aPlayerCount: Integer);
@@ -43,14 +40,9 @@ type
 
 
 implementation
-const
-  {$IFDEF MSWindows} OS = 'Windows'; {$ENDIF}
-  {$IFDEF UNIX}      OS = 'Unix'; {$ENDIF}
-  {$IFDEF WDC} COMPILER = 'WDC'; {$ENDIF}
-  {$IFDEF FPC} COMPILER = 'FPC'; {$ENDIF}
 
 
-constructor TKMMasterServer.Create(const aMasterServerAddress: string; aDedicated:Boolean);
+constructor TKMMasterServer.Create(const aMasterServerAddress:string);
 begin
   inherited Create;
   fHTTPClient := TKMHTTPClient.Create;
@@ -59,7 +51,6 @@ begin
   fHTTPClient.OnReceive := nil;
   fHTTPClient.OnError := Error;
   fMasterServerAddress := aMasterServerAddress;
-  fIsDedicated := aDedicated;
 end;
 
 
@@ -78,7 +69,7 @@ begin
 end;
 
 
-procedure TKMMasterServer.ReceiveServerList(const S: string);
+procedure TKMMasterServer.Receive(const S: string);
 begin
   if Assigned(fOnServerList) then fOnServerList(S);
 end;
@@ -95,14 +86,13 @@ begin
   fHTTPClient.OnReceive := nil; //We don't care about the response
   fHTTPClient.GetURL(fMasterServerAddress+'serveradd.php?name='+UrlEncode(aName)+'&port='+UrlEncode(aPort)
                      +'&playercount='+UrlEncode(IntToStr(aPlayerCount))+'&ttl='+UrlEncode(IntToStr(aTTL))
-                     +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION)
-                     +'&os='+UrlEncode(OS)+'&compiler='+UrlEncode(COMPILER)+'&dedicated='+UrlEncode(IntToStr(byte(fIsDedicated))));
+                     +'&rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 
 
 procedure TKMMasterServer.QueryServer;
 begin
-  fHTTPClient.OnReceive := ReceiveServerList;
+  fHTTPClient.OnReceive := Receive;
   fHTTPClient.GetURL(fMasterServerAddress+'serverquery.php?rev='+UrlEncode(NET_PROTOCOL_REVISON)+'&coderev='+UrlEncode(GAME_REVISION));
 end;
 

@@ -8,22 +8,20 @@ uses
 type
   TRenderAux = class
   private
-    procedure RenderDot(pX, pY: Single; Size: Single = 0.05);
+    procedure RenderDot(pX,pY:single; Size:single = 0.05);
     procedure RenderDotOnTile(pX,pY:single);
     procedure RenderLine(x1,y1,x2,y2:single);
     procedure RenderQuad(pX,pY:integer);
   public
     procedure Circle(x,y,rad: Single; Fill,Line: TColor4);
     procedure CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
-    procedure Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
+    procedure Dot(X,Y: Single; aCol: TColor4);
     procedure DotOnTerrain(X,Y: Single; aCol: TColor4);
     procedure LineOnTerrain(X1,Y1,X2,Y2: Single; aCol: TColor4);
-    procedure Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF); overload;
-    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF); overload;
+    procedure Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
     procedure Triangle(X1,Y1,X2,Y2,X3,Y3: Single; aCol: TColor4);
     procedure Passability(aRect: TKMRect; aPass: Byte);
+    procedure InfluenceMap(aRect: TKMRect; aInfl: Byte);
     procedure Projectile(x1,y1,x2,y2: Single);
     procedure Quad(pX,pY: Integer; aCol: TColor4);
     procedure SquareOnTerrain(X1, Y1, X2, Y2: Single; Fill, Line: TColor4);
@@ -44,10 +42,10 @@ uses KM_Terrain;
 
 
 {Simple dot to know where it actualy is}
-procedure TRenderAux.RenderDot(pX, pY: Single; Size: Single = 0.05);
+procedure TRenderAux.RenderDot(pX,pY:single; Size:single = 0.05);
 begin
   glBegin(GL_QUADS);
-    glkRect(pX - Size, pY + Size, pX + Size, pY - Size);
+    glkRect(pX-Size,pY+Size,pX+Size,pY-Size);
   glEnd;
 end;
 
@@ -113,15 +111,6 @@ procedure TRenderAux.CircleOnTerrain(X, Y, Rad: Single; Fill, Line: TColor4);
 const SEC_COUNT = 24;
 var I: Integer; C,S: Single;
 begin
-  glColor4ubv(@Fill);
-  glBegin(GL_POLYGON);
-    for I := -SEC_COUNT to SEC_COUNT - 1 do
-    begin
-      C := Cos(I / SEC_COUNT * Pi) * Rad;
-      S := Sin(I / SEC_COUNT * Pi) * Rad;
-      glVertex2f(X + C, fTerrain.FlatToHeight(X + C, Y + S));
-    end;
-  glEnd;
   glColor4ubv(@Line);
   glBegin(GL_LINE_LOOP);
     for I := -SEC_COUNT to SEC_COUNT - 1 do
@@ -152,10 +141,10 @@ begin
 end;
 
 
-procedure TRenderAux.Dot(X,Y: Single; aCol: TColor4; aSize: Single = 0.05);
+procedure TRenderAux.Dot(X,Y:single; aCol:TColor4);
 begin
   glColor4ubv(@aCol);
-  RenderDot(X, Y, aSize);
+  RenderDot(X,Y);
 end;
 
 
@@ -175,36 +164,14 @@ begin
 end;
 
 
-procedure TRenderAux.Line(A, B: TKMPoint; aCol: TColor4; aPattern: Word = $FFFF);
-begin
-  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
-end;
-
-
-procedure TRenderAux.Line(A, B: TKMPointI; aCol: TColor4; aPattern: Word = $FFFF);
-begin
-  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
-end;
-
-
-procedure TRenderAux.Line(A, B: TKMPointF; aCol: TColor4; aPattern: Word = $FFFF);
-begin
-  Line(A.X, A.Y, B.X, B.Y, aCol, aPattern);
-end;
-
-
-procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4; aPattern: Word = $FFFF);
+procedure TRenderAux.Line(X1,Y1,X2,Y2: Single; aCol: TColor4);
 begin
   glColor4ubv(@aCol);
-
-  glEnable(GL_LINE_STIPPLE);
-  glLineStipple(2, aPattern);
 
   glBegin(GL_LINES);
     glVertex2f(x1, y1);
     glVertex2f(x2, y2);
   glEnd;
-  glDisable(GL_LINE_STIPPLE);
 
   RenderDot(X1, Y1);
   RenderDot(X2, Y2);
@@ -232,6 +199,21 @@ begin
     for I := aRect.Top to aRect.Bottom do
     for K := aRect.Left to aRect.Right do
       if TPassability(aPass) in fTerrain.Land[I,K].Passability then
+        RenderQuad(K,I);
+  end;
+end;
+
+
+procedure TRenderAux.InfluenceMap(aRect: TKMRect; aInfl: Byte);
+var I,K: Integer;
+begin
+  if aInfl <> 0 then
+  begin
+    glColor4f(0,1,0,0.25);
+    for I := aRect.Top to aRect.Bottom do
+    for K := aRect.Left to aRect.Right do
+
+      if fTerrain.Land[I,K].Influence > 0 then
         RenderQuad(K,I);
   end;
 end;

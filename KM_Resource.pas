@@ -14,7 +14,9 @@ uses
   KM_ResourceResource,
   KM_ResourceSprites,
   KM_ResourceTileset,
-  KM_ResourceUnit;
+  KM_ResourceUnit
+  {$IFDEF WDC}, ZLibEx {$ENDIF}
+  {$IFDEF FPC}, BGRABitmap {$ENDIF};
 
 
 type
@@ -206,7 +208,7 @@ begin
   if fUnitDat = nil then
     fUnitDat := TKMUnitDatCollection.Create;
 
-  for U := WARRIOR_MIN to WARRIOR_MAX do
+  for U := ut_Serf to ut_Serf do
   for A := Low(TUnitActionType) to High(TUnitActionType) do
   for D := dir_N to dir_NW do
   if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then

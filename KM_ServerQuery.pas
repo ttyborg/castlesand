@@ -362,7 +362,7 @@ constructor TKMServerQuery.Create(aMasterServerAddress: string);
 var i: integer;
 begin
   inherited Create;
-  fMasterServer := TKMMasterServer.Create(aMasterServerAddress, False);
+  fMasterServer := TKMMasterServer.Create(aMasterServerAddress);
   fMasterServer.OnServerList := ReceiveServerList;
   fMasterServer.OnAnnouncements := ReceiveAnnouncements;
 

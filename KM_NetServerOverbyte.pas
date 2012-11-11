@@ -152,8 +152,7 @@ begin
     if fSocketServer.Client[i].Tag = aHandle then
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
-        if fSocketServer.Client[i].Send(aData, aLength) <> aLength then
-          fOnError('Overbyte Server: Failed to send packet to client '+IntToStr(aHandle));
+        fSocketServer.Client[i].Send(aData, aLength);
     end;
 end;
 
@@ -171,7 +170,6 @@ begin
     begin
       if fSocketServer.Client[i].State <> wsClosed then //Sometimes this occurs just before ClientDisconnect
         fSocketServer.Client[i].Close;
-      Exit; //Only one client should have this handle
     end;
 end;
 

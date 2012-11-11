@@ -30,6 +30,7 @@ type
     fAlerts: TKMAlerts;
     fGameOptions: TKMGameOptions;
     fNetworking: TKMNetworking;
+    fProjectiles: TKMProjectiles;
     fGameInputProcess: TGameInputProcess;
     fMinimap: TKMMinimap;
     fPathfinding: TPathFinding;
@@ -147,6 +148,7 @@ type
     property Minimap: TKMMinimap read fMinimap;
     property Networking: TKMNetworking read fNetworking;
     property Pathfinding: TPathFinding read fPathfinding;
+    property Projectiles: TKMProjectiles read fProjectiles;
     property GameInputProcess: TGameInputProcess read fGameInputProcess;
     property GameOptions: TKMGameOptions read fGameOptions;
     property GamePlayInterface: TKMGamePlayInterface read fGamePlayInterface;
@@ -176,7 +178,7 @@ uses
   KM_CommonClasses, KM_Log, KM_Utils,
   KM_ArmyEvaluation, KM_Events, KM_GameApp, KM_GameInfo, KM_MissionScript,
   KM_Player, KM_PlayersCollection, KM_RenderPool, KM_Resource, KM_ResourceCursors,
-  KM_Sound, KM_Terrain, KM_TextLibrary, KM_AIFields, KM_Maps,
+  KM_Settings, KM_Sound, KM_Terrain, KM_TextLibrary,
   KM_GameInputProcess_Single, KM_GameInputProcess_Multi, KM_Main;
 
 
@@ -226,8 +228,6 @@ begin
   //Here comes terrain/mission init
   SetKaMSeed(4); //Every time the game will be the same as previous. Good for debug.
   fTerrain := TTerrain.Create;
-  fPlayers := TKMPlayersCollection.Create;
-  fAIFields := TKMAIFields.Create;
 
   InitUnitStatEvals; //Army
 
@@ -264,7 +264,6 @@ begin
   FreeThenNil(fMapEditor);
   FreeThenNil(fPlayers);
   FreeThenNil(fTerrain);
-  FreeAndNil(fAIFields);
   FreeAndNil(fProjectiles);
   FreeAndNil(fPathfinding);
   FreeAndNil(fEventsManager);
@@ -405,10 +404,6 @@ begin
     else      ParseMode := mpm_Single; //To make compiler happy
   end;
 
-  if fGameMode = gmMapEd then
-    //Mission loader needs to read the data into MapEd (e.g. FOW revealers)
-    fMapEditor := TKMMapEditor.Create;
-
   Parser := TMissionParserStandard.Create(ParseMode, PlayerRemap, False);
   try
     if not Parser.LoadMission(aMissionFile) then
@@ -416,23 +411,21 @@ begin
 
     if fGameMode = gmMapEd then
     begin
-      MyPlayer := fPlayers[0];
+      fMapEditor := TKMMapEditor.Create;
+      MyPlayer := fPlayers.Player[0];
       fPlayers.AddPlayers(MAX_PLAYERS - fPlayers.Count); //Activate all players
-      for I := 0 to fPlayers.Count - 1 do
+      for I := 0 to MAX_PLAYERS - 1 do
         fPlayers[I].FogOfWar.RevealEverything;
     end
     else
     if fGameMode = gmSingle then
     begin
-      MyPlayer := fPlayers[Parser.MissionInfo.HumanPlayerID];
-      Assert(ALLOW_NO_HUMAN_IN_SP or (MyPlayer.PlayerType = pt_Human));
-      if ALLOW_NO_HUMAN_IN_SP and (MyPlayer.PlayerType = pt_Computer) then
-        for I := 0 to fPlayers.Count - 1 do
-          fPlayers[I].FogOfWar.RevealEverything;
+      MyPlayer := fPlayers.Player[Parser.MissionInfo.HumanPlayerID];
+      Assert(MyPlayer.PlayerType = pt_Human);
     end;
 
     if (Parser.MinorErrors <> '') and (fGameMode <> gmMapEd) then
-      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|' + Parser.MinorErrors, KMPoint(0,0));
+      fGamePlayInterface.MessageIssue(mkQuill, 'Warnings in mission script:|'+Parser.MinorErrors, KMPoint(0,0));
 
     fMissionMode := Parser.MissionInfo.MissionMode;
   finally
@@ -442,6 +435,8 @@ begin
   fEventsManager.LoadFromFile(ChangeFileExt(aMissionFile, '.evt'));
   fTextLibrary.LoadMissionStrings(ChangeFileExt(aMissionFile, '.%s.libx'));
 
+  fPlayers.AfterMissionInit(true);
+
   if fGameMode = gmMulti then
     fGameInputProcess := TGameInputProcess_Multi.Create(gipRecording, fNetworking)
   else
@@ -450,8 +445,6 @@ begin
 
   if fGameMode = gmMulti then
     MultiplayerRig;
-
-  fPlayers.AfterMissionInit(true);
 
   SetKaMSeed(4); //Random after StartGame and ViewReplay should match
 
@@ -484,25 +477,25 @@ begin
   for i:=1 to fNetworking.NetPlayers.Count do
   begin
     PlayerIndex := fNetworking.NetPlayers[i].StartLocation - 1; //PlayerID is 0 based
-    fNetworking.NetPlayers[i].PlayerIndex := fPlayers[PlayerIndex];
-    fPlayers[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
-    fPlayers[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
+    fNetworking.NetPlayers[i].PlayerIndex := fPlayers.Player[PlayerIndex];
+    fPlayers.Player[PlayerIndex].PlayerType := fNetworking.NetPlayers[i].GetPlayerType;
+    fPlayers.Player[PlayerIndex].PlayerName := fNetworking.NetPlayers[i].Nikname;
 
     //Setup alliances
     if fNetworking.SelectGameKind = ngk_Map then
       for k:=0 to fPlayers.Count-1 do
         if (fNetworking.NetPlayers[i].Team = 0) or (fNetworking.NetPlayers.StartingLocToLocal(k+1) = -1) or
           (fNetworking.NetPlayers[i].Team <> fNetworking.NetPlayers[fNetworking.NetPlayers.StartingLocToLocal(k+1)].Team) then
-          fPlayers[PlayerIndex].Alliances[k] := at_Enemy
+          fPlayers.Player[PlayerIndex].Alliances[k] := at_Enemy
         else
-          fPlayers[PlayerIndex].Alliances[k] := at_Ally;
+          fPlayers.Player[PlayerIndex].Alliances[k] := at_Ally;
 
-    fPlayers[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
+    fPlayers.Player[PlayerIndex].FlagColor := fNetworking.NetPlayers[i].FlagColor;
     PlayerUsed[PlayerIndex] := true;
   end;
 
   //MyPlayer is a pointer to TKMPlayer
-  MyPlayer := fPlayers[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
+  MyPlayer := fPlayers.Player[fNetworking.NetPlayers[fNetworking.MyIndex].StartLocation-1];
 
   //Clear remaining players
   for i:=fPlayers.Count-1 downto 0 do
@@ -735,10 +728,10 @@ begin
   fSaveFile := '';
 
   fTerrain.MakeNewMap(aSizeX, aSizeY, True);
-
   fMapEditor := TKMMapEditor.Create;
+  fPlayers := TKMPlayersCollection.Create;
   fPlayers.AddPlayers(MAX_PLAYERS); //Create MAX players
-  MyPlayer := fPlayers[0];
+  MyPlayer := fPlayers.Player[0];
   MyPlayer.PlayerType := pt_Human; //Make Player1 human by default
 
   fPlayers.AfterMissionInit(false);
@@ -784,20 +777,21 @@ procedure TKMGame.SaveMapEditor(const aMissionName: string; aMultiplayer: Boolea
 var
   i: integer;
   fMissionParser: TMissionParserStandard;
-  MapName: string;
 begin
   if aMissionName = '' then exit;
 
   //Prepare and save
   fPlayers.RemoveEmptyPlayers;
 
-  MapName := TKMapsCollection.FullPath(aMissionName, '.map', aMultiplayer);
-  ForceDirectories(ExtractFilePath(MapName));
-  fLog.AppendLog('Saving from map editor: '+MapName);
+  if aMultiplayer then
+    ForceDirectories(ExeDir + 'MapsMP\' + aMissionName)
+  else
+    ForceDirectories(ExeDir + 'Maps\' + aMissionName);
 
-  fTerrain.SaveToFile(MapName);
+  fLog.AppendLog('Saving from map editor: '+MapNameToPath(aMissionName, 'map', aMultiplayer));
+  fTerrain.SaveToFile(MapNameToPath(aMissionName, 'map', aMultiplayer));
   fMissionParser := TMissionParserStandard.Create(mpm_Editor, false);
-  fMissionParser.SaveDATFile(ChangeFileExt(MapName, '.dat'));
+  fMissionParser.SaveDATFile(MapNameToPath(aMissionName, 'dat', aMultiplayer));
   FreeAndNil(fMissionParser);
 
   fGameName := aMissionName;
@@ -1178,9 +1172,8 @@ begin
   //Load the data into the game
   fTerrain.Load(LoadStream);
 
+  fPlayers := TKMPlayersCollection.Create;
   fPlayers.Load(LoadStream);
-  //todo: Load fAIFields here
-
   fProjectiles.Load(LoadStream);
   fEventsManager.Load(LoadStream);
 
@@ -1262,7 +1255,6 @@ begin
                       fEventsManager.ProcTime(fGameTickCount);
                       UpdatePeacetime; //Send warning messages about peacetime if required
                       fTerrain.UpdateState;
-                      fAIFields.UpdateState(fGameTickCount);
                       fPlayers.UpdateState(fGameTickCount); //Quite slow
                       if fGame = nil then Exit; //Quit the update if game was stopped for some reason
                       fProjectiles.UpdateState; //If game has stopped it's NIL

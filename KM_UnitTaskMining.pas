@@ -165,10 +165,10 @@ begin
                         end;
     gs_FarmerWine:      Result := TileIsWineField(WorkPlan.Loc) and (Land[WorkPlan.Loc.Y, WorkPlan.Loc.X].FieldAge = CORN_AGE_MAX);
     gs_FisherCatch:     Result := CatchFish(KMPointDir(WorkPlan.Loc,WorkPlan.WorkDir),true);
-    gs_WoodCutterPlant: Result := TileGoodForTree(WorkPlan.Loc.X, WorkPlan.Loc.Y);
+    gs_WoodCutterPlant: Result := CheckPassability(WorkPlan.Loc, CanPlantTrees);
     gs_WoodCutterCut:   begin
                           P := KMGetVertexTile(WorkPlan.Loc, WorkPlan.WorkDir);
-                          Result := ObjectIsChopableTree(P, caAgeFull) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);
+                          Result := ObjectIsChopableTree(P, 4) and (Land[P.Y, P.X].TreeAge >= TREE_AGE_FULL);
                         end;
     else                Result := True;
   end;
@@ -280,8 +280,8 @@ begin
         GetHome.SetState(hst_Work); //Set house to Work state
         if WorkPlan.Resource1 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource1, WorkPlan.Count1);
         if WorkPlan.Resource2 <> rt_None then GetHome.ResTakeFromIn(WorkPlan.Resource2, WorkPlan.Count2);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(WorkPlan.Resource1, WorkPlan.Count1);
-        fPlayers[fUnit.Owner].Stats.GoodConsumed(WorkPlan.Resource2, WorkPlan.Count2);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(WorkPlan.Resource1, WorkPlan.Count1);
+        fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(WorkPlan.Resource2, WorkPlan.Count2);
         GetHome.fCurrentAction.SubActionAdd([ha_Smoke]);
         if WorkPlan.GatheringScript = gs_SwineBreeder then begin //Swines get feed and taken immediately
           fBeastID := TKMHouseSwineStable(GetHome).FeedBeasts;
@@ -332,8 +332,8 @@ begin
             GetHome.ResAddToOut(WorkPlan.Product2,WorkPlan.ProdCount2);
             GetHome.SetLastOrderProduced(WorkPlan.Product1); //Required to make order production sequential
             GetHome.SetLastOrderProduced(WorkPlan.Product2); //Will be ignored if rt_None
-            fPlayers[fUnit.Owner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
-            fPlayers[fUnit.Owner].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product1,WorkPlan.ProdCount1);
+            fPlayers.Player[fUnit.GetOwner].Stats.GoodProduced(WorkPlan.Product2,WorkPlan.ProdCount2);
           end;
 
           GetHome.SetState(hst_Idle);

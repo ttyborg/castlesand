@@ -219,8 +219,6 @@ function TResourceFont.WordWrap(aText: AnsiString; aFont: TKMFont; aMaxPxWidth: 
 var
   I, CharSpacing, AdvX, PrevX, LastSpace, TmpColor: Integer;
 begin
-  Assert(aMaxPxWidth > 0);
-
   AdvX := 0;
   PrevX := 0;
   LastSpace := -1;
@@ -323,8 +321,8 @@ begin
   end;
 
   dec(LineCount);
-  Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE) * LineCount;
-  for I := 1 to LineCount do
+  Result.Y := (fFontData[Fnt].Unk1 + FONT_INTERLINE)*LineCount;
+  for I:=1 to LineCount do
     Result.X := Math.max(Result.X, LineWidth[I]);
 end;
 

@@ -99,11 +99,11 @@ begin
   if WRITE_DELIVERY_LOG then fLog.AppendLog('Serf '+inttostr(fUnit.ID)+' abandoned delivery task '+inttostr(fDeliverID)+' at phase ' + inttostr(fPhase));
 
   if fDeliverID <> 0 then
-    fPlayers[fUnit.Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+    fPlayers.Player[fUnit.GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
 
   if TKMUnitSerf(fUnit).Carry <> rt_None then
   begin
-    fPlayers[fUnit.Owner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry);
+    fPlayers.Player[fUnit.GetOwner].Stats.GoodConsumed(TKMUnitSerf(fUnit).Carry);
     TKMUnitSerf(fUnit).CarryTake; //empty hands
   end;
 
@@ -157,7 +157,7 @@ begin
           SetActionLockedStay(5,ua_Walk); //Wait a moment inside
           fFrom.ResTakeFromOut(fResourceType);
           CarryGive(fResourceType);
-          fPlayers[Owner].Deliveries.Queue.TakenOffer(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.TakenOffer(fDeliverID);
         end;
     3:  if fFrom.IsDestroyed then //We have the resource, so we don't care if house is destroyed
           SetActionLockedStay(0, ua_Walk)
@@ -178,8 +178,8 @@ begin
           fToHouse.ResAddToIn(Carry);
           CarryTake;
 
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while trying to GoOut
 
           //Now look for another delivery from inside this house
@@ -211,12 +211,11 @@ begin
     //       when workers block the enterance. But it is much simpler this way so I don't have a problem really.
     5:  SetActionWalkToSpot(KMPointBelow(fToHouse.GetEntrance));
     6:  begin
-          Direction := KMGetDirection(GetPosition, fToHouse.GetEntrance);
           fToHouse.ResAddToBuild(Carry);
-          fPlayers[Owner].Stats.GoodConsumed(Carry);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);
           CarryTake;
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionStay(1, ua_Walk);
         end;
@@ -231,7 +230,7 @@ begin
     5:  SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //When approaching from diagonal
     6:  begin
           //See if the unit has moved. If so we must try again
-          if KMLengthDiag(fUnit.GetPosition, fToUnit.GetPosition) > 1.5 then
+          if KMLength(fUnit.GetPosition,fToUnit.GetPosition) > 1.5 then
           begin
             SetActionWalkToUnit(fToUnit, 1.42, ua_Walk); //Walk to unit again
             fPhase := 6;
@@ -249,10 +248,10 @@ begin
             fToUnit.Feed(UNIT_MAX_CONDITION); //Feed the warrior
             TKMUnitWarrior(fToUnit).RequestedFood := false;
           end;
-          fPlayers[Owner].Stats.GoodConsumed(Carry);
+          fPlayers.Player[GetOwner].Stats.GoodConsumed(Carry);
           CarryTake;
-          fPlayers[Owner].Deliveries.Queue.GaveDemand(fDeliverID);
-          fPlayers[Owner].Deliveries.Queue.AbandonDelivery(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.GaveDemand(fDeliverID);
+          fPlayers.Player[GetOwner].Deliveries.Queue.AbandonDelivery(fDeliverID);
           fDeliverID := 0; //So that it can't be abandoned if unit dies while staying
           SetActionLockedStay(5, ua_Walk); //Pause breifly (like we are handing over the goods)
         end;

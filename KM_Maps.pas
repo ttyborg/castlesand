@@ -24,8 +24,8 @@ type
     fDatSize: Integer;
     fCRC: Cardinal;
     procedure ScanMap;
-    procedure LoadFromFile(const aPath: string);
-    procedure SaveToFile(const aPath: string);
+    procedure LoadFromFile(const aPath:string);
+    procedure SaveToFile(const aPath:string);
   public
     Author, SmallDesc, BigDesc: string;
     IsCoop: Boolean; //Some multiplayer missions are defined as coop
@@ -38,7 +38,6 @@ type
     property Info: TKMGameInfo read fInfo;
     property Path: string read fPath;
     property FileName: string read fFileName;
-    function FullPath(const aExt: string): string;
     property CRC: Cardinal read fCRC;
 
     function IsValid: Boolean;
@@ -80,8 +79,6 @@ type
     property Count: Integer read fCount;
     property Maps[aIndex: Integer]: TKMapInfo read GetMap; default;
 
-    class function FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
-
     procedure Refresh(aOnRefresh: TNotifyEvent);
     procedure TerminateScan;
     procedure Sort(aSortMethod: TMapsSortMethod; aOnSortComplete: TNotifyEvent);
@@ -94,11 +91,6 @@ type
 
 implementation
 uses KM_CommonClasses, KM_Defaults, KM_MissionScript, KM_Player, KM_TextLibrary, KM_Utils;
-
-
-const
-  //Folder name containing single maps for SP/MP mode
-  MAP_FOLDER_MP: array [Boolean] of string = ('Maps', 'MapsMP');
 
 
 { TKMapInfo }
@@ -116,15 +108,11 @@ begin
 end;
 
 
-function TKMapInfo.FullPath(const aExt: string): string;
+procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer:boolean);
 begin
-  Result := fPath + fFileName + aExt;
-end;
-
-
-procedure TKMapInfo.Load(const aFolder:string; aStrictParsing, aIsMultiplayer: Boolean);
-begin
-  fPath := ExeDir + MAP_FOLDER_MP[aIsMultiplayer] + '\' + aFolder + '\';
+  if aIsMultiplayer then fPath := ExeDir+'MapsMP\'
+                    else fPath := ExeDir+'Maps\';
+  fPath := fPath+aFolder+'\';
   fFileName := aFolder;
 
   fStrictParsing := aStrictParsing;
@@ -450,12 +438,6 @@ begin
 end;
 
 
-class function TKMapsCollection.FullPath(const aName, aExt: string; aMultiplayer: Boolean): string;
-begin
-  Result := ExeDir + MAP_FOLDER_MP[aMultiplayer] + '\' + aName + '\' + aName + aExt;
-end;
-
-
 { TTMapsScanner }
 //aOnMapAdd - signal that there's new map that should be added
 //aOnMapAddDone - signal that map has been added. Can safely call main thread methods since it's executed in Synchronize
@@ -489,15 +471,18 @@ var
   PathToMaps: string;
   Map: TKMapInfo;
 begin
-  PathToMaps := ExeDir + MAP_FOLDER_MP[fMultiplayerPath] + '\';
+  if fMultiplayerPath then
+    PathToMaps := ExeDir + 'MapsMP\'
+  else
+    PathToMaps := ExeDir + 'Maps\';
 
   if not DirectoryExists(PathToMaps) then Exit;
 
   FindFirst(PathToMaps + '*', faDirectory, SearchRec);
   repeat
     if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.dat', fMultiplayerPath))
-    and FileExists(TKMapsCollection.FullPath(SearchRec.Name, '.map', fMultiplayerPath)) then
+    and FileExists(MapNameToPath(SearchRec.Name, 'dat', fMultiplayerPath))
+    and FileExists(MapNameToPath(SearchRec.Name, 'map', fMultiplayerPath)) then
     begin
       Map := TKMapInfo.Create;
       Map.Load(SearchRec.Name, false, fMultiplayerPath);

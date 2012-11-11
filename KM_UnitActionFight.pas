@@ -34,7 +34,7 @@ type
 
 
 implementation
-uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Resource, KM_Projectiles;
+uses KM_PlayersCollection, KM_Sound, KM_Units_Warrior, KM_Game, KM_Resource;
 
 const STRIKE_STEP = 5; //Melee units place hit on step 5
 
@@ -166,17 +166,16 @@ begin
 end;
 
 
-function TUnitActionFight.ExecuteValidateOpponent(Step: Byte): TActionResult;
+function TUnitActionFight.ExecuteValidateOpponent(Step:byte): TActionResult;
 begin
   Result := ActContinues;
   //See if Opponent has walked away (i.e. Serf) or died
-  if fOpponent.IsDeadOrDying //Don't continue to fight dead units
-  or not fOpponent.Visible //Don't continue to fight units that have went into a house
-  or not TKMUnitWarrior(fUnit).WithinFightRange(fOpponent.GetPosition)
+  if (fOpponent.IsDeadOrDying) or (not fOpponent.Visible) //Don't continue to fight dead units in units that have gone into a house
+  or not InRange(GetLength(fUnit.GetPosition, fOpponent.GetPosition), TKMUnitWarrior(fUnit).GetFightMinRange, TKMUnitWarrior(fUnit).GetFightMaxRange)
   or not fUnit.CanWalkDiagonaly(fUnit.GetPosition, fOpponent.GetPosition) then //Might be a tree between us now
   begin
     //After killing an opponent there is a very high chance that there is another enemy to be fought immediately
-    //Try to start fighting that enemy by reusing this FightAction, rather than destroying it and making a new one
+    //Try to start fighting that enemy by reusing this FightAction, rather than destorying it and making a new one
     Locked := false; //Fight can be interrupted by FindEnemy, otherwise it will always return nil!
     fPlayers.CleanUpUnitPointer(fOpponent); //We are finished with the old opponent
     fOpponent := TKMUnitWarrior(fUnit).FindEnemy; //Find a new opponent
@@ -197,6 +196,10 @@ begin
     end
     else
     begin
+      //Tell commanders to reposition after a fight, if we don't have other plans (order)
+      if TKMUnitWarrior(fUnit).IsCommander and not TKMUnitWarrior(fUnit).ArmyInFight and
+         (TKMUnitWarrior(fUnit).GetOrder = wo_None) and (fUnit.UnitTask = nil) then
+        TKMUnitWarrior(fUnit).OrderWalk(fUnit.GetPosition); //Don't use halt because that returns us to fOrderLoc
       //No one else to fight, so we exit
       Result := ActDone;
     end;
@@ -225,8 +228,8 @@ begin
 
     //Fire the arrow
     case fUnit.UnitType of
-      ut_Arbaletman: fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.Owner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
-      ut_Bowman:     fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.Owner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
+      ut_Arbaletman: fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Bolt, fUnit.GetOwner, RANGE_ARBALETMAN_MAX, RANGE_ARBALETMAN_MIN);
+      ut_Bowman:     fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_Arrow, fUnit.GetOwner, RANGE_BOWMAN_MAX, RANGE_BOWMAN_MIN);
       ut_Slingshot:  ;
       else Assert(false, 'Unknown shooter');
     end;
@@ -235,7 +238,7 @@ begin
   end;
   if Step = SLINGSHOT_FIRING_DELAY then
     if fUnit.UnitType = ut_Slingshot then
-      fProjectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.Owner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
+      fGame.Projectiles.AimTarget(fUnit.PositionF, fOpponent, pt_SlingRock, fUnit.GetOwner, RANGE_SLINGSHOT_MAX, RANGE_SLINGSHOT_MIN);
 end;
 
 
@@ -259,7 +262,7 @@ begin
     IsHit := (Damage >= KaMRandom(101)); //Damage is a % chance to hit
     if IsHit then
       if fOpponent.HitPointsDecrease(1) then
-        fPlayers[fUnit.Owner].Stats.UnitKilled(fOpponent.UnitType);
+        fPlayers.Player[fUnit.GetOwner].Stats.UnitKilled(fOpponent.UnitType);
 
     MakeSound(IsHit); //Different sounds for hit and for miss
   end;
@@ -268,11 +271,12 @@ begin
   //plus it adds randomness to battles
   if Step in [0,3,6] then
   begin
-    if fFightDelay = -1 then //Initialize
-      fFightDelay := KaMRandom(2);
-
-    if fFightDelay > 0 then
+    if fFightDelay=-1 then //Initialize
     begin
+      fFightDelay := KaMRandom(2);
+    end;
+
+    if fFightDelay>0 then begin
       dec(fFightDelay);
       Result := true; //Means exit from Execute
       exit;
@@ -284,8 +288,7 @@ end;
 
 
 function TUnitActionFight.Execute: TActionResult;
-var
-  Cycle, Step: Byte;
+var Cycle,Step:byte;
 begin
   Cycle := max(fResource.UnitDat[fUnit.UnitType].UnitAnim[ActionType, fUnit.Direction].Count, 1);
   Step  := fUnit.AnimStep mod Cycle;
@@ -310,11 +313,11 @@ begin
   if Step = 1 then
   begin
     //Tell the Opponent we are attacking him
-    fPlayers[fOpponent.Owner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
+    fPlayers.Player[fOpponent.GetOwner].AI.UnitAttackNotification(fOpponent, TKMUnitWarrior(fUnit));
 
     //Tell our AI that we are in a battle and might need assistance! (only for melee battles against warriors)
     if (fOpponent is TKMUnitWarrior) and not TKMUnitWarrior(fUnit).IsRanged then
-      fPlayers[fUnit.Owner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
+      fPlayers.Player[fUnit.GetOwner].AI.UnitAttackNotification(fUnit, TKMUnitWarrior(fOpponent));
   end;
 
   if TKMUnitWarrior(fUnit).IsRanged then

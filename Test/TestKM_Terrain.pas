@@ -5,7 +5,6 @@ uses
   SysUtils,
   KM_Defaults, KM_Terrain, KM_Resource, KM_ResourceTileset, KM_Log, KM_Utils;
 
-
 type
   TestKMTerrain = class(TTestCase)
   public
@@ -15,14 +14,11 @@ type
     procedure TestLoadAllMaps;
   end;
 
-
 implementation
-
 
 procedure TestKMTerrain.SetUp;
 begin
   SKIP_RENDER := True;
-  SKIP_SOUND := True;
   ExeDir := ExtractFilePath(ParamStr(0)) + '..\';
 
   fLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Temp\temp.log');
@@ -41,13 +37,11 @@ end;
 //See if all maps load into Terrain
 procedure TestKMTerrain.TestLoadAllMaps;
 var
-  I: Integer;
-  Count, Total: Integer;
+  I, Count: Integer;
   SearchRec: TSearchRec;
   PathToMaps: TStringList;
 begin
   Count := 0;
-  Total := 0;
 
   PathToMaps := TStringList.Create;
   try
@@ -59,44 +53,43 @@ begin
     FindFirst(ExeDir + 'Campaigns\*', faDirectory, SearchRec);
     repeat
       if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
-        PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
+      PathToMaps.Add(ExeDir + 'Campaigns\' + SearchRec.Name + '\');
     until (FindNext(SearchRec) <> 0);
     FindClose(SearchRec);
 
     for I := 0 to PathToMaps.Count - 1 do
-      if DirectoryExists(PathToMaps[I]) then
-      begin
-        FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
-        repeat
-          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
-          and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
-          begin
-            try
-              fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
-              Inc(Count);
-            except
-              //Report and swallow asserts
-              on E: EAssertionFailed do
-                Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
-            end;
-            Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
-            Inc(Total);
+
+    if DirectoryExists(PathToMaps[I]) then
+    begin
+      FindFirst(PathToMaps[I] + '*', faDirectory, SearchRec);
+      repeat
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..')
+        and FileExists(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map') then
+        begin
+          try
+            fTerrain.LoadFromFile(PathToMaps[I] + SearchRec.Name + '\' + SearchRec.Name + '.map', False);
+          except
+            //Report and swallow asserts
+            on E: EAssertionFailed do Status('Map did not load: ' + SearchRec.Name + '. '+ E.Message);
+            //Signal other errors loud
+            else raise;
           end;
-        until (FindNext(SearchRec) <> 0);
-        FindClose(SearchRec);
-      end;
+          Check(fTerrain.MapX * fTerrain.MapY <> 0, 'Map did not load: ' + SearchRec.Name);
+          Inc(Count);
+        end;
+      until (FindNext(SearchRec) <> 0);
+      FindClose(SearchRec);
+    end;
 
   finally
     PathToMaps.Free;
   end;
 
-  Status(IntToStr(Total - Count) + ' of ' + IntToStr(Total) + ' maps failed');
+  Status(IntToStr(Count) + ' maps checked')
 end;
 
 
 initialization
   // Register any test cases with the test runner
-  RegisterTest(TestKMTerrain.Suite);
-
-
+  RegisterTest('Functional', TestKMTerrain.Suite);
 end.

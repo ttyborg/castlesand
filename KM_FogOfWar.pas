@@ -65,19 +65,25 @@ procedure TKMFogOfWar.RevealCircle(Pos: TKMPoint; Radius, Amount: Word);
 var I,K: Integer;
 begin
   //We inline maths here to gain performance
-  for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do
+  for I := max(Pos.Y-Radius, 0) to min(Pos.Y+Radius, MapY-1) do //Keep map edges unrevealed
   for K := max(Pos.X-Radius, 0) to min(Pos.X+Radius, MapX-1) do
   if (sqr(Pos.x-K) + sqr(Pos.y-I)) <= sqr(Radius) then
-    Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
+    if (I = 0) or (K = 0) or (I = MapY - 1) or (K = MapX - 1) then
+      Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MIN)
+    else
+      Revelation[I,K].Visibility := min(Revelation[I,K].Visibility + Amount, FOG_OF_WAR_MAX);
 end;
 
 
 {Reveal whole map to max value}
 procedure TKMFogOfWar.RevealEverything;
-var I,K: Word;
+var I,K: Integer;
 begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
+    if (I = 0) or (K = 0) or (I = MapY - 1) or (K = MapX - 1) then
+      Revelation[I, K].Visibility := FOG_OF_WAR_MIN
+    else
       Revelation[I, K].Visibility := FOG_OF_WAR_MAX;
 end;
 
@@ -174,7 +180,7 @@ end;
 
 //Synchronize FOW revelation between players
 procedure TKMFogOfWar.SyncFOW(aFOW: TKMFogOfWar);
-var I,K: Word;
+var I,K: Integer;
 begin
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
@@ -184,7 +190,7 @@ end;
 
 procedure TKMFogOfWar.Save(SaveStream: TKMemoryStream);
 var
-  I: Word;
+  I: integer;
 begin
   SaveStream.Write('FOW');
   SaveStream.Write(MapX);
@@ -199,7 +205,7 @@ end;
 
 procedure TKMFogOfWar.Load(LoadStream: TKMemoryStream);
 var
-  I: Word;
+  I: integer;
 begin
   LoadStream.ReadAssert('FOW');
   LoadStream.Read(MapX);
@@ -222,8 +228,8 @@ begin
 
   for I := 0 to MapY - 1 do
     for K := 0 to MapX - 1 do
-      if (Revelation[I, K].Visibility > FOG_OF_WAR_MIN)
-      and ((I * MapX + K + fAnimStep) mod FOW_PACE = 0) then
+      if (I * MapX + K + fAnimStep) mod FOW_PACE = 0 then
+        if Revelation[I, K].Visibility > FOG_OF_WAR_MIN then
           Dec(Revelation[I, K].Visibility, FOG_OF_WAR_DEC);
 end;
 
