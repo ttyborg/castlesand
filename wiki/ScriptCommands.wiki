@@ -16,6 +16,7 @@ _To be continued ..._
 == Description and usage examples ==
 
 ====ADD_WARE_TO====
+Puts resources in any house
 {{{
 Syntax:
 !ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>
@@ -24,6 +25,7 @@ Example:
 }}}
 
 ====BLOCK_TRADE====
+Blocks trading (both in and out) of the specified resource for the current player.
 {{{
 Syntax:
 !BLOCK_TRADE <WARE_ID>
