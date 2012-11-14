@@ -1,6 +1,6 @@
 #List of supported scripting commands for missions
 
-= List =
+== List of commands ==
 
 || Command || Original || Remake || Description ||
 || [#ADD_WARE_TO] || - || V || Adds wares to house ||
@@ -8,6 +8,12 @@
 || *ENABLE_PLAYER* || V || - || ... ||
 || [#SET_AI_CHARACTER_EQUIP_RATE] || - || V || Instruct AI to train 1 soldier every N seconds ||
 || *SET_NEW_REMAP* || V || - || Sets palette colors for player flags ||
+
+_To be continued ..._
+
+-------
+
+== Description and usage examples ==
 
 ====ADD_WARE_TO====
 {{{
@@ -33,4 +39,5 @@ Syntax:
 Example: 
 !SET_AI_CHARACTER EQUIP_RATE 150 //AI will attempt to train 1 soldier every 15 seconds (150 game ticks). 
 }}}
+
 _To be continued ..._
