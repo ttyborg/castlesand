@@ -3,7 +3,7 @@
 = List =
 
 || Command || Original || Remake || Description ||
-|| *[ADD_WARE_TO]ADD_WARE_TO* || - || V || Adds wares to house ||
+|| [#ADD_WARE_TO]*ADD_WARE_TO* || - || V || Adds wares to house ||
 || *BLOCK_TRADE* || - || V || Blocks resources trade in Marketplace ||
 || *ENABLE_PLAYER* || V || - || ... ||
 || *SET_AI_CHARACTER_EQUIP_RATE* || - || V || Instruct AI to train 1 soldier every N seconds ||
