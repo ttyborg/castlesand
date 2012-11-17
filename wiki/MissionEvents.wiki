@@ -33,7 +33,7 @@ Comments and empty lines are allowed, preceding with `//` mark.
 || _ATTACK_ || Issue attack order to AI || 1. Target player index || 2. Other attack parameters ... ? || - ||
 || _ATTACK_WAVE_ || Spawn group of warriors and set their attack goal || 1. Spawn location X, Y || 2. Other parameters ... ? || - ||
 || *DELAYED_MESSAGE* || Displays a message after specified delay || 1. Delay amount in game ticks || 2. Message index || - ||
-|| _GIVE_WARES_ || Adds amount of ware to players Store || 1. Ware type || 2. Count || - ||
+|| *GIVE_WARES* || Adds amount of ware to oldest players Store || 1. Ware type || 2. Count || - ||
 || _SEND_WARES_ || Take amount of ware from one player and give them to another players Store || 1. Ware type || 2. Count || 3. Receiver player index ||
 || _SHOW_COUNTDOWN_ || Display countdown for player || 1. Value to count from || - || - ||
 || *SHOW_MESSAGE* || Displays a message immediately || 1. Message index || - || - ||
