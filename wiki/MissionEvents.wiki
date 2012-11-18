@@ -22,6 +22,7 @@ Comments and empty lines are allowed, preceding with `//` mark.
 || *HOUSE_BUILT* || Occurs when player has built the specified house type || 1. House type index || - ||
 || *TIME* || Occurs when specified time has come || 1. Time value in game ticks (100ms by default) || - ||
 || _UNIT_COUNT_ || Player has specified count of alive citizens || 1. Unit type || 2. Count ||
+|| _UNITS_LOST_ || Player has lost specified count of units (citizens and warriors) || 1. Count || - ||
 || _WARES_COUNT_ || Player has total of specified amount of wares || 1. Ware type || 2. Count ||
 
 `*`triggers typed in _italic_ are not yet implemented.
