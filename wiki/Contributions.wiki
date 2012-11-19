@@ -58,6 +58,14 @@ The project needs:
   * New music tracks
   * 
 
+== Writing ==
+
+It would be nice to expand this wiki with new articles.
+
+  * Convert existing Mission Editors guide on scripting into this wiki
+  * Update and improve project compilation guide
+  * Tutorials on how to use map editor and utility tools
+
 == Translations ==
 
 The project always needs translations into new languages, improving existing translations. If your language is not in the game yet, please contact us and we can discuss adding it. It might require a new font set (see below). If the translation in your language is incomplete or has mistakes, please contact us.
