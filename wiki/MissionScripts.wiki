@@ -79,17 +79,17 @@ All states parameters are numeric and get mapped to unit/house types according t
 
 || State || Description || Query parameters || Type of return value ||
 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
-|| PlayerDefeated || See if player was defeated || 1 - player index || Boolean ||
+|| `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 
 ===Actions===
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Action || Description || Parameters (Integer) ||
 || _`AllianceChange`_ || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
-|| Defeat || Proclaims player defeated || 1 - player index ||
-|| GiveGroup || Give player group of units (citizens or warriors) || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row ||
-|| _GiveWares_ || Adds amount of wares to oldest players Store || 1 - player index <br> 2 - Ware type <br> 3 - Count ||
-|| _ShowCountdown_ || Display countdown for player || 1. Value to count from ||
-|| ShowMsg || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| _UnlockHouse_ || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
-|| _Victory_ || Proclaims victory to the player (by making all other players defeated) || 1 - player index ||
+|| `Defeat` || Proclaims player defeated || 1 - player index ||
+|| `GiveGroup` || Give player group of units (citizens or warriors) || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row ||
+|| _`GiveWares`_ || Adds amount of wares to oldest players Store || 1 - player index <br> 2 - Ware type <br> 3 - Count ||
+|| _`ShowCountdown`_ || Display countdown for player || 1. Value to count from ||
+|| `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
+|| _`UnlockHouse`_ || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
+|| _`Victory`_ || Proclaims victory to the player (by making all other players defeated) || 1 - player index ||
