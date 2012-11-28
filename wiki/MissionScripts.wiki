@@ -5,7 +5,7 @@
 
 Missions can be easily extended with custom scripts to add special events to them. Each missions script is located in `\Maps\map_name\map_name.script` file, which can be opened in any plain text editor (e.g. Notepad). Scripts are written in PascalScript language (syntax is very similar to usual Pascal).
 
-Script has 3 ways of interacting with the game - *Events*, *States* and *Actions*. Events get called by the game when they happen. States are values that can be querried from the game. Actions are way to tell the game what to do.
+Script has 3 ways of interacting with the game - *Events*, *States* and *Actions*. Events get called by the game when they happen. States are values that can be queried from the game. Actions are way to tell the game what to do. Scripts get verified on mission load and any errors are output in a message to a player.
 
 Script file consists of several parts:
 
@@ -52,36 +52,43 @@ end.
 Above line means that when PlayerDefeated event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 we show another message.
 
 
+==Lookup tables==
 
-==Events==
+ * titles typed in *bold* are implemented in public version.
+ * titles typed in normal are implemented, but not in public version.
+ * titles typed in _italic_ are planned to be implemented in future.
+ * titles typed in ~~crossed out~~ were planned, but were rejected.
 
-|| Event || Description || Parameters ||
+
+===Events===
+
+|| Event || Description || Parameters and types ||
 || OnPlayerDefeated || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || OnHouseBuilt || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
 
-`*`events typed in *bold* are implemented in public version.
-`**`events typed in normal are implemented, but not in public version.
-`***`events typed in _italic_ are planned to be implemented.
-`****`events typed in ~~crossed out~~ are planned to be rejected.
+Events are written in a form procedure *EVENT_NAME(EVENT_PARAMETERS_IN_LINE);* like so:
+{{{
+procedure OnHouseBuilt(aIndex: Integer; aHouseType: Integer);
+begin
+  //code
+end;
+}}}
 
-==States==
+===States===
 All states parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
-|| State || Description || Query parameters || Returned value ||
+|| State || Description || Query parameters || Type of return value ||
 || GameTime || Get the number of game ticks since mission start || - || Integer ||
 || PlayerDefeated || See if player was defeated || 1 - player index || Boolean ||
 
-==Actions==
+===Actions===
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
-|| Action || Description || Parameters ||
+|| Action || Description || Parameters (Integer) ||
 || _AllianceChange_ || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
-|| ~~ATTACK~~ || Issue attack order to AI || 1. Target player index || 2. Other attack parameters ... ? || - ||
 || GiveGroup || Give player group of units (citizens or warriors) || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row ||
 || _GiveWares_ || Adds amount of wares to oldest players Store || 1 - player index <br> 2 - Ware type <br> 3 - Count ||
-|| _ShowCountdows_ || Display countdown for player || 1. Value to count from ||
+|| _ShowCountdown_ || Display countdown for player || 1. Value to count from ||
 || ShowMsg || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || _UnlockHouse_ || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || _Victory_ || Proclaims victory to the player (by making all other players defeated) || 1 - player index ||
-
-Scripts get verified on mission load and any errors are output in a message to a player.
