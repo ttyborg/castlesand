@@ -91,5 +91,5 @@ All action parameters are numeric and get mapped to unit/house types according t
 || _`GiveWares`_ || Adds amount of wares to oldest players Store || 1 - player index <br> 2 - Ware type <br> 3 - Count ||
 || _`ShowCountdown`_ || Display countdown for player || 1. Value to count from ||
 || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| _`UnlockHouse`_ || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
+|| `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || _`Victory`_ || Proclaims victory to the player (by making all other players defeated) || 1 - player index ||
