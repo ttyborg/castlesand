@@ -80,13 +80,17 @@ All states parameters are numeric and get mapped to unit/house types according t
 || State || Description || Query parameters || Type of return value ||
 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || _`CheckAlliance`_ || Check how player 1 feels towards player 2 (order matters) ||1 - player index <br> 2 - player index || Integer ||
+|| `CitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || _`FindUnitInZone`_ || 
 || _`GetUnitDirection`_ ||
 || _`GetUnitHunger`_ || Check unit hunger level ||
 || _`GetUnitOwner`_ || 
 || _`GetUnitPosition`_ ||
 || _`GetUnitType`_ || Check type of the unit ||
+|| `PlayerCount` || How many active players there are || - || Integer ||
 || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
+|| `UnitCount` || Total units count || 1 - player index || Integer ||
+|| `WarriorCount` || Total units count || 1 - player index || Integer ||
 
 ===Actions===
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
@@ -103,8 +107,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || _`SetGroupHunger`_ || Set hunger level for all group members ||
 || _`SetUnitDirection`_ ||
 || _`SetUnitHunger`_ || Set unit hunger level ||
-|| _`SetUnitPosition`_ || Magically move unit from one place to the other (?) 
-|| _`ShowCountdown`_ || Display countdown for player || 1. Value to count from ||
+|| _`SetUnitPosition`_ || Magically move unit from one place to another (?) ||
+|| _`ShowCountdown`_ || Display countdown for player || 1. player index <br> 2. Value to count from ||
 || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
-|| _`Victory`_ || Proclaims victory to the player (by making all other players defeated) || 1 - player index ||
+|| ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
