@@ -66,7 +66,7 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || `OnHouseBuilt` || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
 
-Events are written in a form procedure *EVENT_NAME(EVENT_PARAMETERS_IN_LINE);* like so:
+Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
 {{{
 procedure OnHouseBuilt(aIndex: Integer; aHouseType: Integer);
 begin
@@ -92,6 +92,12 @@ All states parameters are numeric and get mapped to unit/house types according t
 || `UnitCount` || Total units count || 1 - player index || Integer ||
 || `WarriorCount` || Total units count || 1 - player index || Integer ||
 
+States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
+{{{
+if States.PlayerCount > 5 then
+  A := States.UnitCount(1);
+}}}
+
 ===Actions===
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
@@ -112,3 +118,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
+
+Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
+{{{
+if States.GameTime = 300 then
+  Actions.Defeat(0); //Defeat 1st player
+}}}
