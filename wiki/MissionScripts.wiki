@@ -77,9 +77,10 @@ end;
 All states parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Progress || State || Description || Query parameters || Type of return value ||
+|| + || `ArmyCount` || How many military units player has || 1 - player index || Integer ||
 || + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || - || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters) ||1 - player index <br> 2 - player index || Integer ||
-|| - || `CitizenCount` || How many citizen player has || 1 - player index || Integer ||
+|| + || `CitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || - || `FindUnitInZone` || 
 || - || `GetUnitDirection` ||
 || - || `GetUnitHunger` || Check unit hunger level ||
@@ -88,8 +89,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || - || `GetUnitType` || Check type of the unit ||
 || + || `PlayerCount` || How many active players there are || - || Integer ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
-|| - || `UnitCount` || Total units count || 1 - player index || Integer ||
-|| - || `WarriorCount` || Total units count || 1 - player index || Integer ||
+|| + || `UnitCount` || Total units count || 1 - player index || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
