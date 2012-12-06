@@ -89,7 +89,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || - || `GetUnitType` || Check type of the unit ||
 || + || `PlayerCount` || How many active players there are || - || Integer ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
-|| + || `UnitCount` || Total units count || 1 - player index || Integer ||
+|| + || `UnitCount` || Total unit count || 1 - player index || Integer ||
+|| + || `UnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
