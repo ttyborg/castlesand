@@ -108,13 +108,14 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GiveGroup` || Give player group of units (citizens or warriors) || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || - || `GiveGroupOrder` || Give an order to the group ||
 || + || `GiveUnit` || Give player a single citizen || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
-|| - || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - Ware type <br> 3 - Count ||
+|| + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
 || - || `SetUnitDirection` ||
 || - || `SetUnitHunger` || Set unit hunger level ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
 || - || `ShowCountdown` || Display countdown for player || 1. player index <br> 2. Value to count from ||
+|| + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || + || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || - || ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
