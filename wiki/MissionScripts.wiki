@@ -87,6 +87,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || - || `GetUnitOwner` || 
 || - || `GetUnitPosition` ||
 || - || `GetUnitType` || Check type of the unit ||
+|| + || `HouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
 || + || `PlayerCount` || How many active players there are || - || Integer ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `UnitCount` || Total unit count || 1 - player index || Integer ||
