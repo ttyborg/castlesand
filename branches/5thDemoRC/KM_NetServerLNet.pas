@@ -132,7 +132,9 @@ begin
   fSocketServer.OnDisconnect := ClientDisconnect;
   fSocketServer.OnReceive := ReceiveData;
   fSocketServer.OnCanSend := CanSend;
-  fSocketServer.Timeout := 1; //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
+  //This is the time it will wait in CallAction for the OS to respond, it's better than calling Sleep(1)
+  //This value could be higher, it won't cause delays since it's just a timeout on waiting for network events
+  fSocketServer.Timeout := 100;
   fSocketServer.ReuseAddress := True; //Allows us to overwrite an old connection in the wait state rather than saying the port is still in use
   if not fSocketServer.Listen(StrToInt(aPort)) then
     raise Exception.Create('Server failed to start');
@@ -249,11 +251,13 @@ begin
   while fSocketServer.IterNext do
     if (fSocketServer.Iterator.UserData <> nil) and (TClientInfo(fSocketServer.Iterator.UserData).Tag = aHandle) then
     begin
-      if fSocketServer.Iterator.Connected then //Sometimes this occurs just before ClientDisconnect
+      if fSocketServer.Iterator.ConnectionStatus in [scConnected, scConnecting, scDisconnecting] then
       begin
         fSocketServer.Iterator.Disconnect(True);
         fOnClientDisconnect(aHandle); //A forceful disconnect does not always trigger the disconnect event so we need to do it manually
-      end;
+      end
+      else
+        fOnError('Warning: Attempted to kick a client that is not connected');
       Exit; //Only one client should have this handle
     end;
   //If we reached here we didn't find a match
