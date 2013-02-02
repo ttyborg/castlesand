@@ -64,6 +64,8 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 || Progress || Event || Description || Parameters and types ||
 || + || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || + || `OnHouseBuilt` || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
+|| + || `OnUnitTrained` || Occurs when player trains a unit || aIndex: Integer; //Index of player who trained it <br> aUnitType: Integer; //Type of unit that was trained ||
+|| + || `OnWarriorEquipped` || Occurs when player equips a warrior || aIndex: Integer; //Index of player who equipped it <br> aUnitType: Integer; //Type of warrior that was equipped ||
 
 Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
 {{{
