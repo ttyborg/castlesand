@@ -96,6 +96,10 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `UnitCount` || Total unit count || 1 - player index || Integer ||
 || + || `UnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
+|| + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
+|| + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `HouseOwner` || Returns the owner of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
@@ -120,13 +124,14 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `SetUnitDirection` ||
 || - || `SetUnitHunger` || Set unit hunger level ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
-|| - || `ShowCountdown` || Display countdown for player || 1. player index <br> 2. Value to count from ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
+|| + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
+|| + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || - || ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
