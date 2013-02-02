@@ -119,6 +119,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `ShowCountdown` || Display countdown for player || 1. player index <br> 2. Value to count from ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
+|| + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
+|| + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || - || ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
 
