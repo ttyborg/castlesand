@@ -102,6 +102,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `HouseOwner` || Returns the owner of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
 || + || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
+|| + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
