@@ -10,13 +10,18 @@ Script has 3 ways of interacting with the game - *Events*, *States* and *Actions
 Script file consists of several parts:
 
 {{{
+//Global constants section,  accessible from any place in the script.
+//Useful to make parameters easy to change in one place.
+const
+  MY_CONSTANT = 7; //by convention constants are written in upper case
+
 //Global variables section, accessible from any place in the script and stored in game memory
 var
   I: Integer; //variable number
   A: array [0..3] of Boolean; //array of 4 booleans accessible as A[0], A[1] etc.
 
 //Event handler, when the event happens ingame this function gets called
-procedure OnHouseBuilt(..); //Ecah event has different input parameters list
+procedure OnHouseBuilt(..); //Each event has different input parameters list
 var //Local variables, they exist only within this procedure
   L: Integer; //variable number 
 begin
@@ -25,12 +30,13 @@ begin
   Actions.ShowMsg(0,L); //Calling a games action with 2 parameters: 0 and L
 end;
 
-//Main section which gets executed each game tick
+//Event handler for "tick" event, which happens 10 times per second (on each game logic update).
+procedure OnTick;
 begin
   //Code here
   if States.GameTime = 60 then //Check game time and show a message
     Actions.ShowMsg(0,3);
-end. //script must end with a stop sign .
+end;
 }}}
 
 Here is Battle Tutorial script explained:
@@ -43,13 +49,14 @@ begin
   if aIndex = 4 then Actions.ShowMsg(0, 4);
 end;
 
+procedure OnTick;
 begin
   if States.GameTime = 20 then 
     Actions.ShowMsg(0, 1);
-end.
+end;
 }}}
 
-Above line means that when PlayerDefeated event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 we show another message.
+Above line means that when PlayerDefeated event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message.
 
 
 ==Lookup tables==
@@ -62,6 +69,7 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 ===Events===
 
 || Progress || Event || Description || Parameters and types ||
+|| + || `OnTick` || Occurs every game logic update ||  ||
 || + || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || + || `OnHouseBuilt` || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
 || + || `OnHouseLost` || Occurs when player loses a house (including self-destruction) || aIndex: Integer; //Index of player who lost it <br> aHouseType: Integer; //Type of house that was lost ||
