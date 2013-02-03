@@ -87,12 +87,11 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `ArmyCount` || How many military units player has || 1 - player index || Integer ||
 || + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
-|| - || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters) ||1 - player index <br> 2 - player index || Integer ||
+|| + || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || + || `CitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || - || `FindUnitInZone` || 
 || - || `GetUnitDirection` ||
 || - || `GetUnitPosition` ||
-|| - || `GetUnitType` || Check type of the unit ||
 || + || `HouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
 || + || `PlayerCount` || How many active players there are || - || Integer ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
@@ -130,12 +129,14 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `ChangeHouseOwner` || Take house from one player and give it to another ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
-|| - || `GiveGroupOrder` || Give an order to the group ||
+|| + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
+|| + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
+|| + || `GroupOrderAttackUnit` || Order the specified group to attack the specified unit || 1 - Group ID <br> 2 - Unit ID ||
 || + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
-|| - || `SetUnitDirection` ||
+|| + || `SetUnitDirection` || Makes the specified unit face a certain direction || 1 - Unit ID <br> 2 - Direction ||
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
