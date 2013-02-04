@@ -122,11 +122,19 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
 || + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
+|| + || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
 || + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
 || + || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || + || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
 || + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
+|| + || `UnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
+|| + || `UnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
+|| + || `ResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player ID <br> 2 - Resource type || Integer ||
+|| + || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
+|| + || `HouseDeliveryBlocked` || Returns true if the specified house has delivery disabled || 1 - House ID || Boolean ||
+|| + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
+|| + || `HouseHasOccupant` || Returns true if the specified house currently has an occupant || 1 - House ID || Boolean ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
@@ -165,6 +173,18 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
+|| + || `AddRoadPlan` || Adds a road plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
+|| + || `AddFieldPlan` || Adds a corn field plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
+|| + || `AddWinefieldPlan` || Adds a wine field plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
+|| + || `AddHousePlan` || Adds a house plan || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y ||
+|| + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Boolean: Blocked ||
+|| + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
+|| + || `BarracksEquip` || Equips the specified unit from the specified barracks || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
+|| + || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
+|| + || `GroupOrderHalt` || Order the specified group to halt || 1 - Group ID ||
+|| + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
+|| + || `GroupOrderLink` || Order the first specified group to link to the second specified group || 1 - Group ID <br> 2 - Group ID ||
+|| + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
 {{{
