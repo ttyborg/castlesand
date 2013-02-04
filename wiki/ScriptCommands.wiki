@@ -6,6 +6,7 @@
 || `ADD_WARE_TO` || - || V || Adds wares to house ||
 || `BLOCK_TRADE` || - || V || Blocks resources trade in Marketplace ||
 || `ENABLE_PLAYER` || V || - || ... ||
+|| `SET_AI_AUTO_REPAIR` || - || V || AI will repair damaged buildings ||
 || `SET_AI_AUTO_DEFEND` || - || V || AI will try to define and fill defense positions on his own ||
 || `SET_AI_CHARACTER_EQUIP_RATE` || - || V || Instruct AI to train 1 soldier every N seconds ||
 || `SET_MAP` || V || - || Sets the map file for the mission ||
@@ -38,6 +39,13 @@ Syntax:
 !BLOCK_TRADE <WARE_ID>
 Example: 
 !BLOCK_TRADE 8 //Blocks trading wine
+}}}
+
+====SET_AI_AUTO_REPAIR====
+Makes AI repair damaged buildings. If you do not specify this command, the AI will not repair damaged buildings.
+{{{
+Syntax/Example:
+!SET_AI_AUTO_REPAIR
 }}}
 
 ====SET_AI_AUTO_DEFEND====
