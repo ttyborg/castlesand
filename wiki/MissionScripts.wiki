@@ -70,16 +70,16 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 
 || Progress || Event || Description || Parameters and types ||
 || + || `OnTick` || Occurs every game logic update ||  ||
+|| + || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
 || + || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || + || `OnPlayerVictory` || Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI || aIndex: Integer; //Index of victorious player ||
-|| + || `OnHouseBuilt` || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
+|| + || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
 || + || `OnHouseLost` || Occurs when player loses a house (including self-destruction) || aIndex: Integer; //Index of player who lost it <br> aHouseType: Integer; //Type of house that was lost ||
 || + || `OnHouseDestroyed` || Occurs when player destroys an enemy house || aIndex: Integer; //Index of player who lost it <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aHouseType: Integer; //Type of house that was destroyed||
-|| + || `OnUnitTrained` || Occurs when player trains a unit || aIndex: Integer; //Index of player who trained it <br> aUnitType: Integer; //Type of unit that was trained ||
+|| + || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
 || + || `OnUnitLost` || Occurs when player loses a unit (including starvation) || aIndex: Integer; //Index of player who lost it <br> aUnitType: Integer; //Type of unit that was lost ||
 || + || `OnUnitKilled` || Occurs when player kills a unit || aIndex: Integer; //Index of player who lost it <br> aKillerIndex: Integer; //Index of player who killed it <br> aUnitType: Integer; //Type of unit that was killed ||
-|| + || `OnWarriorEquipped` || Occurs when player equips a warrior || aIndex: Integer; //Index of player who equipped it <br> aUnitType: Integer; //Type of warrior that was equipped ||
-|| + || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
+|| + || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the unit that was trained <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
 
 Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
 {{{
@@ -122,6 +122,11 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
 || + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
+|| + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
+|| + || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
+|| + || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
+|| + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
@@ -143,6 +148,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
 || + || `GroupOrderAttackUnit` || Order the specified group to attack the specified unit || 1 - Group ID <br> 2 - Unit ID ||
 || + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
+|| + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
