@@ -71,6 +71,7 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 || Progress || Event || Description || Parameters and types ||
 || + || `OnTick` || Occurs every game logic update ||  ||
 || + || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
+|| + || `OnPlayerVictory` || Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI || aIndex: Integer; //Index of victorious player ||
 || + || `OnHouseBuilt` || Occurs when player has built a house || aIndex: Integer; //Index of player who built it <br> aHouseType: Integer; //Type of house that was built ||
 || + || `OnHouseLost` || Occurs when player loses a house (including self-destruction) || aIndex: Integer; //Index of player who lost it <br> aHouseType: Integer; //Type of house that was lost ||
 || + || `OnHouseDestroyed` || Occurs when player destroys an enemy house || aIndex: Integer; //Index of player who lost it <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aHouseType: Integer; //Type of house that was destroyed||
@@ -136,6 +137,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `ChangeUnitOwner` || Take unit from one player and give it to another ||
 || - || `ChangeHouseOwner` || Take house from one player and give it to another ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
+|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - Boolean: TeamVictory ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
@@ -145,6 +147,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
 || + || `SetUnitDirection` || Makes the specified unit face a certain direction || 1 - Unit ID <br> 2 - Direction ||
+|| + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
@@ -154,8 +157,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
 || + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
+|| + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
-|| - || ~~`Victory`~~ || Set player victorious. (We can't make just 1 player victorious. If he has allies, they would win too) || 1 - player index ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
 {{{
