@@ -161,6 +161,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
 || + || `SetUnitDirection` || Makes the specified unit face a certain direction || 1 - Unit ID <br> 2 - Direction ||
+|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. || 1 - Group ID <br> 2 - X <br> 3 - Y ||
 || + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
@@ -169,7 +170,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
-|| + || `UnlockHouse` || Explicitly allow player to build houses of specified type || 1 - player index <br> 2 - House type ||
+|| + || `UnlockHouse` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
+|| + || `SetHouseAllowed` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type ||
+|| + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> Boolean: allowed to trade ||
 || + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
@@ -185,6 +188,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || + || `GroupOrderLink` || Order the first specified group to link to the second specified group || 1 - Group ID <br> 2 - Group ID ||
 || + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
+|| + || `GroupOrderSplit` || Order the specified group to split in half and return the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID || GroupID: Integer ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
 {{{
