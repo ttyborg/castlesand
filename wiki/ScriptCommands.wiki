@@ -3,7 +3,7 @@
 == List of commands ==
 
 || Command || Original || Remake || Description ||
-|| `ADD_WARE_TO` || - || V || Adds wares to house ||
+|| `ADD_WARE_TO_LAST` || - || V || Adds wares to the last house ||
 || `BLOCK_TRADE` || - || V || Blocks resources trade in Marketplace ||
 || `ENABLE_PLAYER` || V || - || ... ||
 || `SET_AI_AUTO_REPAIR` || - || V || AI will repair damaged buildings ||
@@ -26,12 +26,12 @@ _To be continued ..._
 == Description and usage examples ==
 
 ====ADD_WARE_TO====
-Puts resources in any house
+Puts resources in the last defined house
 {{{
 Syntax:
-!ADD_WARE_TO <HOUSE_TYPE_ID> <HOUSE_NUMBER> <WARE_ID> <QUANTITY>
+!ADD_WARE_TO_LAST <WARE_ID> <QUANTITY>
 Example:
-!ADD_WARE_TO 17 3 1 5 //Adds 5 stone to the 3rd watchtower (in order they are placed in the script)
+!ADD_WARE_TO 1 5 //Adds 5 stone to the last house that was defined in the script
 }}}
 
 ====BLOCK_TRADE====
