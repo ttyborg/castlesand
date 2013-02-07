@@ -109,6 +109,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
 || + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
 || + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `HousePositionX` || Returns the X coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HousePositionY` || Returns the Y coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
 || + || `HouseDestroyed` || Returns true if the house is destroyed || 1 - House ID || Boolean ||
 || + || `HouseOwner` || Returns the owner of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
 || + || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
@@ -116,6 +118,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
 || + || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `UnitPositionX` || Returns the X coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
+|| + || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
 || + || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
@@ -150,7 +154,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `ChangeUnitOwner` || Take unit from one player and give it to another ||
 || - || `ChangeHouseOwner` || Take house from one player and give it to another ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
-|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - Boolean: TeamVictory ||
+|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
@@ -160,7 +164,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
-|| + || `SetUnitDirection` || Makes the specified unit face a certain direction || 1 - Unit ID <br> 2 - Direction ||
+|| + || `SetUnitDirection` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. || 1 - Unit ID <br> 2 - Direction ||
 || + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. || 1 - Group ID <br> 2 - X <br> 3 - Y ||
 || + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
@@ -172,15 +176,15 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
 || + || `UnlockHouse` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
 || + || `SetHouseAllowed` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type ||
-|| + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> Boolean: allowed to trade ||
+|| + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> allowed to trade: Boolean ||
 || + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
-|| + || `AddRoadPlan` || Adds a road plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
-|| + || `AddFieldPlan` || Adds a corn field plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
-|| + || `AddWinefieldPlan` || Adds a wine field plan || 1 - Player index <br> 2 - X <br> 3 - Y ||
-|| + || `AddHousePlan` || Adds a house plan || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y ||
-|| + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Boolean: Blocked ||
+|| + || `AddRoadPlan` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `AddFieldPlan` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `AddWinefieldPlan` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `AddHousePlan` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
+|| + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
 || + || `BarracksEquip` || Equips the specified unit from the specified barracks || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
 || + || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
