@@ -164,8 +164,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || - || `SetGroupHunger` || Set hunger level for all group members ||
-|| + || `SetUnitDirection` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. || 1 - Unit ID <br> 2 - Direction ||
-|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. || 1 - Group ID <br> 2 - X <br> 3 - Y ||
+|| + || `SetUnitDirection` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
+|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
@@ -185,8 +185,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `AddWinefieldPlan` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `AddHousePlan` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
-|| + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
-|| + || `BarracksEquip` || Equips the specified unit from the specified barracks || 1 - House ID <br> 2 - Unit type <br> 3 - Count ||
+|| + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
+|| + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
 || + || `GroupOrderHalt` || Order the specified group to halt || 1 - Group ID ||
 || + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
