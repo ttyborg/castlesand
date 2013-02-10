@@ -16,7 +16,7 @@
 || *Player setup* ||
 || `SET_MAX_PLAYERS` || V || V || Sets the maximum number of players ||
 || `SET_AI_PLAYER` || V || V ||Sets current player to be an AI ||
-|| `SET_HUMAN_PLAYER` || - || V || Default human player ||
+|| `SET_HUMAN_PLAYER` || V || V || Default human player ||
 || `SET_USER_PLAYER` || - || V || Allows human players to pick current player ||
 
 _To be continued ..._
