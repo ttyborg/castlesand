@@ -8,9 +8,9 @@
 || `ENABLE_PLAYER` || V || - || ... ||
 || `SET_AI_AUTO_REPAIR` || - || V || AI will repair damaged buildings ||
 || `SET_AI_AUTO_DEFEND` || - || V || AI will try to define and fill defense positions on his own ||
-|| `SET_AI_CHARACTER_EQUIP_RATE` || - || V || Instruct AI to equip 1 soldier every N ticks (depreciated, sets both iron and leather together) ||
-|| `SET_AI_CHARACTER_EQUIP_RATE_LEATHER` || - || V || Instruct AI to equip 1 iron soldier every N ticks (if iron one wasn't equipped first) ||
-|| `SET_AI_CHARACTER_EQUIP_RATE_IRON` || - || V || Instruct AI to equip 1 leather soldier every N ticks ||
+|| `SET_AI_CHARACTER EQUIP_RATE` || - || V || Instruct AI to equip 1 soldier every N ticks (depreciated, sets both iron and leather together) ||
+|| `SET_AI_CHARACTER EQUIP_RATE_LEATHER` || - || V || Instruct AI to equip 1 iron soldier every N ticks (if iron one wasn't equipped first) ||
+|| `SET_AI_CHARACTER EQUIP_RATE_IRON` || - || V || Instruct AI to equip 1 leather soldier every N ticks ||
 || `SET_MAP` || V || - || Sets the map file for the mission ||
 || `SET_NEW_REMAP` || V || - || Sets palette colors for player flags ||
 || *Player setup* ||
@@ -57,13 +57,13 @@ Syntax/Example:
 !SET_AI_AUTO_DEFEND
 }}}
 
-====SET_AI_CHARACTER_EQUIP_RATE====
+====SET_AI_CHARACTER EQUIP_RATE====
 Makes AI to train soldiers every N game ticks. If you do not specify this command, the default (in KaM TSK/TPR too) is every 100 seconds (1000 ticks).
 {{{
 Syntax:
-!SET_AI_CHARACTER_EQUIP_RATE <TICKS>
+!SET_AI_CHARACTER EQUIP_RATE <TICKS>
 Example: 
-!SET_AI_CHARACTER_EQUIP_RATE 150 //AI will attempt to train 1 soldier every 15 seconds (150 game ticks). 
+!SET_AI_CHARACTER EQUIP_RATE 150 //AI will attempt to train 1 soldier every 15 seconds (150 game ticks). 
 }}}
 
 ====SET_USER_PLAYER====
