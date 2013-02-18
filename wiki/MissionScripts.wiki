@@ -77,9 +77,9 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 || + || `OnHouseLost` || Occurs when player loses a house (including self-destruction). Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was lost <br> aFullyBuilt: Boolean //True if the house was fully built ||
 || + || `OnHouseDestroyed` || Occurs when player destroys an enemy house. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aFullyBuilt: Boolean //True if the house was fully built||
 || + || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
-|| + || `OnUnitLost` || Occurs when player loses a unit (including starvation) || aIndex: Integer; //Index of player who lost it <br> aUnitType: Integer; //Type of unit that was lost ||
-|| + || `OnUnitKilled` || Occurs when player kills a unit || aIndex: Integer; //Index of player who lost it <br> aKillerIndex: Integer; //Index of player who killed it <br> aUnitType: Integer; //Type of unit that was killed ||
-|| + || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the unit that was trained <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
+|| + || `OnUnitLost` || Occurs when player loses a unit (including starvation) || aUnitID: Integer; //UnitID of the unit that was lost ||
+|| + || `OnUnitKilled` || Occurs when player kills a unit || aUnitID: Integer; //UnitID of the unit that was killed <br> aKillerIndex: Integer; //Index of player who killed it ||
+|| + || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the warrior that was equipped <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
 
 Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
 {{{
