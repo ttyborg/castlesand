@@ -1,4 +1,5 @@
 #summary Keyboard shortcuts and mouse controls list
+#labels Featured
 
 = List of controls and shortcuts available in game =
 
