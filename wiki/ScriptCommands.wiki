@@ -26,7 +26,7 @@ _To be continued ..._
 == Description and usage examples ==
 
 ====ADD_WARE_TO_LAST====
-Puts resources in the last defined house
+Puts resources in the last defined house. If the house does not accept that kind of resource, it is ignored.
 {{{
 Syntax:
 !ADD_WARE_TO_LAST <WARE_ID> <QUANTITY>
