@@ -1,4 +1,4 @@
-#List of supported scripting commands for missions
+#List of static mission scripting commands (.dat)
 
 == List of commands ==
 
