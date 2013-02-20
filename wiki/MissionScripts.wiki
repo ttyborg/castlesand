@@ -1,4 +1,4 @@
-#summary Mission scripts
+#summary Advanced mission scripts description (.script)
 #labels Featured
 
 = Mission scripts =
