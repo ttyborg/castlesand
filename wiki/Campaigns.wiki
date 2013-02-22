@@ -4,7 +4,7 @@
 
  # Browse to the folder Campaigns under your KaM Remake folder
  # Create a new folder with the name of your campaign, for example KaM Remake\Campaigns\My Campaign
- # Run CampaignBuilder.exe from the main KaM Remake folder
+ # Run `CampaignBuilder.exe` from the main KaM Remake folder
  # Enter a 3 letter short name for your campaign
  # Click Load Picture and select an image for the map background on the briefing screen
  # Set the map count
