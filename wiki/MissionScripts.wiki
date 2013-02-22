@@ -69,16 +69,16 @@ Above line means that when PlayerDefeated event comes from the game, we check th
 ===Events===
 
 || Progress || Event || Description || Parameters and types ||
-|| + || `OnTick` || Occurs every game logic update ||  ||
+|| + || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
+|| + || `OnHouseDestroyed` || Occurs when player destroys an enemy house. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aFullyBuilt: Boolean //True if the house was fully built||
+|| + || `OnHouseLost` || Occurs when player loses a house (including self-destruction). Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was lost <br> aFullyBuilt: Boolean //True if the house was fully built ||
 || + || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
 || + || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || + || `OnPlayerVictory` || Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI || aIndex: Integer; //Index of victorious player ||
-|| + || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
-|| + || `OnHouseLost` || Occurs when player loses a house (including self-destruction). Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was lost <br> aFullyBuilt: Boolean //True if the house was fully built ||
-|| + || `OnHouseDestroyed` || Occurs when player destroys an enemy house. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aFullyBuilt: Boolean //True if the house was fully built||
-|| + || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
-|| + || `OnUnitLost` || Occurs when player loses a unit (including starvation). Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was lost ||
+|| + || `OnTick` || Occurs every game logic update ||  ||
 || + || `OnUnitKilled` || Occurs when player kills a unit. Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was killed <br> aKillerIndex: Integer; //Index of player who killed it ||
+|| + || `OnUnitLost` || Occurs when player loses a unit (including starvation). Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was lost ||
+|| + || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
 || + || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the warrior that was equipped <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
 
 Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
@@ -94,50 +94,50 @@ All states parameters are numeric and get mapped to unit/house types according t
 
 || Progress || State || Description || Query parameters || Type of return value ||
 || + || `ArmyCount` || How many military units player has || 1 - player index || Integer ||
-|| + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
-|| + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
 || + || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || + || `CitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || - || `FindUnitInZone` || 
+|| + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || - || `GetUnitDirection` ||
-|| + || `HouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
-|| + || `PlayerCount` || How many active players there are || - || Integer ||
-|| + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
-|| + || `UnitCount` || Total unit count || 1 - player index || Integer ||
-|| + || `UnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
-|| + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
-|| + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
-|| + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
-|| + || `HousePositionX` || Returns the X coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
-|| + || `HousePositionY` || Returns the Y coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
-|| + || `HouseDestroyed` || Returns true if the house is destroyed || 1 - House ID || Boolean ||
-|| + || `HouseOwner` || Returns the owner of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
-|| + || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
-|| + || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
-|| + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
-|| + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
-|| + || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
-|| + || `UnitPositionX` || Returns the X coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| + || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
-|| + || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| + || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
-|| + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
-|| + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
-|| + || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
 || + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
-|| + || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
-|| + || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
 || + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
+|| + || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
+|| + || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
+|| + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HouseDeliveryBlocked` || Returns true if the specified house has delivery disabled || 1 - House ID || Boolean ||
+|| + || `HouseDestroyed` || Returns true if the house is destroyed || 1 - House ID || Boolean ||
+|| + || `HouseHasOccupant` || Returns true if the specified house currently has an occupant || 1 - House ID || Boolean ||
+|| + || `HouseOwner` || Returns the owner of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HousePositionX` || Returns the X coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HousePositionY` || Returns the Y coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
+|| + || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
+|| + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
+|| + || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
+|| + || `HouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
+|| + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
+|| + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
+|| + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
+|| + || `PlayerCount` || How many active players there are || - || Integer ||
+|| + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
+|| + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
+|| + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
+|| + || `ResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player ID <br> 2 - Resource type || Integer ||
+|| + || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| + || `UnitCount` || Total unit count || 1 - player index || Integer ||
+|| + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
+|| + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || + || `UnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
-|| + || `ResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player ID <br> 2 - Resource type || Integer ||
-|| + || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
-|| + || `HouseDeliveryBlocked` || Returns true if the specified house has delivery disabled || 1 - House ID || Boolean ||
-|| + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
-|| + || `HouseHasOccupant` || Returns true if the specified house currently has an occupant || 1 - House ID || Boolean ||
+|| + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
+|| + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
+|| + || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
+|| + || `UnitPositionX` || Returns the X coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
+|| + || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
+|| + || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
+|| + || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
+|| + || `UnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
@@ -149,49 +149,49 @@ if States.PlayerCount > 5 then
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Progress || Action || Description || Parameters (Integer) || Return value () ||
-|| - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
-|| - || `ChangeUnitOwner` || Take unit from one player and give it to another ||
-|| - || `ChangeHouseOwner` || Take house from one player and give it to another ||
+|| + || `AddFieldPlan` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
+|| + || `AddHousePlan` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
+|| + || `AddRoadPlan` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `AddWinefieldPlan` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target || + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
-|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
+|| + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
+|| + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
-|| + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
+|| + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
+|| + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
+|| + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
+|| - || `GroupHungeSet` || Set hunger level for all group members ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
 || + || `GroupOrderAttackUnit` || Order the specified group to attack the specified unit || 1 - Group ID <br> 2 - Unit ID ||
-|| + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
-|| + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
-|| + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
-|| - || `LockUnit` || Lock out the unit from game updates and make it manually scriptable (?) ||
-|| - || `SetGroupHunger` || Set hunger level for all group members ||
-|| + || `SetUnitDirection` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
-|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
-|| + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
-|| - || `SetUnitPosition` || Magically move unit from one place to another (?) ||
-|| + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
-|| + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
-|| + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
-|| + || `UnlockHouse` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
-|| + || `SetHouseAllowed` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
-|| + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
-|| + || `AddHouseDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
-|| + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
-|| + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
-|| + || `AddRoadPlan` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| + || `AddFieldPlan` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| + || `AddWinefieldPlan` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| + || `AddHousePlan` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
-|| + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
-|| + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
-|| + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
 || + || `GroupOrderHalt` || Order the specified group to halt || 1 - Group ID ||
-|| + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || + || `GroupOrderLink` || Order the first specified group to link to the second specified group || 1 - Group ID <br> 2 - Group ID ||
-|| + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
 || + || `GroupOrderSplit` || Order the specified group to split in half and return the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID || GroupID: Integer ||
+|| + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
+|| + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
+|| + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
+|| - || `HouseOwnerSet` || Take house from one player and give it to another ||
+|| + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
+|| + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
+|| + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
+|| + || `SetHouseAllowed` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
+|| + || `SetHouseDeliveryBlocked` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
+|| + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
+|| + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
+|| + || `SetUnitDirection` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
+|| + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
+|| + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
+|| + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| - || `UnitLock` || Lock out the unit from game updates and make it manually scriptable (?) ||
+|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| - || `UnitOwnerSet` || Take unit from one player and give it to another ||
+|| - || `UnitPositionSet` || Magically move unit from one place to another (?) ||
+|| + || `UnlockHouse` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
+|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
+player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
 {{{
