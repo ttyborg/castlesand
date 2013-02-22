@@ -1,5 +1,4 @@
 #summary Instructions for project compilation
-#labels Deprecated
 
 = Introduction =
 
