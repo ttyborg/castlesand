@@ -8,7 +8,7 @@
  # Enter a 3 letter short name for your campaign
  # Click Load Picture and select an image for the map background on the briefing screen
  # Set the map count
- # Select each mission and drag the flag to the correct location on the map. You can also add nodes which are shown as dots on the map.
+ # Select each mission and drag the flag to the correct location on the map. You can also add nodes which are shown as dots on the map, choose briefing text position.
  # Click Save and save it as info.cmp under your campaign folder, for example Campaigns\My Campaign\info.cmp. This will also save images.rxx which contains the map background image.
  # Create a file text.eng.libx under your campaign folder, for example Campaigns\My Campaign\text.eng.libx. Open it in a text editor and enter the required text (look at the original campaigns for the file format, 0 is the title, 1 is the mission shortcode, 10 and onwards is mission briefings)
  # For each mission of your campaign, create a folder under your campaign folder using your 3 letter short code and 2 digit mission number, for example Campaigns\My Campaign\MYC01.
