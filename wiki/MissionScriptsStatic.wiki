@@ -11,6 +11,7 @@
 || `SET_AI_CHARACTER EQUIP_RATE` || - || V || Instruct AI to equip 1 soldier every N ticks (depreciated, sets both iron and leather together) ||
 || `SET_AI_CHARACTER EQUIP_RATE_LEATHER` || - || V || Instruct AI to equip 1 iron soldier every N ticks (if iron one wasn't equipped first) ||
 || `SET_AI_CHARACTER EQUIP_RATE_IRON` || - || V || Instruct AI to equip 1 leather soldier every N ticks ||
+|| `SET_AI_CHARACTER TOWN_DEFENCE` || V || - || This could be equip rate in KaM can we test it? ||
 || `SET_MAP` || V || - || Sets the map file for the mission ||
 || `SET_NEW_REMAP` || V || - || Sets palette colors for player flags ||
 || *Player setup* ||
