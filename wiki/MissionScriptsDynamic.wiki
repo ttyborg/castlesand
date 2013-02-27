@@ -154,7 +154,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `AddHousePlan` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `AddRoadPlan` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `AddWinefieldPlan` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target || + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
+|| - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target ||
+|| + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
 || + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
@@ -162,7 +163,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
-|| - || `GroupHungeSet` || Set hunger level for all group members ||
+|| - || `GroupHungerSet` || Set hunger level for all group members ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
 || + || `GroupOrderAttackUnit` || Order the specified group to attack the specified unit || 1 - Group ID <br> 2 - Unit ID ||
 || + || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
