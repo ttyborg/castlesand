@@ -170,6 +170,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `HouseAddWaresTo` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || + || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
+|| + || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - EnableRepair: Boolean ||
 || + || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
