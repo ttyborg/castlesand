@@ -157,12 +157,10 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target ||
 || + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `Defeat` || Proclaims player defeated || 1 - player index ||
-|| + || `DestroyHouse` || Destroys the specified house || 1 - House ID ||
 || + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
-|| + || `GiveWaresToHouse` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || - || `GroupHungerSet` || Set hunger level for all group members ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
 || + || `GroupOrderAttackUnit` || Order the specified group to attack the specified unit || 1 - Group ID <br> 2 - Unit ID ||
@@ -173,8 +171,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || + || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
 || + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
+|| + || `HouseAddWaresTo` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
+|| + || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
-|| + || `KillUnit` || Kills the specified unit || 1 - Unit ID ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `SetHouseAllowed` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
@@ -186,6 +185,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `SetUnitHunger` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
 || + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| + || `UnitKill` || Kills the specified unit || 1 - Unit ID ||
 || - || `UnitLock` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || - || `UnitOwnerSet` || Take unit from one player and give it to another ||
