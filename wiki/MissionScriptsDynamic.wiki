@@ -172,11 +172,14 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
 || + || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - EnableRepair: Boolean ||
+|| + || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
 || + || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddWinefield` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlayerDefeat` || Proclaims player defeated || 1 - player index ||
+|| + || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
+player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
@@ -191,9 +194,6 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || - || `UnitOwnerSet` || Take unit from one player and give it to another ||
 || - || `UnitPositionSet` || Magically move unit from one place to another (?) ||
-|| + || `UnlockHouse` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
-|| + || `Victory` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
-player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
 
 Actions are placed in a form *Actions.ACT_NAME(ACT_PARAMETERS);* like so:
 {{{
