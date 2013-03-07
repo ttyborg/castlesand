@@ -93,12 +93,9 @@ end;
 All states parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Progress || State || Description || Query parameters || Type of return value ||
-|| + || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || + || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
-|| + || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || - || `FindUnitInZone` || 
 || + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
-|| - || `GetUnitDirection` ||
 || + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
 || + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
@@ -115,21 +112,25 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
 || + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || + || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
-|| + || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
-|| + || `StatPlayerCount` || How many active players there are || - || Integer ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
 || + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
+|| + || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
+|| + || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
+|| + || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
+|| + || `StatPlayerCount` || How many active players there are || - || Integer ||
 || + || `StatResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player ID <br> 2 - Resource type || Integer ||
+|| + || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
+|| + || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
+|| + || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 || + || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `UnitCount` || Total unit count || 1 - player index || Integer ||
 || + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
+|| - || `UnitDirection` ||
 || + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| + || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
-|| + || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
 || + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
 || + || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
@@ -137,7 +138,6 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || + || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
 || + || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
-|| + || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
