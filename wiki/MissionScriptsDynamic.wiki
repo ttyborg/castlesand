@@ -93,7 +93,6 @@ end;
 All states parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Progress || State || Description || Query parameters || Type of return value ||
-|| + || `CheckAlliance` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || - || `FindUnitInZone` || 
 || + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
@@ -115,6 +114,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
+|| + || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
 || + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
