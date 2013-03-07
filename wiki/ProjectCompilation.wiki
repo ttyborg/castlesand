@@ -26,4 +26,4 @@ Optional (can be ignored or skipped with conditional switches):
  # Copy all the `*`.rx files from `".\data\gfx\res\"` to `".\SpriteResource\"` folder.
  # Launch the Delphi/Lazarus and open ".\Utils\RXXPacker\RXXPacker.dpr" project. Compile and launch it. Select all the available items and press "Repack". This will convert sprites to format we use in game.
  # If you don't have madExcept installed, then open ".\KaM Remake.inc" file with Notepad and place a dot like so `"{.$DEFINE USE_MAD_EXCEPT}"`. This will make Delphi skip all the code within `USE_MAD_EXCEPT` clauses. If you have madExcept installed - skip this step.
- # Now you you can open ".\KaM Remake.dpk" package and compile the project and/or its utility tools.
+ # Now you can open ".\KaM Remake.groupproj" (if you have Delphi XE+) project and compile the project and/or its utility tools. Or ".\KaM Remake.dpr" if you have older Delphi version.
