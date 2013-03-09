@@ -126,6 +126,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || + || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || + || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
+|| + || `Text` || Returns localised text from the LIBX file || 1 - text index || !AnsiString ||
+|| + || `TextFormatted` || Returns localised text from the LIBX file with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - Text index in mission's LIBX file <br> 2 - Array of arguments || !AnsiString ||
 || + || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `UnitCount` || Total unit count || 1 - player index || Integer ||
 || + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
@@ -182,11 +184,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
-|| + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| + || `SetOverlayTextFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - text (!AnsiString) ||
 || + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
-|| + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - Message index in missions LIBX file ||
-|| + || `ShowMsgFormatted` || Displays a message to the player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - player index <br> 2 - Message index in missions LIBX file <br> 3 - Array of arguments ||
+|| + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - text (!AnsiString) ||
 || + || `UnitDirectionSet` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
 || + || `UnitHungerSet` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || + || `UnitKill` || Kills the specified unit || 1 - Unit ID ||
