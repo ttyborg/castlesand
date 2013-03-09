@@ -3,7 +3,7 @@
 
 = Mission scripts =
 
-Missions can be easily extended with custom scripts to add special events to them. Each missions script is located in `\Maps\map_name\map_name.script` file, which can be opened in any plain text editor (e.g. Notepad). Scripts are written in PascalScript language (syntax is very similar to usual Pascal).
+Missions can be easily extended with custom scripts to add special events to them. Each missions script is located in `\Maps\map_name\map_name.script` file, which can be opened in any plain text editor (e.g. Notepad). Scripts are written in !PascalScript language (syntax is very similar to usual Pascal).
 
 Script has 3 ways of interacting with the game - *Events*, *States* and *Actions*. Events get called by the game when they happen. States are values that can be queried from the game. Actions are way to tell the game what to do. Scripts get verified on mission load and any errors are output in a message to a player.
 
@@ -56,7 +56,7 @@ begin
 end;
 }}}
 
-Above line means that when PlayerDefeated event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message.
+Above line means that when `PlayerDefeated` event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message.
 
 
 ==Lookup tables==
@@ -97,7 +97,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || + || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || + || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
-|| + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...GroupMemberCount-1 will be the other members (0 <= MemberIndex <= GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
+|| + || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members (0 <= !MemberIndex <= !GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
 || + || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
 || + || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || + || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
@@ -112,12 +112,12 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || + || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
-|| + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < LimitPlusOne || 1 - LimitPlusOne || Integer ||
+|| + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
 || + || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
-|| + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || AnsiString ||
+|| + || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
 || + || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || + || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || + || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
@@ -167,18 +167,18 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
 || + || `HouseAddDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || + || `HouseAddWaresTo` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
-|| + || `HouseAllow` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use UnlockHouse to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
+|| + || `HouseAllow` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
 || + || `HouseDeliveryBlock` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
 || + || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
-|| + || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - EnableRepair: Boolean ||
-|| + || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use SetHouseAllowed for that. || 1 - player index <br> 2 - House type ||
+|| + || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
+|| + || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use !HouseAllow for that. || 1 - player index <br> 2 - House type ||
 || + || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddWinefield` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlayerDefeat` || Proclaims player defeated || 1 - player index ||
-|| + || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - TeamVictory: Boolean ||
+|| + || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - !TeamVictory: Boolean ||
 player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
 || + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
