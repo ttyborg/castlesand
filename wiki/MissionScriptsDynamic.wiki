@@ -133,6 +133,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
 || - || `UnitDirection` ||
 || + || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
+|| + || `UnitCarrying` || Returns the ware a serf is carrying, or -1 if the unit is not a serf or is not carrying anything || 1 - Unit ID || Integer ||
 || + || `UnitLowHunger` || Gives the hunger level when a unit will try to eat in ticks until death ||  || Integer ||
 || + || `UnitMaxHunger` || Gives the maximum hunger level a unit can have in ticks until death ||  || Integer ||
 || + || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
