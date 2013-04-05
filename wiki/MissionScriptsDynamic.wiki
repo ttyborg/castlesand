@@ -192,7 +192,7 @@ player to whom the alliance will be changed <br> 3 - new alliance setting (0 ene
 || + || `UnitHungerSet` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || + || `UnitKill` || Kills the specified unit || 1 - Unit ID ||
 || - || `UnitLock` || Lock out the unit from game updates and make it manually scriptable (?) ||
-|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Group ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || - || `UnitOwnerSet` || Take unit from one player and give it to another ||
 || - || `UnitPositionSet` || Magically move unit from one place to another (?) ||
 
