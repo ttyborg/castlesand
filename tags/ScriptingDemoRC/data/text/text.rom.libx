@@ -1,0 +1,462 @@
+
+MaxID:667
+
+0:Tâmplãrie
+1:Fierãrie
+2:Fierãrie de arme
+3:Minã de cãrbune
+4:Minã de fier
+5:Minã de aur
+6:Pescãrie
+7:Brutãrie
+8:Fermã
+9:Canton
+10:Fierãrie de armuri
+11:Depozit
+12:Grajduri
+13:Scoalã
+14:Carierã de piatrã
+15:Metalurgie
+16:Fermã de porci
+17:Turn de veghere
+18:Primãrie
+19:Atelier de arme
+20:Atelier de armuri
+21:Cazarmã
+22:Moarã
+23:Atelier arme de asediu
+24:Mãcelãrie
+25:Tãbãcãrie
+26:Salã de antrenamente
+27:Han
+28:Podgorie
+29:Piatã
+30:Busteni
+31:Pietre
+32:Blanã
+33:Minereu de fier
+34:Minereu de aur
+35:Cãrbune
+36:Fier
+37:Aur
+38:Butoaie de vin
+39:Grâu
+40:Pâini
+41:Fãinã
+42:Piele
+43:Cârnati
+44:Porci
+45:Piei
+46:Scuturi de lemn
+47:Scuturi de fier
+48:Armuri de piele
+49:Armuri de fier
+50:Secure
+51:Sabie
+52:Sulitã
+53:Lance
+54:Arc
+55:Arbaletã
+56:Cai
+57:Peste
+58:Sclav
+59:Pãdurar
+60:Miner
+61:Crescãtor de animale
+62:Fermier
+63:Dulgher
+64:Brutar
+65:Mãcelar
+66:Pescar
+67:Muncitor
+68:Pietrar
+69:Fierar
+70:Metalurgist
+71:Recrut
+72:Ostas
+73:Luptãtor cu secure
+74:Spadasin
+75:Arcas
+76:Arbaletist
+77:Lãncier
+78:Halebard
+79:Cercetas
+80:Cavaler
+81:Barbar
+82:Rebel
+83:Tâlhar
+84:Rãzboinic
+85:Vagabond
+86:Catapultã
+87:Balistã
+88:Sclavii îti aprovizioneazã clãdirile cu materialele necesare. Trebuie sã existe un drum care leagã clãdirile.
+89:Pentru a produce busteni pentru fabrica de blanã ai nevoie de pãdurar.||Pãdurarul continuã sã replanteze zona cu pomi, singur.
+90:Minerul extrage minereu din minele de cãrbune, fier si aur.
+91:Îngrijitorul de animale folosete grâu pentru a creste porci în ferma de porci si cai in grajduri.
+92:Fermierul planteazã si recolteazã grâu la fermã.||Produce si vin la podgorie.
+93:Dulgherul lucreazã la fabrica de blanã, atelierul de arme si armuri. De asemenea el construieste catapulte si baliste in atelierul pentru arme de asediu.
+94:Brutarul macinã grâul în fãinã la moarã.||De asemenea coace pâinea la brutãrie.
+95:Mãcelarul face cârnati la mãcelãrie si piei la tãbãcãrie.
+96:Pescarul prinde pesti în apele din apropiere.
+97:Muncitorul construieste clãdiri si drumuri. Doar selectezi locatia doritã si el iti va indeplini automat ordinele. De asemenea el reparã si clãdirile deteriorate.
+98:Pentru a aproviziona muncitorii cu suficiente materiale pentru construirea drumurilor si clãdirilor, pietrarul va tãia si ciopli pietre.
+99:Fierarul fãureste arme si armuri de fier in fierãriile de armuri si arme.
+100:Metalurgistul foloseste cãrbune pentru a rafina minereul de fier si aur.
+101:Recrutul poate fi echipat ca soldat in cazarmã.||El poate sã ocupe si turnurile de veghere.
+102:Construirea clãdirilor
+103:Distributia mãrfii
+104:Statistici
+105:Optiuni
+106:Inapoi
+107:Selectarea|Clãdirii
+108:Distributia|Mãrfii
+109:Statistici
+110:Optiuni
+111:Încarcã joc
+112:Salvare joc
+113:Esti sigur ca vrei|sa renunti la|aceastã misiune?
+114:Renuntã la misiune
+115:Înapoi
+116:Setãri
+117:Renuntã la misiune
+118:Sunet
+119:Modificã volumul
+120:Modificã volumul
+121:Muzica
+122:Muzica pornit/oprit
+123:Salvare automatã
+124:Music Player
+125:Melodia anterioarã
+126:Melodia urmãtoare
+127:Demoleazã
+128:Sterge clãdirea
+129:Construieste drum
+130:Construieste drumuri
+131:Construieste câmp arat
+132:Câmpuri arate.
+133:Planteazã vitã de vie
+134:Planteazã structura|pentru vitã de vie
+135:Anuleazã
+136:Anuleazã
+137:Necesitã:
+139:Conditie:
+140:Produce
+141:Casa sub|constructie
+142:Distruge
+143:Esti sigur cã vrei sa|demolezi aceastã clãdire?
+144:Distruge clãdirea selectatã
+145:Micsoreazã numãrul
+146:Mãreste numãrul
+147:Precedentul tip de soldat
+148:Urmãtorul tip de soldat
+149:Echipeazã acest soldat
+150:Profesia urmãtoare
+151:Profesia anterioarã
+152:Adaugã in listã
+153:Porneste/Opreste livrarea de marfã
+154:Inchide/Deschide clãdirea
+155:Schimbã pornit/oprit reparatia aceste case
+156:Clãdire nedisponibilã în acest moment
+157:Conditie
+158:Roteste trupa la stânga
+159:Roteste trupa la dreapta
+160:Atacã('a')
+161:Trimite trupa('d')
+162:Aprovizioneaza trupa cu mâncare
+163:Atac furtunã
+164:Adaugã linie
+165:Retrage linie
+166:Selecteaza|grupeazã
+167:Anuleazã
+168:Sterge
+169:Sterge acest mesaj
+170:Mergi la
+171:Sare la pozitia mesajului curent
+172:Închide
+173:Închide fereastra
+174:Pietrarul tãu nu mai gãseste piatrã.
+175:Mina ta de cãrbune este epuizatã.
+176:Mina ta de fier este epuizatã.
+177:Mina ta de aur este epuizatã.
+179:Aceastã casã nu este ocupatã.
+180:Acestei trupe chiar îi este foame, trebuie sã mãnânce repede ceva!
+181:PAUZÃ
+205:Spiritul
+206:Ocupat
+207:Cornul Evului Mediu
+208:Primãvara
+209:Lãuta
+210:Mercenarul
+211:Printesa
+212:Regina
+213:În piatã
+214:Pe câmpul de luptã
+215:Dans în curte
+216:Armata
+217:În castel
+218:Fanfara
+219:La curte
+220:Intrarea
+221:Albastrul închis
+222:Lupta
+223:Camerele regale
+224:Aristocratia
+225:La port
+226:Cãlãtoria
+230:Joacã Single Map
+231:Porneste Harta
+232:Înapoi la Meniu
+233:Încarcã joc salvat
+234:Multiplayer
+235:Optiuni
+236:Credite
+237:Iesire
+238:Continuã
+239:Restarteazã Misiunea
+240:Rezolutia:
+241:Nu este suportat
+242:Nu este suportat
+243:VICTORIE!
+244:ÎNFRÂNGERE!
+245:Unitãti pierdute:
+246:Unitãti înfrânte:
+247:Clãdiri pierdute:
+248:Clãdiri distruse:
+249:Clãdiri construite:
+250:Unitãti produse:
+251:Arme produse:
+252:Soldati produsi:
+253:Misiune terminatã în:
+256:Cetãteni|produsi
+257:Cetãteni|pierduti
+258:Soldati|Echipati
+259:Soldati|pierduti
+261:Clãdiri|construite
+262:Clãdiri|pierdute
+263:Clãdiri|distruse
+264:Mãrfuri|produse
+265:Arme|produse
+279:JOYMANIA ENTERTAINMENT||PROGRAMMING:|Peter Ohlmann||GAME GRAPHICS:|Adam Sprys||LEVEL DESIGN:|Adam Sprys|Andre Quaß||SOUND EDITING AND MIXING:|Tonstudio Mannheim||MUSIC:|Gerd Hofmann|Joachim Schäfer|Jürgen Rebhann|Klaus Staendike|Steffen Schüngel||ILLUSTRATIONS:|Boleslaw Kasza|Christoph Werner||ZUXXEZ ENTERTAINMENT AG||PRODUCER:|Uwe Schäfer||MANUAL:|Peter Ohlmann|Uwe Schäfer||BETA TESTING:|Peter Ohlmann|Adam Sprys|Alexandra Constandache|Dirk P. Hassinger|Achim Heidelauf|Uwe Schäfer|Ingrid Schäfer|Dirk U. Jantz|Ion Constandache|Yaman Egeli|Roman Eich|Iris Mocsnek|Anke Jantz|Paul Hassinger|Liza Hassinger||GAMES DIRECTOR:|Achim Heidelauf||PUBLISHED BY:|TopWare Interactive||CUTSCENES:||DIRECTION:|Slawomir Jedrzejewski||Kajetan Czarnecki|Wojciech Drazek|Daniel Duplaga|Rafal Januszkiewicz|Andrzej Rams|Piotr Rulka|Krzysztof Rybczynski|Grzegorz Wisniwski||VOICES:|Claus Boyen (Storyteller)||Tim Timmermann|Peter Houska|Dirk Mühlbach|Ralf Ditze|Gerhard Piske|Gernot Wassmann||ARTWORK:|Boleslaw Kasza|Adam Sprys||OPENING ANIMATION:|Uwe Schäfer|Christian Bigalk|Additional 3D-Modelling:|Niels Horstmann||MULTUMIRI SPECIALE LUI:|Tadeusz Zuber|Dieter Ohlmann|Alexandra Constandache|Ingrid Schäfer|Andrea Rumpelt
+280:Misiune anulatã
+282:Tutorial oras
+283:Tutorial de luptã
+284:Single Player
+285:Editor de hãrti
+286:Porneste Misiunea
+287:Titlu
+288:Dimensiune
+289:Conditii victorie:
+290:Conditii înfrângere:
+291:Aliati:
+292:Inamici:
+294:Dimensiune noua a hartii
+295:Lungime
+296:Lãtime
+297:Creeazã hartã nouã
+298:Hãrti disponibile
+299:Încarcã o hartã disponibilã
+301:Controale:
+302:Gameplay:
+303:Sunet:
+304:Dezactiveazã muzica
+305:Graficã:
+306:Luminozitate
+308:Ecran plin
+309:Aplicã
+310:Limba:
+311:Calitatea umbrelor:
+312:Micã
+313:Mare
+314:Încãrcare... Te rog asteaptã
+315:A apãrut o eroare!
+316:Încãrcare locatie nouã
+317:Listã de jocuri salvate
+318:Numele fisierului
+319:Descriere
+320:Încãrcare
+321:Stergere
+322:Esti sigur cã vrei sã stergi aceastã salvare?
+323:Sterge
+324:Anuleazã
+328:Ai câstigat!
+329:Continuã sã joci
+330:Victorie!
+331:Ai pierdut!
+332:Continuã sã privesti
+333:Înfrângere
+334:Replay-ul s-a terminat
+335:Continuã sã privesti
+336:Iesi în Meniu
+337:Nedisponibil
+338:Apasã %s pentru a continua jocul
+339:Info jucãtori
+340:Chat
+341:Salvarea existã deja
+342:Suprascrie
+343:Salveazã
+344:Încarcã
+345:Versiune veche de OpenGL detectatã, jocul poate rula incet si/sau cu erori grafice
+346:Te rugãm sã îti upgradezi driverl video pentru o performatã mai bunã.
+347:Eroare de retea:
+348:Eroare: Numele jucãtorului nu poate fi gol
+349:Eroare: Numele jucãtorului nu trebuie sã fie mai mare de %d caractere
+350:Eroare: Numele jucãtorului contine caractere invalide
+351:Conexiune esuatã: %s
+352:Te-ai deconectat
+353:Misiune %d
+355:Pescãria ta este prea departe de apã.
+356:Pescarul tãu nu mai poate prinde peste în apele din apropiere.
+364:Foloseste butonul stâng al mouse-ului pentru a selecta resursa de facut comert
+365:Foloseste butonul drept al mouse-ului pentru a selecta resursa de facut comert
+366:De la x%d
+367:La x%d
+368:Editor de teren
+394:Plãnuirea satului
+395:Script-uri vizuale
+396:Scripturi globale
+397:Meniu
+499:Misiune Nouã
+500:Numele jucãtorului
+501:Status:
+502:Creazã server
+503:CREAZÃ SERVER
+504:Nume
+505:Port
+506:Creazã Server Local
+507:Creazã Server de Internet
+508:Anuleazã
+509:Cautã Server dupa IP
+510:CAUTÃ SERVER
+511:Adresã
+512:Port
+513:Camerã
+514:Conecteazã-te
+515:Anuleazã
+518:Nume server
+519:Stare
+520:Jucãtori
+521:Ping
+522:Reîmprospãteazã Lista de Servere
+523:DETALII SERVER
+524:Lista jucatorilor:
+525:Intrã
+526:Conectare, te rog asteaptã...
+527:Incãrcare anunturi...
+528:Reîmprospãtare...
+529:Lista jucãtorilor
+530:Locatii de început
+531:Echipa
+532:Culoarea
+533:Gata
+534:Ping
+536:Deschis
+537:Jucatori AI
+538:Select...
+539:Aleator
+540:Nici una
+541:Joc Salvat
+542:Selectare hartã...
+543:Selecteazã o salvare...
+544:Iesi din Lobby
+545:Gata
+546:Nu sunt gata
+547:Start!
+561:Locatie %d
+562:Eroare: Te rog selecteazã un jucãtor din salvare pentru control
+563:Eroare: Harta nu s-a încãrcat sau nu e selectatã nici o hartã
+564:Nu pot porni %s
+565:Nu sunt gata toti jucãtorii
+567:Serverul a alocat drepturile de gazdã
+568:Jocul a început
+569:Hartã de construit
+570:Hartã de luptã
+571:Hartã cooperativã
+573:Optiuni joc:
+574:Timp de pace (minute)
+575:Închis
+576:Gazda face setarea jucãtorilor
+577:Asteptare dupã jucãtorii:
+580:Credite KaM Remake
+581:Credite Knights & Merchants Original
+582:PROGRAMAREA:
+583:PROGRAMARE ADITIONALÃ:
+584:GRAFICÃ ADITIONALÃ:
+585:Sunete aditionale:
+587:TRADUCERI ADITIONALE:
+588:MULTUMIRI SPECIALE:
+589:Hãrti multiplayer
+590:Hãrti Singleplayer
+591:Viteza derulare
+592:Nici un server gãsit
+593:Amestecã melodii
+594:Informatii joc:
+595:-
+596:Lobby
+597:Încãrcare
+598:Joc
+599:Construire si Luptã
+600:Luptã
+601:Gata
+602:Versiune de protocol gresitã: %s. Serverul foloseste: %s
+603:Mãreste comertul
+604:Micsoreazã comertul
+605:Salvare joc...
+606:%s a fost înfrânt!
+607:Picã jucãtorii
+608:Gazda va putea pica jucãtorii dupa %d secunde
+609:Gazda nu poate pica acesti jucãtori
+610:Gazda (%s) a iesit
+611:Conexiunea cu serverul s-a pierdut. Încercare de reconectare...
+612:Esti sigur cã vrei sã iesi?
+613:Esti sigr cã vrei sa pici definitiv acesti jucãtori?
+614:Anuleazã
+615:Comertul cu aceastã resursã nu e valabil în aceastã misiune
+616:Planteazã si taie
+617:Doar taie
+618:Nu ai voie sã faci asta pe timp de pace
+619:Timp de pace rãmas: %s
+620:Pacea s-a terminat. La arme!
+621:Timpul in joc:|%s
+622:Oprire trupã ('%s')
+623:Alãturare trupã ('%s')
+624:Separare trupã ('%s')
+625:Vizualizatorul de Replay-uri
+626:Vezi Replay
+627:Format nesuportat %s
+628:Versiune nesuportatã %s
+630:A apãrut o eroare in timp ce se parsa fisierul %s
+631:initializare
+632:script
+633:unitãti
+634:case
+635:copaci
+636:definitii
+637:tileset
+638:Harta nu a fost gãsitã: %s
+639:Salvarea nu a fost gãsitã: %s
+640:Fisierele hãrtii tale nu se potrivesc cu cele ale gazdei: %s
+641:Salvarea ta nu se potriveste cu cea a hostului: %s
+642:Replay-ul are o eroare de verificare a consistentei. Acest bug e cunoscut ca o eroare a replay-urilor. Vrei sã continui sã privesti?
+645:A apãrut o eroare în aplicatie. Te rugãm sã ne trimiti detaliile acestei erori pentru a o putea investiga. Multumim pentru ajutor!
+646:Trimite datele erorii
+647:Aratã datele
+648:Rezumã aplicatia
+649:Opreste aplicatia
+650:Urmãtorul
+651:Date de contact
+652:Numele tãu: (optional)
+653:email-ul tãu: (optional)
+654:Tine-mã minte
+655:Detaliile erorii
+656:In ce situatie a apãrut eroarea? Ne poti da date suplimentare?
+657:Captura de ecran
+658:Ataseazã o capturã de ecran acestei erori
+659:(click pentru a edita imaginea)
+660:Trimite raportul
+661:Anuleazã
+662:Trimitere raportul erorii
+663:Conectare la server...
+664:Trimitere date...
+665:Trimiterea raportului a esuat! Serverul nostru poate fo prea încãrcat, te rugãm sã incerci din nou.
+666:Informatii
+667:Te rugãm sã astepti un moment...
