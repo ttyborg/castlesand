@@ -114,6 +114,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
+|| + || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || + || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || + || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || + || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
@@ -152,11 +153,12 @@ if States.PlayerCount > 5 then
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Progress || Action || Description || Parameters (Integer) || Return value () ||
-|| - || `AllianceChange` || Change the alliance setting between specified players || 1 - player whose alliance setting will be changed <br> 2 - target ||
+|| + || `PlayerAllianceChange` || Change whether player1 is allied to player2. If Compliment is true, then it is set both ways (so also whether player2 is allied to player1) || 1 - player1 <br> 2 - player2 <br> Compliment: Boolean <br> Allied: Boolean ||
 || + || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || + || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || + || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
+|| + || `GiveHouse` || Give player a built house and returns the house ID or -1 if the house was not able to be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y || HouseID: Integer ||
 || + || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || - || `GroupHungerSet` || Set hunger level for all group members ||
 || + || `GroupOrderAttackHouse` || Order the specified group to attack the specified house || 1 - Group ID <br> 2 - House ID ||
@@ -183,7 +185,10 @@ All action parameters are numeric and get mapped to unit/house types according t
 || + || `PlayerDefeat` || Proclaims player defeated || 1 - player index ||
 || + || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array player index <br> 2 - !TeamVictory: Boolean ||
 player to whom the alliance will be changed <br> 3 - new alliance setting (0 enemy, 1 ally) ||
-|| + || `RevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius (255 means whole map) ||
+|| + || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
+|| + || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
+|| + || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
+|| + || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
 || + || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || + || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - text (!AnsiString) ||
 || + || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
