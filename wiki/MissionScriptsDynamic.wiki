@@ -111,6 +111,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || + || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
 || + || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || + || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
+|| + || `HouseWareBlocked` || Returns true if the specified ware in the specified storehouse or barracks is blocked || 1 - House ID <br> 2 - ware type || Boolean ||
+|| + || `HouseWoodcutterChopOnly` || Returns true if the specified woodcutter's hut is on chop-only mode || 1 - House ID || Boolean ||
 || + || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || + || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
 || + || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
@@ -178,6 +180,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
 || + || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
 || + || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use !HouseAllow for that. || 1 - player index <br> 2 - House type ||
+|| + || `HouseWareBlock` || Blocks a specific ware in a storehouse or barracks || 1 - House ID <br> 2 - ware type <br> 3 - Blocked: Boolean ||
+|| + || `HouseWoodcutterChopOnly` || Sets whether a woodcutter's hut is on chop-only mode || 1 - House ID <br> 2 - !ChopOnly: Boolean ||
 || + || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || + || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || + || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
@@ -195,7 +199,7 @@ player to whom the alliance will be changed <br> 3 - new alliance setting (0 ene
 || + || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - text (!AnsiString) ||
 || + || `UnitDirectionSet` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
 || + || `UnitHungerSet` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
-|| + || `UnitKill` || Kills the specified unit || 1 - Unit ID ||
+|| + || `UnitKill` || Kills the specified unit. Silent means the death animation (ghost) and sound won't play || 1 - Unit ID <br> 2 - Silent: Boolean ||
 || - || `UnitLock` || Lock out the unit from game updates and make it manually scriptable (?) ||
 || + || `UnitOrderWalk` || Order the specified unit to walk somewhere. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || - || `UnitOwnerSet` || Take unit from one player and give it to another ||
