@@ -1,0 +1,113 @@
+#summary Lookup tables for mission scripts (dynamic and static)
+
+= Introduction =
+
+This page contains lookup tables for the indexes used in dynamic (.script) and static (.dat) scripts to represent things like unit and house types.
+
+
+= Unit types =
+|| *Index* || *Unit type* ||
+|| 0 ||Serf ||
+|| 1 ||Woodcutter ||
+|| 2 ||Miner ||
+|| 3 ||Animal Breeder ||
+|| 4 ||Farmer ||
+|| 5 ||Carpenter ||
+|| 6 ||Baker ||
+|| 7 ||Butcher ||
+|| 8 ||Fisherman ||
+|| 9 ||Laborer ||
+|| 10 ||Stone Mason ||
+|| 11 ||Blacksmith ||
+|| 12 ||Metallurgist ||
+|| 13 ||Recruit ||
+|| 14 ||Militia ||
+|| 15 ||Axe Fighter ||
+|| 16 ||Sword Fighter ||
+|| 17 ||Bowman ||
+|| 18 ||Crossbowman ||
+|| 19 ||Lance Carrier ||
+|| 20 ||Pikeman ||
+|| 21 ||Scout ||
+|| 22 ||Knight ||
+|| 23 ||Barbarian ||
+|| 24 ||Rebel ||
+|| 25 ||Rogue ||
+|| 26 ||Warrior ||
+|| 27 ||Vagabond ||
+|| 30 ||Wolf||
+|| 31 ||Fish||
+|| 32 ||Seasnake||
+|| 33 ||Seastar||
+|| 34 ||Crab||
+|| 35 ||Water flower||
+|| 36 ||Water leaf||
+|| 37 ||Duck||
+
+Note: Animals indexes above (30-37) are for dynamic scripts only, static scripts use 24-31 for animals in the !SET_UNIT command (for KaM compatibility).
+
+
+= House Types =
+|| *Index* || *House type* ||
+|| 0|| Sawmill ||
+|| 1|| Iron Smithy ||
+|| 2|| Weapon Smithy ||
+|| 3|| Coal Mine ||
+|| 4|| Iron Mine ||
+|| 5|| Gold Mine ||
+|| 6|| Fisherman's Hut ||
+|| 7|| Bakery ||
+|| 8|| Farm ||
+|| 9|| Woodcutter's ||
+|| 10|| Armor Smithy ||
+|| 11|| Storehouse ||
+|| 12|| Stables ||
+|| 13|| School House ||
+|| 14|| Quarry ||
+|| 15|| Metallurgist's ||
+|| 16|| Swine farm ||
+|| 17|| Watch Tower ||
+|| 18|| Town Hall ||
+|| 19|| Weapons Workshop ||
+|| 20|| Armory Workshop ||
+|| 21|| Barracks ||
+|| 22|| Mill ||
+|| 23|| Vehicles Workshop ||
+|| 24|| Butcher's ||
+|| 25|| Tannery ||
+|| 26|| _Unused_ ||
+|| 27|| Inn ||
+|| 28|| Vineyard ||
+|| 29|| Market ||
+
+
+= Ware Types =
+|| *Index* || *Ware type* ||
+|| 0|| Tree trunk ||
+|| 1|| Stone ||
+|| 2|| Timber ||
+|| 3|| Iron ore ||
+|| 4|| Gold ore ||
+|| 5|| Coal ||
+|| 6|| Iron ||
+|| 7|| Gold ||
+|| 8|| Wine ||
+|| 9|| Corn ||
+|| 10|| Loaves ||
+|| 11|| Flour ||
+|| 12|| Leather ||
+|| 13|| Sausages ||
+|| 14|| Pig ||
+|| 15|| Skin ||
+|| 16|| Wooden Shield ||
+|| 17|| Long Shield ||
+|| 18|| Leather Armor ||
+|| 19|| Iron Armament ||
+|| 20|| Handaxe ||
+|| 21|| Longsword ||
+|| 22|| Lance ||
+|| 23|| Pike ||
+|| 24|| Longbow ||
+|| 25|| Crossbow ||
+|| 26|| Horse ||
+|| 27|| Fish ||
