@@ -111,3 +111,14 @@ Note: Animals indexes above (30-37) are for dynamic scripts only, static scripts
 || 25|| Crossbow ||
 || 26|| Horse ||
 || 27|| Fish ||
+
+= Unit facing directions =
+X is the unit, the numbers are the index for each direction:
+{{{
+    0
+  7   1
+6   X   2
+  5   3
+    4
+
+}}}
