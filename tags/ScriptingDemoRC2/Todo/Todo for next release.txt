@@ -1,0 +1,141 @@
+=============
+Since 1st RC:
+=============
+
+Bugs:
+ +	Pathfinding bug causing units to zigzag a bit when they should be walking straight
+ +	Annie's hill/garden can be won with labourers. Only soldiers should count for capturing.
+ +	Removing house plan in MP could rarely cause a crash
+ +	Navigating with arrows in serverlist was not available (regress from r4179)
+ +	Chat/allies/message log panels block clicks on map to the right of them (check in MapEd too)
+ +	Randomize locations within teams checkbox should only be enabled for host ("Assertion failed: Only host can send player list")
+ +	Gamespeed can't be set anymore for coop games
+ +	Ordering Animals to walk from script would cause a crash. Now it's silently ignored (allow in future?)
+ +	Include script into crashreport
+ +	Crash using terrain brush on tiles placed by hand in Krom's editor (sado's map emailed to us)
+ +	Replay inconsistencies in games with AIs (fAIFields.UpdateState wasn't run in replays)
+ +	Teams show wrong in lobby (should use player locs instead of player slots)
+ +	Animals being pushed in the first 10 ticks (before getting an action) causes a crash (e.g. if you tell a warrior to move to an animals position) because the initial stay action was not locked
+ +	"Should match with HitTest that selected this group" when selecting a moving warrior (MouseUp)
+ +	Kicking or timing out causes the server to disconnect one other player as well (Linux server only)
+ +	Results page for singleplayer replay should show the human player's stats, not the last selected player
+ +	Feeding soldiers should be more important than bringing food to Inn
+ +	Crash when building a house plan partly within the range of a tower
+ +	Group members and flags are still visible when Show Units is unchecked in the map editor
+ +	Fish deposits were counted incorrectly in the map editor
+ +	Trying to select a map during maplist being populated is impossible, selected item always changes to 1st
+ +	Lag/freezes when using multiplayer speed up because the delay was not compensated enough
+ +	Destroying a barracks with a soldier inside caused that soldier to not be assigned to a group or counted in stats (causes crashes in PlayerStats too)
+ +	+ - edits in the MapEd are not practical for some things (AI attack delay in seconds, requires 3600 for 1 hour, that's a lot of clicks)
+ +	Save out !SET_MAP so that old editors can still open maps saved by MapEd
+ +	Nodes in the campaign builder would jump after moving them
+	Message log should be hidden until the 1st message arrives, looks odd to have a blank scroll
+	Can only place buildings for one player in SP MapEd, for others its just red crosses.
+	Dragging brush in MapEd over minimap should not trigger minimap position change
+	we had a match on "Coastal Encounter Score" with 2 humans and 1 AI. One human lost all of his troops first. The moment his last fighter died, the server disconnected him.
+	Changing terrain in MapEd from snow to non-snow should update snowed houses placed there
+	Archers are much less responsive in MP (due to finishing attack sequence to prevent exploit)
+	Map editor should have an option to hide roads/fields, so you can view just the terrain while you edit it
+	Some MP maps don't let you use AIs in certain locations (probably a legacy of Lewin's editor)
+	Locations list in the lobby should only show ones which can currently be selected, ones which are taken should be hidden
+	AI seems to build lots of armour smithies/workshops but no weapons smithies/workshops (e.g. Across the Desert)
+
+
+Finishing up:
+	Snow houses artwork [KillingB]
+	Snow house overlay fixes [KillingB, Krom]
+
+
+After first RC:
+ +	New script commands: Actions.FogCoverCircle, Actions.FogCoverAll, Actions.GiveHouse, Actions.PlayerAllianceChange, States.FogRevealed, States.HouseWareBlocked, Actions.HouseWareBlock, States.HouseWoodcutterChopOnly, Actions.HouseWoodcutterChopOnly
+ +	Changed script commands: Added Silent parameter to Actions.KillUnit
+ +	Script Validator: Simple tool to validate a script and list any errors
+	Ask RC testers to make map from scratch in MapEd
+	Magic water in MapEd?
+	Check main menu / gameplay interfaces for text that needs to be added to the LIBX (e.g. lobby speed)
+	Add missing texts from MapEd to LIBX (maybe ignore some stuff in temporary interfaces that will be improved next release?)
+	Send text off to be translated (do this late in the RC testing so translators don't get 3 separate requests for each RC with changed text)
+	Ask translators to shorten up messages that we show in message log (empty house, feed troops, etc)
+	Performance test the replay of a full MP game to check for chokepoints in a real-world scenario
+	Press release?
+	Decided what to do about proportional/exact weapons production (hybrid solution?)
+	Dynamic script commands in script suggestions
+	DAT script commands: Storehouse/barrack block flags, disable ally fog sharing
+	Write Lazarus network wrapper using base FPC sockets and see if it's more stable than LNet
+	TSK campaign fixes by BornFree (especially faster equip rate), if he fixes issues with food
+	Reminder message if you forget to build the inn?
+
+
+Maps:
+	Circus? (thunder)
+	Dead Rivers? (thunder)
+	Frozen waters? (sado)
+	Border Rivers fix by Thunder?
+
+
+================
+Fixed in 1st RC:
+================
+
+Features:
+ +	MP game speed up slider (x1, x1.5, x2, x2.5, x3)
+ +	Coop maps handled better in lobby (AI players hidden and automatic, AI map areas not revealed)
+ +	Host can set password for lobby
+ +	Army graph starts 5% before the first variation (to skip peacetime)
+ +	Lobby name/description by host (shown in room info and inside the room as 1st message)
+ +	Replace in-game "team only" checkbox with button with "All, Team, <Player Name>". Clicking it brings up menu to select recipient.
+ +	Improved players color saturation and unified sprites import/export
+ +	Kick dropdown when clicking on player flag in lobby and disable console cmds for now (could be added later for "/cheats 1" and similar)
+ +	Swap players/resources in graphs (to see "who made the most wood?" instead of "did Lewin make more stone than wood?"), add GDP for a test [Krom]
+ +	Player selector in replays to make it easier to change which stats/FOW you are viewing (easier than selecting one of their units/houses) [Krom]
+
+
+Finishing up:
+ +	Message log
+ +	Finish new MapEd features (add ADD_WARE_TO_LAST)
+ +	SP maps list will keep jumping to the top while items are being added (you can't scroll down until scanning is done)
+ +	Example maps that show what can be done with new scripts (more can be added later)
+ +	Decide which script commands will be implemented for this release and implement them (can add more as requested)
+ +	Lock icon next to password protected servers
+ +	Finish AI stuff (defending and attacking prototype?)
+ +	Performance test city builder and optimise/fix slow stuff (NextToOre using FindNearest for example)
+ +	Remove falling trees and block from MapEd trees palette, re-add reed
+ +	Improve snow falling random noise so it looks more natural [Krom]
+ +	Indent messages after each line break so you can't fake system messages
+ +	Before RC remove unused strings from LIBX and compact indexes [Lewin]
+ +	Before RC search for all todos and @Lewin/@Krom comments to see if there's something important we forgot about
+ +	Press release for our site where we collect all the big features and improvements [Lewin]
+
+
+Known issues to fix:
+ +	MP maps are still using auto generated goals. Do we keep it like that? Yes, but "Special" maps don't have auto goals so scripts can customise it
+ +	Campaign/tutorials show warnings about showing messages with goals being depreciated, make tool to fix them [Krom]
+ +	Fix "Vortamic" and "On the Way" texts (need to get texts 560..564) [Lewin]
+ +	ALL MP maps need SET_USER_PLAYER set for them. Make a tool to fix this [Krom]
+ +	Publish a memo about SET_USER_PLAYER "fixing" maps made in other editors [Lewin]
+ +	Copy data\sfx\knights\battle4.wav to Polish sfx (horse sound Pol is missing) [Lewin]
+
+
+Balance/exploits:
+ +	Increased market loss ratio to 2.2
+ +	Tested: 4 farms (with unsown fields) + 2 stables beats 6 woodcutters (with 5 grown trees each) + 1 market in horse production by 16% (20 mins), 30% (30 mins), 45% (40 mins), 77% (60 mins)
+ +	Stop builders emptying towers (builders refuse to walk into range of a tower and cancel the plan)
+
+
+Maps:
+ +	Iceline (thunder)
+ +	PAKER's maps
+ +	Clavicus Valley & Battle of Octumn (Ben)
+ +	Majestic Waters (TDL)
+ +	Final Frontier (To)
+ +	Pizza's map
+ +	czechboss' new map
+ +	Shark Islands (andreus and vovets1)
+ +	Pawel's fixes for campaign missions that he emailed to us
+ +	New coop missions and fixes to coop missions (from andreus, pawel)
+
+
+Not for this release, maybe next time:
+	Pawel's flower
+	Increase player limit to 10?
+	File transfers
