@@ -107,3 +107,9 @@ For more examples take a look at some of the scripted missions included in the R
 I hope you enjoyed this quick tutorial, please let us know if you find any parts of it confusing so we can improve it.
 
 Thanks for reading, happy scripting!
+
+
+==Resources==
+ * *Lookup tables* (unit/house/ware types): MissionScriptsLookups
+ * *Scripting reference*: MissionScriptsDynamic
+ * *Language reference*: http://www.delphibasics.co.uk/ (note: our scripts don't have all the features of Delphi, but this is still a useful reference)
