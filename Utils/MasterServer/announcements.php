@@ -5,9 +5,19 @@ global $MAIN_VERSION;
 $Lang = $_REQUEST["lang"];
 $Rev = $_REQUEST["rev"];
 
+if($Rev == "r5116")
+{
+  die("Welcome to the scripting demo 2nd RC! Have fun and give us feedback / bug reports! :)");
+}
+
+if($Rev == "r5057")
+{
+  die("The 2nd release candidate is now out! You should have received it by email");
+}
+
 if($Rev == "r4297")
 {
-  die("Welcome to the balance test release. Please send us your feedback on the changes.");
+  die("[$0000FF]The scripting demo release candidate is now out![]||This balance test release is outdated. Please check your email for the release candidate or email contact@kamremake.com if you want to be added to the mailing list.");
 }
 
 if(($Rev == "r3374") || ($Rev == "r3252") || ($Rev == "r3311") || ($Rev == "r3812") || ($Rev == "r3870") || ($Rev == "r3967") || ($Rev == "r3985") || ($Rev == "r4125"))
@@ -94,7 +104,7 @@ if($Rev != $MAIN_VERSION)
 }
 else
 {
-	echo 'The recent bugs with the servers causing games to fail to start should be all fixed! If you experience any further problems please contact us at our website.||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]||Use [$F23A40]TeamSpeak[] to talk with your allies while playing KaM. There are instructions at [$F8A070]www.kamremake.com[]';
+	echo 'A new KaM Remake release is coming, read about the most significant changes at [$F8A070]www.kamremake.com[]||Enjoy playing KaM Remake? Please consider [$00EEFF]donating[] to support future development. Visit [$F8A070]www.kamremake.com/donations[]';
 	//echo 'The 2 vs 2 Powah Tournament has begun! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo 'Powah Tour (Florek, Mulberry, To) are organising a tournament! Go to [$F8A070]www.kamremake.com[] to find out more!||Can you help translate our website [$F8A070]www.kamremake.com[]? We need volunteers to help translate it into any language. Please contact us through our website.';
 	//echo '[$FF6EAF]Welcome to the 4th multiplayer demo[] :)|Please report any issues.';

@@ -30,6 +30,7 @@ type
     function KaMRandomI(aMax:Integer): Integer;
     function Text(aIndex: Word): AnsiString;
     function TextFormatted(aIndex: Word; const Args: array of const): AnsiString;
+    function FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
 
     function StatArmyCount(aPlayer: Byte): Integer;
     function StatCitizenCount(aPlayer: Byte): Integer;
@@ -58,6 +59,8 @@ type
     function HouseRepair(aHouseID: Integer): Boolean;
     function HouseResourceAmount(aHouseID, aResource: Integer): Integer;
     function HouseType(aHouseID: Integer): Integer;
+    function HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
+    function HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
 
     function PlayerAllianceCheck(aPlayer1, aPlayer2: Byte): Boolean;
     function PlayerDefeated(aPlayer: Byte): Boolean;
@@ -90,6 +93,7 @@ type
     function GiveAnimal(aType, X,Y: Word): Integer;
     function GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
     function GiveUnit(aPlayer, aType, X,Y, aDir: Word): Integer;
+    function GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
     function GroupOrderSplit(aGroupID: Integer): Integer;
     function PlanAddField(aPlayer, X, Y: Word): Boolean;
     function PlanAddHouse(aPlayer, aHouseType, X, Y: Word): Boolean;
@@ -111,16 +115,22 @@ type
     procedure HouseDestroy(aHouseID: Integer);
     procedure HouseRepairEnable(aHouseID: Integer; aRepairEnabled: Boolean);
     procedure HouseDeliveryBlock(aHouseID: Integer; aDeliveryBlocked: Boolean);
+    procedure HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
+    procedure HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
     procedure HouseUnlock(aPlayer, aHouseType: Word);
     procedure PlayerDefeat(aPlayer: Word);
     procedure PlayerWin(const aVictors: array of Integer; aTeamVictory: Boolean);
-    procedure RevealCircle(aPlayer, X, Y, aRadius: Word);
+    procedure PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
+    procedure FogRevealCircle(aPlayer, X, Y, aRadius: Word);
+    procedure FogCoverCircle(aPlayer, X, Y, aRadius: Word);
+    procedure FogRevealAll(aPlayer: Byte);
+    procedure FogCoverAll(aPlayer: Byte);
     procedure SetTradeAllowed(aPlayer, aResType: Word; aAllowed: Boolean);
     procedure ShowMsg(aPlayer: Word; aText: AnsiString);
     procedure SetOverlayText(aPlayer: Word; aText: AnsiString);
     function  UnitDirectionSet(aUnitID, aDirection: Integer): Boolean;
     procedure UnitHungerSet(aUnitID, aHungerLevel: Integer);
-    procedure UnitKill(aUnitID: Integer);
+    procedure UnitKill(aUnitID: Integer; aSilent: Boolean);
     function  UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
   end;
 
@@ -358,14 +368,18 @@ end;
 function TKMScriptStates.HouseAt(aX, aY: Word): Integer;
 var H: TKMHouse;
 begin
-  H := fPlayers.HousesHitTest(aX, aY);
-  if (H <> nil) and not H.IsDestroyed then
+  Result := -1;
+  if fTerrain.TileInMapCoords(aX,aY) then
   begin
-    Result := H.ID;
-    fIDCache.CacheHouse(H, H.ID); //Improves cache efficiency since H will probably be accessed soon
+    H := fPlayers.HousesHitTest(aX, aY);
+    if (H <> nil) and not H.IsDestroyed then
+    begin
+      Result := H.ID;
+      fIDCache.CacheHouse(H, H.ID); //Improves cache efficiency since H will probably be accessed soon
+    end;
   end
   else
-    Result := -1;
+    LogError('States.HouseAt', [aX, aY]);
 end;
 
 
@@ -441,6 +455,41 @@ begin
   end
   else
     LogError('States.HouseType', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseWoodcutterChopOnly(aHouseID: Integer): Boolean;
+var H: TKMHouse;
+begin
+  Result := False;
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseWoodcutters then
+      Result := TKMHouseWoodcutters(H).WoodcutterMode = wcm_Chop;
+  end
+  else
+    LogError('States.HouseWoodcutterChopOnly', [aHouseID]);
+end;
+
+
+function TKMScriptStates.HouseWareBlocked(aHouseID, aWareType: Integer): Boolean;
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Result := False;
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if (H is TKMHouseStore) then
+      Result := TKMHouseStore(H).NotAcceptFlag[Res];
+    if (H is TKMHouseBarracks) then
+      Result := TKMHouseBarracks(H).NotAcceptFlag[Res];
+  end
+  else
+    LogError('States.HouseWareBlocked', [aHouseID, aWareType]);
 end;
 
 
@@ -547,17 +596,32 @@ begin
 end;
 
 
+function TKMScriptStates.FogRevealed(aPlayer: Byte; aX, aY: Word): Boolean;
+begin
+  Result := False;
+  if fTerrain.TileInMapCoords(aX,aY)
+  and InRange(aPlayer, 0, fPlayers.Count - 1) then
+    Result := fPlayers[aPlayer].FogOfWar.CheckTileRevelation(aX, aY) > 0
+  else
+    LogError('States.FogRevealed', [aX, aY]);
+end;
+
+
 function TKMScriptStates.UnitAt(aX, aY: Word): Integer;
 var U: TKMUnit;
 begin
-  U := fTerrain.UnitsHitTest(aX, aY);
-  if (U <> nil) and not U.IsDead then
+  Result := -1;
+  if fTerrain.TileInMapCoords(aX,aY) then
   begin
-    Result := U.ID;
-    fIDCache.CacheUnit(U, U.ID); //Improves cache efficiency since U will probably be accessed soon
+    U := fTerrain.UnitsHitTest(aX, aY);
+    if (U <> nil) and not U.IsDead then
+    begin
+      Result := U.ID;
+      fIDCache.CacheUnit(U, U.ID); //Improves cache efficiency since U will probably be accessed soon
+    end;
   end
   else
-    Result := -1;
+    LogError('States.UnitAt', [aX, aY]);
 end;
 
 
@@ -842,6 +906,28 @@ begin
 end;
 
 
+procedure TKMScriptActions.PlayerAllianceChange(aPlayer1, aPlayer2: Byte; aCompliment, aAllied: Boolean);
+const ALLIED: array[Boolean] of TAllianceType = (at_Enemy, at_Ally);
+begin
+  //Verify all input parameters
+  if InRange(aPlayer1, 0, fPlayers.Count - 1)
+  and InRange(aPlayer2, 0, fPlayers.Count - 1) then
+  begin
+    fPlayers[aPlayer1].Alliances[aPlayer2] := ALLIED[aAllied];
+    if aAllied then
+      fPlayers[aPlayer2].FogOfWar.SyncFOW(fPlayers[aPlayer1].FogOfWar);
+    if aCompliment then
+    begin
+      fPlayers[aPlayer2].Alliances[aPlayer1] := ALLIED[aAllied];
+      if aAllied then
+        fPlayers[aPlayer1].FogOfWar.SyncFOW(fPlayers[aPlayer2].FogOfWar);
+    end;
+  end
+  else
+    LogError('Actions.PlayerAllianceChange', [aPlayer1, aPlayer2, Byte(aCompliment), Byte(aAllied)]);
+end;
+
+
 function TKMScriptActions.GiveGroup(aPlayer, aType, X,Y, aDir, aCount, aColumns: Word): Integer;
 var G: TKMUnitGroup;
 begin
@@ -885,15 +971,36 @@ begin
 end;
 
 
+function TKMScriptActions.GiveHouse(aPlayer, aHouseType, X,Y: Integer): Integer;
+var H: TKMHouse;
+begin
+  Result := -1;
+  //Verify all input parameters
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and (aHouseType in [Low(HouseIndexToType)..High(HouseIndexToType)])
+  and fTerrain.TileInMapCoords(X,Y) then
+  begin
+    if fTerrain.CanPlaceHouseFromScript(HouseIndexToType[aHouseType], KMPoint(X, Y)) then
+    begin
+      H := fPlayers[aPlayer].AddHouse(HouseIndexToType[aHouseType], X, Y, True);
+      if H = nil then Exit;
+      Result := H.ID;
+    end;
+  end
+  else
+    LogError('Actions.GiveHouse', [aPlayer, aHouseType, X, Y]);
+end;
+
+
 function TKMScriptActions.GiveAnimal(aType, X, Y: Word): Integer;
 var U: TKMUnit;
 begin
   Result := -1;
   //Verify all input parameters
-  if (aType in [UnitTypeToOldIndex[ANIMAL_MIN]..UnitTypeToOldIndex[ANIMAL_MAX]])
+  if (aType in [UnitTypeToIndex[ANIMAL_MIN]..UnitTypeToIndex[ANIMAL_MAX]])
   and fTerrain.TileInMapCoords(X,Y) then
   begin
-    U := fPlayers.PlayerAnimals.AddUnit(UnitOldIndexToType[aType], KMPoint(X,Y));
+    U := fPlayers.PlayerAnimals.AddUnit(UnitIndexToType[aType], KMPoint(X,Y));
     if U <> nil then
       Result := U.ID;
   end
@@ -923,19 +1030,43 @@ begin
 end;
 
 
-procedure TKMScriptActions.RevealCircle(aPlayer, X, Y, aRadius: Word);
+procedure TKMScriptActions.FogRevealCircle(aPlayer, X, Y, aRadius: Word);
 begin
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and fTerrain.TileInMapCoords(X,Y)
   and InRange(aRadius, 0, 255) then
-  begin
-    if aRadius = 255 then
-      fPlayers[aPlayer].FogOfWar.RevealEverything
-    else
-      fPlayers[aPlayer].FogOfWar.RevealCircle(KMPoint(X, Y), aRadius, 255);
-  end
+    fPlayers[aPlayer].FogOfWar.RevealCircle(KMPoint(X, Y), aRadius, FOG_OF_WAR_MAX)
   else
-    LogError('Actions.RevealCircle', [aPlayer, X, Y, aRadius]);
+    LogError('Actions.FogRevealCircle', [aPlayer, X, Y, aRadius]);
+end;
+
+
+procedure TKMScriptActions.FogCoverCircle(aPlayer, X, Y, aRadius: Word);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1)
+  and fTerrain.TileInMapCoords(X,Y)
+  and InRange(aRadius, 0, 255) then
+    fPlayers[aPlayer].FogOfWar.CoverCircle(KMPoint(X, Y), aRadius)
+  else
+    LogError('Actions.FogCoverCircle', [aPlayer, X, Y, aRadius]);
+end;
+
+
+procedure TKMScriptActions.FogRevealAll(aPlayer: Byte);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    fPlayers[aPlayer].FogOfWar.RevealEverything
+  else
+    LogError('Actions.FogRevealAll', [aPlayer]);
+end;
+
+
+procedure TKMScriptActions.FogCoverAll(aPlayer: Byte);
+begin
+  if InRange(aPlayer, 0, fPlayers.Count - 1) then
+    fPlayers[aPlayer].FogOfWar.CoverEverything
+  else
+    LogError('Actions.FogCoverAll', [aPlayer]);
 end;
 
 
@@ -962,7 +1093,7 @@ begin
   //Verify all input parameters
   if InRange(aPlayer, 0, fPlayers.Count - 1)
   and (aHouseType in [Low(HouseIndexToType) .. High(HouseIndexToType)]) then
-    fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := aAllowed
+    fPlayers[aPlayer].Stats.HouseBlocked[HouseIndexToType[aHouseType]] := not aAllowed
   else
     LogError('Actions.HouseAllow', [aPlayer, aHouseType, Byte(aAllowed)]);
 end;
@@ -1056,6 +1187,40 @@ begin
   end
   else
     LogError('Actions.HouseDeliveryBlock', [aHouseID, Byte(aDeliveryBlocked)]);
+end;
+
+
+procedure TKMScriptActions.HouseWoodcutterChopOnly(aHouseID: Integer; aChopOnly: Boolean);
+var H: TKMHouse;
+const CHOP_ONLY: array[Boolean] of TWoodcutterMode = (wcm_Chop, wcm_ChopAndPlant);
+begin
+  if aHouseID > 0 then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseWoodcutters then
+      TKMHouseWoodcutters(H).WoodcutterMode := CHOP_ONLY[aChopOnly];
+  end
+  else
+    LogError('Actions.HouseWoodcutterChopOnly', [aHouseID, Byte(aChopOnly)]);
+end;
+
+
+procedure TKMScriptActions.HouseWareBlock(aHouseID, aWareType: Integer; aBlocked: Boolean);
+var
+  H: TKMHouse;
+  Res: TWareType;
+begin
+  Res := WareIndexToType[aWareType];
+  if (aHouseID > 0) and (Res in [WARE_MIN..WARE_MAX]) then
+  begin
+    H := fIDCache.GetHouse(aHouseID);
+    if H is TKMHouseStore then
+      TKMHouseStore(H).NotAcceptFlag[Res] := aBlocked;
+    if H is TKMHouseBarracks then
+      TKMHouseBarracks(H).NotAcceptFlag[Res] := aBlocked;
+  end
+  else
+    LogError('Actions.HouseWareBlock', [aHouseID, aWareType, Byte(aBlocked)]);
 end;
 
 
@@ -1209,29 +1374,36 @@ function TKMScriptActions.UnitOrderWalk(aUnitID: Integer; X, Y: Word): Boolean;
 var U: TKMUnit;
 begin
   Result := False;
+
   if (aUnitID > 0) and fTerrain.TileInMapCoords(X, Y) then
   begin
     U := fIDCache.GetUnit(aUnitID);
-    //Can only make idle units walk so we don't mess up tasks and cause crashes
-    if (U <> nil) and U.IsIdle then
-    begin
-      Result := True;
-      U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
-    end;
+    if U = nil then Exit; //Unit could have long died, or never existed
+
+    //Animals cant be ordered to walk, they use Steering instead
+    if (U.UnitType in [ANIMAL_MIN..ANIMAL_MAX]) then
+      LogError('Actions.UnitOrderWalk is not supported for animals', [aUnitID, X, Y])
+    else
+      //Can only make idle units walk so we don't mess up tasks and cause crashes
+      if U.IsIdle then
+      begin
+        Result := True;
+        U.SetActionWalk(KMPoint(X,Y), ua_Walk, 0, nil, nil);
+      end;
   end
   else
     LogError('Actions.UnitOrderWalk', [aUnitID, X, Y]);
 end;
 
 
-procedure TKMScriptActions.UnitKill(aUnitID: Integer);
+procedure TKMScriptActions.UnitKill(aUnitID: Integer; aSilent: Boolean);
 var U: TKMUnit;
 begin
   if (aUnitID > 0) then
   begin
     U := fIDCache.GetUnit(aUnitID);
     if U <> nil then
-      U.KillUnit(-1);
+      U.KillUnit(-1, not aSilent);
   end
   else
     LogError('Actions.UnitKill', [aUnitID]);

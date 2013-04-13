@@ -110,7 +110,7 @@ type
     procedure ReleaseUnitPointer;  //Decreases the pointer counter
     property GetPointerCount: Word read fPointerCount;
 
-    procedure KillUnit(aFrom: TPlayerIndex); virtual; //Creates TTaskDie which then will Close the unit from further access
+    procedure KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean); virtual; //Creates TTaskDie which then will Close the unit from further access
     procedure CloseUnit(aRemoveTileUsage: Boolean = True); dynamic;
 
     property ID: Integer read fID;
@@ -924,7 +924,7 @@ begin
   if fFishCount > 1 then
     Dec(fFishCount)
   else
-    KillUnit(-1);
+    KillUnit(-1, True);
 end;
 
 
@@ -964,7 +964,7 @@ begin
   if (not fTerrain.CheckPassability(fCurrPosition, DesiredPassability))
   or fTerrain.CheckAnimalIsStuck(fCurrPosition, DesiredPassability) then
   begin
-    KillUnit(-1); //Animal is stuck so it dies
+    KillUnit(-1, True); //Animal is stuck so it dies
     Exit;
   end;
 
@@ -1034,7 +1034,7 @@ begin
   fHitPoints      := HitPointsMax;
   fHitPointCounter := 1;
 
-  SetActionStay(10, ua_Walk);
+  SetActionLockedStay(10, ua_Walk); //Must be locked for this initial pause so animals don't get pushed
   fTerrain.UnitAdd(NextPosition,Self);
 
   //The area around the unit should be visible at the start of the mission
@@ -1201,7 +1201,7 @@ end;
 // Kill - release all unit-specific tasks
 // TTaskDie - perform dying animation
 // CloseUnit - erase all unit data and hide it from further access
-procedure TKMUnit.KillUnit(aFrom: TPlayerIndex);
+procedure TKMUnit.KillUnit(aFrom: TPlayerIndex; aShowAnimation: Boolean);
 begin
   //Don't kill unit if it's already dying
   if fUnitTask is TTaskDie then
@@ -1224,7 +1224,7 @@ begin
   fThought := th_None; //Reset thought
   SetAction(nil); //Dispose of current action (TTaskDie will set it to LockedStay)
   FreeAndNil(fUnitTask); //Should be overriden to dispose of Task-specific items
-  fUnitTask := TTaskDie.Create(Self);
+  fUnitTask := TTaskDie.Create(Self, aShowAnimation);
 end;
 
 
@@ -1268,7 +1268,7 @@ begin
   fHitPoints := Max(fHitPoints - aAmount, 0);
   if (fHitPoints = 0) and not IsDeadOrDying then
     //Make sure to kill only once
-    KillUnit(aFrom);
+    KillUnit(aFrom, True);
 end;
 
 
@@ -1663,6 +1663,10 @@ begin
         Result := true;
         exit;
       end;
+      //OnUnitTrained usually happens in TUnitActionGoInOut, otherwise the warrior doesn't get assigned a group
+      if (Self is TKMUnitWarrior) and Assigned(OnUnitTrained) then
+        OnUnitTrained(Self);
+
       //Make sure these are reset properly
       Assert(not fTerrain.HasUnit(fCurrPosition));
       IsExchanging := false;
@@ -1889,7 +1893,7 @@ begin
   if fKillASAP
   and not ((fCurrentAction is TUnitActionWalkTo) and TUnitActionWalkTo(fCurrentAction).DoingExchange) then
   begin
-    KillUnit(fKillASAPFrom);
+    KillUnit(fKillASAPFrom, True);
     fKillASAP := false;
     Assert(IsDeadOrDying); //Just in case KillUnit failed
   end;
@@ -1905,7 +1909,7 @@ begin
 
   //Unit killing could be postponed by few ticks, hence fCondition could be <0
   if fCondition <= 0 then
-    KillUnit(-1);
+    KillUnit(-1, True);
 
   //We only need to update fog of war regularly if we're using dynamic fog of war, otherwise only update it when the unit moves
   if FOG_OF_WAR_ENABLE and (fTicker mod 10 = 0) then

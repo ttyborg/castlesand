@@ -947,7 +947,7 @@ begin
     begin
       ID := fNetworking.NetPlayers.StartingLocToLocal(I+1);
       if ID <> -1 then
-        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[I+1].Team
+        fMinimap.PlayerTeam[I] := fNetworking.NetPlayers[ID].Team
       else
         fMinimap.PlayerTeam[I] := 0;
     end;
@@ -1071,20 +1071,21 @@ end;
 
 procedure TKMGUIMenuLobby.RefreshMapList(aJumpToSelected:Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   PrevMap: string;
   AddMap: Boolean;
 begin
+  //Remember previous map selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevMap := '';
+
+  PrevTop := DropCol_LobbyMaps.List.TopIndex;
+  DropCol_LobbyMaps.Clear;
+
   fMapsMP.Lock;
-    //Remember previous map selected
-    if DropCol_LobbyMaps.ItemIndex <> -1 then
-      PrevMap := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
-    else
-      PrevMap := '';
-
-    OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
-    DropCol_LobbyMaps.Clear;
-
+  try
     for I := 0 to fMapsMP.Count - 1 do
     begin
       //Different modes allow different maps
@@ -1101,68 +1102,75 @@ begin
                                            IntToStr(fMapsMP[I].HumanPlayerCount),
                                            fMapsMP[I].SizeText], I));
     end;
+  finally
+    fMapsMP.Unlock;
+  end;
 
-    //Restore previously selected map
-    if PrevMap <> '' then
-      for I := 0 to DropCol_LobbyMaps.Count - 1 do
-        if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
-          DropCol_LobbyMaps.ItemIndex := I;
+  //Restore previously selected map
+  if PrevMap <> '' then
+  for I := 0 to DropCol_LobbyMaps.Count - 1 do
+  if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevMap then
+    DropCol_LobbyMaps.ItemIndex := I;
 
-    //Restore the top index
-    DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
-    if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
-    and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
-    begin
-      if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
-      else
-      if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
-    end;
-  fMapsMP.Unlock;
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := PrevTop;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
 end;
 
 
-procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected:Boolean);
+procedure TKMGUIMenuLobby.RefreshSaveList(aJumpToSelected: Boolean);
 var
-  I, OldTopIndex: Integer;
+  I, PrevTop: Integer;
   PrevSave: string;
 begin
-  fSavesMP.Lock;
-    //Remember previous save selected
-    if DropCol_LobbyMaps.ItemIndex <> -1 then
-      PrevSave := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
-    else
-      PrevSave := '';
+  //Remember previous save selected
+  if DropCol_LobbyMaps.ItemIndex <> -1 then
+    PrevSave := DropCol_LobbyMaps.Item[DropCol_LobbyMaps.ItemIndex].Cells[0].Caption
+  else
+    PrevSave := '';
 
-    OldTopIndex := DropCol_LobbyMaps.List.TopIndex;
-    DropCol_LobbyMaps.Clear;
+  PrevTop := DropCol_LobbyMaps.List.TopIndex;
+
+  DropCol_LobbyMaps.Clear;
+
+  fSavesMP.Lock;
+  try
     for I := 0 to fSavesMP.Count - 1 do
-      if fSavesMP[I].IsValid then
-        DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
-                                           IntToStr(fSavesMP[I].Info.PlayerCount),
-                                           fSavesMP[I].Info.GetTimeText], I))
-      else
-        DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
+    if fSavesMP[I].IsValid then
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName,
+                                         IntToStr(fSavesMP[I].Info.PlayerCount),
+                                         fSavesMP[I].Info.GetTimeText], I))
+    else
+      DropCol_LobbyMaps.Add(MakeListRow([fSavesMP[I].FileName, '', ''], I));
 
     //Restore previously selected save
     if PrevSave <> '' then
-      for I := 0 to DropCol_LobbyMaps.Count - 1 do
-        if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevSave then
-          DropCol_LobbyMaps.ItemIndex := I;
+    for I := 0 to DropCol_LobbyMaps.Count - 1 do
+    if DropCol_LobbyMaps.Item[I].Cells[0].Caption = PrevSave then
+      DropCol_LobbyMaps.ItemIndex := I;
+  finally
+    fSavesMP.Unlock;
+  end;
 
-    //Restore the top index
-    DropCol_LobbyMaps.List.TopIndex := OldTopIndex;
-    if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
-    and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
-    begin
-      if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
-      else
-      if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
-        DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
-    end;
-  fSavesMP.Unlock;
+  //Restore the top index
+  DropCol_LobbyMaps.List.TopIndex := PrevTop;
+  if aJumpToSelected and (DropCol_LobbyMaps.List.ItemIndex <> -1)
+  and not InRange(DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.TopIndex, 0, DropCol_LobbyMaps.List.GetVisibleRows - 1) then
+  begin
+    if DropCol_LobbyMaps.List.ItemIndex < DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex
+    else
+    if DropCol_LobbyMaps.List.ItemIndex > DropCol_LobbyMaps.List.TopIndex + DropCol_LobbyMaps.List.GetVisibleRows - 1 then
+      DropCol_LobbyMaps.List.TopIndex := DropCol_LobbyMaps.List.ItemIndex - DropCol_LobbyMaps.List.GetVisibleRows + 1;
+  end;
 end;
 
 
@@ -1244,9 +1252,9 @@ begin
   //Common settings
   MinimapView_Lobby.Visible := (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
   TrackBar_LobbyPeacetime.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid and not fNetworking.MapInfo.IsCoop;
-  TrackBar_LobbySpeedPT.Enabled := TrackBar_LobbyPeacetime.Enabled and (TrackBar_LobbyPeacetime.Position > 0);
-  TrackBar_LobbySpeedAfterPT.Enabled := TrackBar_LobbyPeacetime.Enabled;
-  CheckBox_LobbyRandomizeTeamLocations.Enabled := (fNetworking.SelectGameKind <> ngk_Save);
+  TrackBar_LobbySpeedPT.Enabled := (TrackBar_LobbyPeacetime.Position > 0) and fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  TrackBar_LobbySpeedAfterPT.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid;
+  CheckBox_LobbyRandomizeTeamLocations.Enabled := fNetworking.IsHost and (fNetworking.SelectGameKind <> ngk_Save);
 
   //Don't reset the selection if no map is selected
   if ((fNetworking.SelectGameKind = ngk_Map) and fNetworking.MapInfo.IsValid)

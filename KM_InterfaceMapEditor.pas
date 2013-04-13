@@ -1357,17 +1357,17 @@ end;
 
 procedure TKMapEdInterface.Create_Extra;
 begin
-  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, Panel_Main.Width - TOOLBAR_WIDTH, 190);
+  Panel_Extra := TKMPanel.Create(Panel_Main, TOOLBAR_WIDTH, Panel_Main.Height - 190, 600, 190);
   Panel_Extra.Anchors := [akLeft, akBottom];
   Panel_Extra.Hide;
 
-    with TKMImage.Create(Panel_Extra, 0, 0, 800, 190, 409) do
+    with TKMImage.Create(Panel_Extra, 0, 0, 600, 190, 409) do
     begin
       Anchors := [akLeft, akTop, akBottom];
       ImageAnchors := [akLeft, akRight, akTop];
     end;
 
-    Image_ExtraClose := TKMImage.Create(Panel_Extra, 800-97, 29, 32, 32, 52);
+    Image_ExtraClose := TKMImage.Create(Panel_Extra, 600 - 76, 24, 32, 32, 52);
     Image_ExtraClose.Anchors := [akTop, akRight];
     Image_ExtraClose.Hint := fTextLibrary[TX_MSG_CLOSE_HINT];
     Image_ExtraClose.OnClick := ExtraMessage_Switch;
@@ -2798,24 +2798,39 @@ end;
 
 
 procedure TKMapEdInterface.Menu_LoadUpdateDone(Sender: TObject);
-var M: TKMapsCollection; I: Integer;
+var
+  I: Integer;
+  PrevMap: string;
+  PrevTop: Integer;
+  M: TKMapsCollection;
 begin
   if Radio_Load_MapType.ItemIndex = 0 then
     M := fMaps
   else
     M := fMapsMP;
 
+  //Remember previous map
+  if ListBox_Load.ItemIndex <> -1 then
+    PrevMap := M.Maps[ListBox_Load.ItemIndex].FileName
+  else
+    PrevMap := '';
+  PrevTop := ListBox_Load.TopIndex;
+
   ListBox_Load.Clear;
-  ListBox_Load.ItemIndex := -1;
 
   M.Lock;
-  for I:=0 to M.Count-1 do
-    ListBox_Load.Add(M.Maps[I].FileName);
-  M.Unlock;
+  try
+    for I := 0 to M.Count - 1 do
+    begin
+      ListBox_Load.Add(M.Maps[I].FileName);
+      if M.Maps[I].FileName = PrevMap then
+        ListBox_Load.ItemIndex := I;
+    end;
+  finally
+    M.Unlock;
+  end;
 
-  //Try to select first map by default
-  if ListBox_Load.ItemIndex = -1 then
-    ListBox_Load.ItemIndex := 0;
+  ListBox_Load.TopIndex := PrevTop;
 end;
 
 
