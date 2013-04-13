@@ -14,6 +14,8 @@ http://i.imgur.com/b9ux7TA.png
 
 Now when you open scripts they should be nice and colourful with syntax highlighting, which makes editing easier.
 
+You should also know how to use the Script Validator. Run ScriptValidator.exe from the main KaM Remake folder. Browse to a script file and click validate. It will show you any warnings/errors about the script, which saves you from restarting the mission just to check for minor errors in the script.
+
 Next, lets write your first script!
  # Make a new map in the KaM Remake editor, give player 1 a storehouse, some supplies and serfs/labourers, and save it in singleplayer as "Hello World".
  # Then browse to "Maps\Hello World" in your KaM Remake folder, which is where ever you have the KaM Remake installed (possibly C:\KaM Remake or C:\Program Files\KaM Remake)
