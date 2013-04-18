@@ -93,6 +93,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 
 || Version || State || Description || Query parameters || Type of return value ||
 || - || `FindUnitInZone` || 
+|| 5097 || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || 5057 || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || 5057 || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
@@ -109,33 +110,33 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HousePositionY` || Returns the Y coordinate of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
 || 5057 || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
 || 5057 || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
+|| 5165 || `HouseSchoolQueue` || Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot || Integer ||
 || 5057 || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
 || 5099 || `HouseWareBlocked` || Returns true if the specified ware in the specified storehouse or barracks is blocked || 1 - House ID <br> 2 - ware type || Boolean ||
-|| 5099 || `HouseWoodcutterChopOnly` || Returns true if the specified woodcutter's hut is on chop-only mode || 1 - House ID || Boolean ||
-|| 5165 || `HouseSchoolQueue` || Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot || Integer ||
 || 5165 || `HouseWeaponsOrdered` || Returns the number of the specified weapon ordered to be produced in the specified house || 1 - House ID <br> 2 - ware type || Integer ||
+|| 5099 || `HouseWoodcutterChopOnly` || Returns true if the specified woodcutter's hut is on chop-only mode || 1 - House ID || Boolean ||
 || 5057 || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || 5057 || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
 || 5057 || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
-|| 5097 || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
+|| 4758 || `PlayerColorText` || Get players color as text in hex format || 1 - player index || AnsiString ||
 || 5057 || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || 5057 || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
 || 5165 || `PlayerGetAllUnits` || Returns an array with IDs for all the units of the specified player || 1 - player index || array of Integer ||
 || 5057 || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
-|| 4545 || `PlayerVictorious` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
+|| 4545 || `PlayerVictorious` || See if player is victorious || 1 - player index || Boolean ||
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || 5057 || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || 5057 || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
 || 5057 || `StatPlayerCount` || How many active players there are || - || Integer ||
 || 5057 || `StatResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player ID <br> 2 - Resource type || Integer ||
+|| 4289 || `StatUnitCount` || Returns the number of units of the specified player || 1 - Player ID || Integer ||
 || 5057 || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || 5057 || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || 5057 || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 || 5057 || `Text` || Returns localised text from the LIBX file || 1 - text index || !AnsiString ||
 || 5057 || `TextFormatted` || Returns localised text from the LIBX file with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - Text index in mission's LIBX file <br> 2 - Array of arguments || !AnsiString ||
 || 5057 || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
-|| 5057 || `UnitCount` || Total unit count || 1 - player index || Integer ||
 || 5057 || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
 || 5165 || `UnitDirection` || Returns the direction the specified unit is facing || 1 - Unit ID || Integer ||
 || 5057 || `UnitHunger` || Returns the hunger level of the specified unit as number of ticks until death or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
@@ -145,8 +146,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || 5057 || `UnitPositionX` || Returns the X coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || 5057 || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| 5057 || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
 || 5057 || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
+|| 5057 || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
