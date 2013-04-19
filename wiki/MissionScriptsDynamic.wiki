@@ -159,7 +159,6 @@ if States.PlayerCount > 5 then
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Version || Action || Description || Parameters (Integer) || Return value () ||
-|| 5057 || `BarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || 5057 || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
@@ -179,15 +178,17 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseAddDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || 5057 || `HouseAddWaresTo` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || 5057 || `HouseAllow` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
+|| 5174 || `HouseBarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || 5057 || `HouseDeliveryBlock` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
 || 5057 || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
 || 5057 || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
+|| 5174 || `HouseSchoolQueueAdd` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
+|| 5174 || `HouseSchoolQueueRemove` || Removes the unit from the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot ||
 || 5057 || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use !HouseAllow for that. || 1 - player index <br> 2 - House type ||
 || 5099 || `HouseWareBlock` || Blocks a specific ware in a storehouse or barracks || 1 - House ID <br> 2 - ware type <br> 3 - Blocked: Boolean ||
 || 5099 || `HouseWoodcutterChopOnly` || Sets whether a woodcutter's hut is on chop-only mode || 1 - House ID <br> 2 - !ChopOnly: Boolean ||
 || 5165 || `HouseWeaponsOrderSet` || Sets the amount of the specified weapon ordered to be produced in the specified house || 1 - House ID <br> 2 - ware type <br> 3 - amount ||
-|| 5165 || `HouseSchoolQueueRemove` || Removes the unit from the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot ||
 || 5057 || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 5057 || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || 5057 || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
@@ -200,7 +201,6 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5097 || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
 || 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
-|| 5057 || `SchoolAddToQueue` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || 5057 || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - text (!AnsiString) ||
 || 5057 || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
 || 5057 || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - text (!AnsiString) ||
