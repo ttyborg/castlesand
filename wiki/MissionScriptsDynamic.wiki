@@ -123,6 +123,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlayerDefeated` || See if player was defeated || 1 - player index || Boolean ||
 || 5057 || `PlayerEnabled` || Will be false if nobody selected that location in multiplayer || 1 - player index || Boolean ||
 || 5165 || `PlayerGetAllUnits` || Returns an array with IDs for all the units of the specified player || 1 - player index || array of Integer ||
+|| 5209 || `PlayerGetAllHouses` || Returns an array with IDs for all the houses of the specified player || 1 - player index || array of Integer ||
+|| 5209 || `PlayerGetAllGroups` || Returns an array with IDs for all the groups of the specified player || 1 - player index || array of Integer ||
 || 5057 || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
 || 4545 || `PlayerVictorious` || See if player is victorious || 1 - player index || Boolean ||
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
