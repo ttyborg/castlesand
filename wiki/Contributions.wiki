@@ -52,7 +52,6 @@ Additional areas of interest:
 
 Experimental areas:
   * AI
-  * Flocking unit movement
   * Particle effects (weather, smoke, fire)
 
 
@@ -84,6 +83,10 @@ We would especially like these fonts to be made due to demand:
  * Greek (Windows-1253)
 
 Note: We currently only support 8 bit fonts, (not Unicode/UTF) so that means languages like Chinese, Japanese, etc. are not possible yet. We have plans for some kind of Unicode support in the future.
+
+== Maintenance ==
+
+Track and file all bugreports into bugtracker (Google.Code Issues)
 
 == Website Translations ==
 
