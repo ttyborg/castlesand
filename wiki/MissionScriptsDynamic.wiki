@@ -182,7 +182,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseAllow` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
 || 5174 || `HouseBarracksEquip` || Equips the specified unit from the specified barracks. Returns the number of units successfully equipped. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || 5057 || `HouseDeliveryBlock` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
-|| 5057 || `HouseDestroy` || Destroys the specified house || 1 - House ID ||
+|| 5263 || `HouseDestroy` || Destroys the specified house. Silent means the house will not leave rubble or play destroy sound || 1 - House ID <br> 2 - Silent ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
 || 5057 || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
 || 5174 || `HouseSchoolQueueAdd` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
