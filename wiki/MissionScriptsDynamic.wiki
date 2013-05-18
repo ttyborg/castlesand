@@ -96,9 +96,9 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5097 || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || 5057 || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
+|| 5272 || `GroupColumnCount` || Returns the number of columns (units per row) of the specified group || 1 - Group ID || Integer ||
 || 5057 || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
 || 5057 || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members (0 <= !MemberIndex <= !GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
-|| 5272 || `GroupColumnCount` || Returns the number of columns (units per row) of the specified group || 1 - Group ID || Integer ||
 || 5057 || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
 || 5057 || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || 5057 || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
