@@ -99,6 +99,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GroupDead` || Returns true if the group is dead (all members dead or joined other groups) || 1 - Group ID || Boolean ||
 || 5057 || `GroupMember` || Returns the unit ID of the specified group member. Member 0 will be the flag holder, 1...!GroupMemberCount-1 will be the other members (0 <= !MemberIndex <= !GroupMemberCount-1) || 1 - Group ID <br> 2 - Member index || Integer ||
 || 5057 || `GroupMemberCount` || Returns the total number of members of the specified group || 1 - Group ID || Integer ||
+|| 5272 || `GroupColumnCount` || Returns the number of columns (units per row) of the specified group || 1 - Group ID || Integer ||
 || 5057 || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || 5057 || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || 5057 || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
@@ -176,7 +177,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GroupOrderSplit` || Order the specified group to split in half and return the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID || GroupID: Integer ||
 || 5057 || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || 5057 || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
-|| 5057 || `GroupSetFormation` || Sets the number of columns (men per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
+|| 5057 || `GroupSetFormation` || Sets the number of columns (units per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
 || 5057 || `HouseAddDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || 5057 || `HouseAddWaresTo` || Add wares to the specified house || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || 5057 || `HouseAllow` || Sets whether the player is allowed to build the specified house. Note: The house must still be unlocked normally (e.g. sawmill for farm), use !HouseUnlock to override that. || 1 - player index <br> 2 - House type <br> 3 - Allowed: Boolean ||
