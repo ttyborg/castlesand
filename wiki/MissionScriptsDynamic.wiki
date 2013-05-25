@@ -200,6 +200,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlayerDefeat` || Proclaims player defeated || 1 - player index ||
 || 5057 || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array of player index <br> 2 - !TeamVictory: Boolean ||
 || 5165 || `PlayerAddDefaultGoals` || Add default goals/lost goals for the specified player. If the parameter buildings is true the goals will be important buildings. Otherwise it will be troops. || 1 - player index <br> 2 - buildings: Boolean ||
+|| 5309 || `PlayWAV` || Plays audio file. Mono or stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) ||
+|| 5309 || `PlayWAVAtLocation` || Plays audio file at a location on the map. Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) <br> 4 - X <br> 5 - Y ||
 || 5097 || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5097 || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
