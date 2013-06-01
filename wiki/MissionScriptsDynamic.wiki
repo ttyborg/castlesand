@@ -27,7 +27,7 @@ var //Local variables, they exist only within this procedure
 begin
   //Event code
   L := 7; //assignment of number to a variable
-  Actions.ShowMsg(0,L); //Calling a games action with 2 parameters: 0 and L
+  Actions.ShowMsg(L,'hello'); //Calling a games action with 2 parameters: L and a string 'hello'
 end;
 
 //Event handler for "tick" event, which happens 10 times per second (on each game logic update).
@@ -35,7 +35,7 @@ procedure OnTick;
 begin
   //Code here
   if States.GameTime = 60 then //Check game time and show a message
-    Actions.ShowMsg(0,3);
+    Actions.ShowMsg(0,'<$3>'); //<$3> is markup to fetch text ID 3 from LIBX translation file
 end;
 }}}
 
@@ -44,19 +44,19 @@ Here is Battle Tutorial script explained:
 {{{
 procedure OnPlayerDefeated(aIndex: Integer);
 begin
-  if aIndex = 2 then Actions.ShowMsg(0, States.Text(2));
-  if aIndex = 3 then Actions.ShowMsg(0, States.Text(3));
-  if aIndex = 4 then Actions.ShowMsg(0, States.Text(4));
+  if aIndex = 2 then Actions.ShowMsg(0, '<$2>');
+  if aIndex = 3 then Actions.ShowMsg(0, '<$3>');
+  if aIndex = 4 then Actions.ShowMsg(0, '<$4>');
 end;
 
 procedure OnTick;
 begin
   if States.GameTime = 20 then 
-    Actions.ShowMsg(0, States.Text(1));
+    Actions.ShowMsg(0, '<$1>');
 end;
 }}}
 
-Above line means that when `PlayerDefeated` event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message. Message text is retrieved from the mission's .LIBX file using States.Text, meaning it will be in the player's own language if a translation has been made.
+Above line means that when `PlayerDefeated` event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message. Message text is retrieved from the mission's .LIBX file using the markup <$123> (fetches text ID 123 from LIBX), meaning it will be in the player's own language if a translation has been made.
 
 
 ==Other resources==
