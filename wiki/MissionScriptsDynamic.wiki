@@ -210,6 +210,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
 || 5057 || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
 || 5057 || `ShowMsg` || Displays a message to a player. If the player index is -1 the message will be shown to all players. || 1 - player index <br> 2 - text (!AnsiString) ||
+|| 5057 || `ShowMsgFormatted` || Displays a message to a player with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function). If the player index is -1 the message will be shown to all players. || 1 - player index <br> 2 - text (!AnsiString) <br> 3 - Array of arguments ||
 || 5057 || `UnitDirectionSet` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
 || 5057 || `UnitHungerSet` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || 5099 || `UnitKill` || Kills the specified unit. Silent means the death animation (ghost) and sound won't play || 1 - Unit ID <br> 2 - Silent: Boolean ||
