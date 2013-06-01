@@ -137,8 +137,6 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || 5057 || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player ID <br> 2 - Unit type || Integer ||
 || 5057 || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
-|| 5057 || `Text` || Returns localised text from the LIBX file || 1 - text index || !AnsiString ||
-|| 5057 || `TextFormatted` || Returns localised text from the LIBX file with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function) || 1 - Text index in mission's LIBX file <br> 2 - Array of arguments || !AnsiString ||
 || 5057 || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || 5057 || `UnitDead` || Returns true if the unit is dead || 1 - Unit ID || Boolean ||
 || 5165 || `UnitDirection` || Returns the direction the specified unit is facing || 1 - Unit ID || Integer ||
@@ -192,6 +190,10 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5099 || `HouseWareBlock` || Blocks a specific ware in a storehouse or barracks || 1 - House ID <br> 2 - ware type <br> 3 - Blocked: Boolean ||
 || 5099 || `HouseWoodcutterChopOnly` || Sets whether a woodcutter's hut is on chop-only mode || 1 - House ID <br> 2 - !ChopOnly: Boolean ||
 || 5165 || `HouseWeaponsOrderSet` || Sets the amount of the specified weapon ordered to be produced in the specified house || 1 - House ID <br> 2 - ware type <br> 3 - amount ||
+|| 5333 || `OverlayTextSet` || Sets text overlaid on top left of screen. If the player index is -1 it will be set for all players. || 1 - player index <br> 2 - text (!AnsiString) ||
+|| 5333 || `OverlayTextSetFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function). If the player index is -1 it will be set for all players. || 1 - player index <br> 2 - text (!AnsiString) <br> 3 - Array of arguments ||
+|| 5333 || `OverlayTextAppend` || Appends to text overlaid on top left of screen. If the player index is -1 it will be appended for all players. || 1 - player index <br> 2 - text (!AnsiString) ||
+|| 5333 || `OverlayTextSetFormatted` || Appends to text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function). If the player index is -1 it will be appended for all players. || 1 - player index <br> 2 - text (!AnsiString) <br> 3 - Array of arguments ||
 || 5057 || `PlanAddField` || Adds a corn field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 5057 || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || 5057 || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
@@ -200,15 +202,14 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlayerDefeat` || Proclaims player defeated || 1 - player index ||
 || 5057 || `PlayerWin` || Set specified player(s) victorious, and all team members of those player(s) if the 2nd parameter !TeamVictory is set to true. All players who were not set to victorious are set to defeated. || 1 - array of player index <br> 2 - !TeamVictory: Boolean ||
 || 5165 || `PlayerAddDefaultGoals` || Add default goals/lost goals for the specified player. If the parameter buildings is true the goals will be important buildings. Otherwise it will be troops. || 1 - player index <br> 2 - buildings: Boolean ||
-|| 5309 || `PlayWAV` || Plays audio file. Mono or stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) ||
-|| 5309 || `PlayWAVAtLocation` || Plays audio file at a location on the map. Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) <br> 4 - X <br> 5 - Y ||
+|| 5309 || `PlayWAV` || Plays audio file. If the player index is -1 the sound will be played to all players. Mono or stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) ||
+|| 5309 || `PlayWAVAtLocation` || Plays audio file at a location on the map. If the player index is -1 the sound will be played to all players. Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) <br> 4 - X <br> 5 - Y ||
 || 5097 || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5097 || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
 || 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
-|| 5057 || `SetOverlayText` || Sets text overlaid on top left of screen || 1 - player index <br> 2 - text (!AnsiString) ||
 || 5057 || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
-|| 5057 || `ShowMsg` || Displays a message to the player || 1 - player index <br> 2 - text (!AnsiString) ||
+|| 5057 || `ShowMsg` || Displays a message to a player. If the player index is -1 the message will be shown to all players. || 1 - player index <br> 2 - text (!AnsiString) ||
 || 5057 || `UnitDirectionSet` || Makes the specified unit face a certain direction. Note: Only works on idle units so as not to interfere with game logic and cause crashes. Returns true on success or false on failure. || 1 - Unit ID <br> 2 - Direction || Success: Boolean ||
 || 5057 || `UnitHungerSet` || Sets the hunger level of the specified unit in ticks until death || 1 - Unit ID <br> 2 - Hunger level (ticks until death) ||
 || 5099 || `UnitKill` || Kills the specified unit. Silent means the death animation (ghost) and sound won't play || 1 - Unit ID <br> 2 - Silent: Boolean ||
