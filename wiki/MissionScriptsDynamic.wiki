@@ -69,14 +69,12 @@ Above line means that when `PlayerDefeated` event comes from the game, we check 
 
 || Version || Event || Description || Parameters and types ||
 || 5057 || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
-|| 5057 || `OnHouseDestroyed` || Occurs when player destroys an enemy house. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it <br> aFullyBuilt: Boolean //True if the house was fully built||
-|| 5057 || `OnHouseLost` || Occurs when player loses a house (including self-destruction). Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was lost <br> aFullyBuilt: Boolean //True if the house was fully built ||
+|| 5407 || `OnHouseDestroyed` || Occurs when a house is destroyed. If !DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.!HouseDestroy. If !DestroyerIndex is the same as the house owner (States.!HouseOwner), the house was demolished by the player who owns it. Otherwise it was destroyed by an enemy. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it ||
 || 5057 || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
 || 5057 || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || 5057 || `OnPlayerVictory` || Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI || aIndex: Integer; //Index of victorious player ||
 || 5057 || `OnTick` || Occurs every game logic update ||  ||
-|| 5057 || `OnUnitKilled` || Occurs when player kills a unit. Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was killed <br> aKillerIndex: Integer; //Index of player who killed it ||
-|| 5057 || `OnUnitLost` || Occurs when player loses a unit (including starvation). Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was lost ||
+|| 5407 || `OnUnitDied` || Occurs when a unit dies. If !KillerIndex is -1 the unit died from another cause such as hunger or Actions.!UnitKill. Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was killed <br> aKillerIndex: Integer; //Index of player who killed it ||
 || 5057 || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
 || 5057 || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the warrior that was equipped <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
 
