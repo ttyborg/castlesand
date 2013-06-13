@@ -10,13 +10,9 @@ This page contains list of contributions the project needs. The list is not fina
 
 Required items:
   * Main menu background image and separate parchment image with transparent shadow
-  * ~~In-game beacons, several different kinds (info, fight, others?) for minimap and terrain~~
-  * ~~Small arrows for scrollbars in main menu~~
   * Supporting artwork for menu screens
   * Icons for map editor sections and tools
-  * ~~Better parchments/scrolls for in-game messages~~
   * Icons for Single Player map selection list
-  * ~~Icons for replay controls (restart, pause, step, resume, quit)~~
 
 Optional items:
   * Improve menu elements layout
