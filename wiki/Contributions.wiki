@@ -74,8 +74,6 @@ The project always needs translations into new languages, improving existing tra
 
 KaM uses bitmap style fonts, meaning they must be custom made for new font sets. You edit the font as an image exported from the FontEditor in e.g. Photoshop and put the characters into the correct place on a grid.
 We would especially like these fonts to be made due to demand:
- * Latvian/Baltic (Windows-1257)
- * Turkish (Windows-1254)
  * Greek (Windows-1253)
 
 Note: We currently only support 8 bit fonts, (not Unicode/UTF) so that means languages like Chinese, Japanese, etc. are not possible yet. We have plans for some kind of Unicode support in the future.
