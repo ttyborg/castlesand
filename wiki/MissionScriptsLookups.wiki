@@ -51,12 +51,9 @@ Note: Animals indexes above (30-37) are for dynamic scripts only, static scripts
 
 
 = Unit facing directions =
-X is the unit, the numbers are the index for each direction:
+* is the unit, the numbers are the index for each direction:
 {{{
-0
-  7   1
-6   X   2
-  5   3
-4
-
+7 0 1
+6 * 2
+5 4 3
 }}}
