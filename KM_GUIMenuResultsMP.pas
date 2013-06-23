@@ -3,7 +3,8 @@ unit KM_GUIMenuResultsMP;
 interface
 uses
   Controls, Math, StrUtils, SysUtils,
-  KM_CommonTypes, KM_Controls, KM_Defaults, KM_Pics, KM_InterfaceDefaults;
+  KM_CommonTypes, KM_Controls, KM_Defaults, KM_Pics,
+  KM_InterfaceDefaults, KM_ResourceWares;
 
 
 type
@@ -198,12 +199,12 @@ begin
   //Find and hide old chart
   for I := Low(TWareType) to High(TWareType) do
   begin
-    Chart_MPWares[I].Visible := False;
-
     //Remember which lines were visible
     if Chart_MPWares[I].Visible then
     for K := 0 to Chart_MPWares[I].LineCount - 1 do
       fPlayersVisible[Chart_MPWares[I].Lines[K].Tag] := Chart_MPWares[I].Lines[K].Visible;
+
+    Chart_MPWares[I].Visible := False;
   end;
 
   Chart_MPWares[R].Visible := True;
@@ -632,7 +633,7 @@ end;
 
 procedure TKMGUIMenuResultsMP.BackClick(Sender: TObject);
 begin
-  //Depending on where we were created we need to return to different place
+  //Depending on where we were created we need to return to a different place
   //Multiplayer game end -> ResultsMP -> Multiplayer
   //Multiplayer replay end -> ResultsMP -> Replays
 

@@ -79,7 +79,7 @@ constructor TResource.Create(aRender: TRender; aLS: TEvent; aLT: TStringEvent);
 begin
   inherited Create;
   fDataState := dls_None;
-  fLog.AddTime('Resource loading state - None');
+  gLog.AddTime('Resource loading state - None');
 
   fRender := aRender;
   OnLoadingStep := aLS;
@@ -131,7 +131,7 @@ begin
   StepCaption('Reading palettes ...');
   fPalettes := TKMPalettes.Create;
   fPalettes.LoadPalettes;
-  fLog.AddTime('Reading palettes', True);
+  gLog.AddTime('Reading palettes', True);
 
   fSprites := TKMSprites.Create(StepRefresh, StepCaption);
 
@@ -143,7 +143,7 @@ begin
   StepCaption('Reading fonts ...');
   fFonts := TKMResourceFont.Create(fRender);
   fFonts.LoadFonts(aLocale);
-  fLog.AddTime('Read fonts is done');
+  gLog.AddTime('Read fonts is done');
 
   fTileset := TKMTileset.Create(ExeDir + 'data'+PathDelim+'defines'+PathDelim+'pattern.dat');
   fTileset.TileColor := fSprites.Sprites[rxTiles].GetSpriteColors(248); //Tiles 249..256 are road overlays
@@ -158,9 +158,9 @@ begin
   fUnitDat := TKMUnitDatCollection.Create;
 
   StepRefresh;
-  fLog.AddTime('ReadGFX is done');
+  gLog.AddTime('ReadGFX is done');
   fDataState := dls_Menu;
-  fLog.AddTime('Resource loading state - Menu');
+  gLog.AddTime('Resource loading state - Menu');
 end;
 
 
@@ -175,7 +175,7 @@ begin
   end;
 
   fDataState := dls_All;
-  fLog.AddTime('Resource loading state - Game');
+  gLog.AddTime('Resource loading state - Game');
 end;
 
 
@@ -212,7 +212,7 @@ begin
   if fUnitDat[U].UnitAnim[A,D].Step[1] <> -1 then
   for i := 1 to fUnitDat[U].UnitAnim[A, D].Count do
   begin
-    ForceDirectories(Folder + fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim);
+    ForceDirectories(Folder + fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim);
 
     if fUnitDat[U].UnitAnim[A,D].Step[i] + 1 <> 0 then
     begin
@@ -229,7 +229,7 @@ begin
 
       if sy > 0 then
         Bmp.SaveToFile(Folder +
-          fUnitDat[U].UnitName + PathDelim + UnitAct[A] + PathDelim +
+          fUnitDat[U].GUIName + PathDelim + UnitAct[A] + PathDelim +
           'Dir' + IntToStr(Byte(D)) + '_' + int2fix(i, 2) + '.bmp');
     end;
   end;

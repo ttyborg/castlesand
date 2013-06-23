@@ -46,6 +46,8 @@ rd /s /q "MapsMP\Heroes of Might & Axe II"
 rd /s /q "MapsMP\Heroes of Might & Axe I"
 rd /s /q "MapsMP\Dark Rock 4P"
 rd /s /q "MapsMP\Dark Rock 6P"
+rd /s /q "MapsMP\Center Castle 4P"
+rd /s /q "MapsMP\Center Castle 8P"
 
 rd /s /q "MapsMP\TPR 5"
 rd /s /q "MapsMP\TPR 6"
@@ -54,5 +56,12 @@ rd /s /q "MapsMP\TPR 8"
 rd /s /q "MapsMP\TPR 9"
 rd /s /q "MapsMP\TSK 7"
 rd /s /q "MapsMP\TSK 8"
+
+del "data\gfx\fonts\antiqua.LITH.fnt"
+del "data\gfx\fonts\game.LITH.fnt"
+del "data\gfx\fonts\grey.LITH.fnt"
+del "data\gfx\fonts\metal.LITH.fnt"
+del "data\gfx\fonts\mini.LITH.fnt"
+del "data\gfx\fonts\outline.LITH.fnt"
 
 del PostInstallClean.bat
