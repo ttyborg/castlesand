@@ -1,0 +1,20 @@
+procedure OnTick;
+begin
+  if States.GameTime = 5 then
+  begin
+    Actions.ShowMsg(0, '<$0>');
+    Actions.ShowMsg(1, '<$0>');
+  end;
+
+  if States.GameTime = 1000 then
+  begin
+    Actions.ShowMsg(0, '<$1>');
+    Actions.ShowMsg(1, '<$1>');
+  end;
+
+  if States.GameTime = 1800 then
+  begin
+    Actions.ShowMsg(0, '<$2>');
+    Actions.ShowMsg(1, '<$2>');
+  end;
+end;
