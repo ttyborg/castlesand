@@ -2082,7 +2082,7 @@ begin
     begin
       G2 := G.OrderSplit(True);
       if G2 <> nil then
-        Result := G.ID;
+        Result := G2.ID;
     end;
   end
   else
