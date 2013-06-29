@@ -292,10 +292,10 @@ begin
   fRawRect := aValue;
 
   //Convert RawRect values that can be inverted to tilespace Rect
-  fRect.Left   := Trunc(Min(fRawRect.Left, fRawRect.Right));
-  fRect.Top    := Trunc(Min(fRawRect.Top, fRawRect.Bottom));
-  fRect.Right  := Ceil(Max(fRawRect.Left, fRawRect.Right));
-  fRect.Bottom := Ceil(Max(fRawRect.Top, fRawRect.Bottom));
+  fRect.Left   := Trunc(Math.Min(fRawRect.Left, fRawRect.Right));
+  fRect.Top    := Trunc(Math.Min(fRawRect.Top, fRawRect.Bottom));
+  fRect.Right  := Ceil(Math.Max(fRawRect.Left, fRawRect.Right));
+  fRect.Bottom := Ceil(Math.Max(fRawRect.Top, fRawRect.Bottom));
 end;
 
 
@@ -342,12 +342,15 @@ begin
 
   if Sx*Sy <> 0 then
   begin
-    {$IFDEF MSWindows}
+    {$IFDEF WDC}
     hMem := GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, BufferStream.Size);
     BufPtr := GlobalLock(hMem);
     Move(BufferStream.Memory^, BufPtr^, BufferStream.Size);
     Clipboard.SetAsHandle(CF_MAPDATA, hMem);
     GlobalUnlock(hMem);
+    {$ENDIF}
+    {$IFDEF FPC}
+    Clipboard.SetFormat(CF_MAPDATA, BufferStream);
     {$ENDIF}
   end;
   BufferStream.Free;
@@ -362,13 +365,18 @@ var
   BufPtr: Pointer;
   BufferStream: TKMemoryStream;
 begin
-  {$IFDEF MSWindows}
+  BufferStream := TKMemoryStream.Create;
+  {$IFDEF WDC}
   hMem := Clipboard.GetAsHandle(CF_MAPDATA);
   if hMem = 0 then Exit;
   BufPtr := GlobalLock(hMem);
   if BufPtr = nil then Exit;
-  BufferStream := TKMemoryStream.Create;
   BufferStream.WriteBuffer(BufPtr^, GlobalSize(hMem));
+  GlobalUnlock(hMem);
+  {$ENDIF}
+  {$IFDEF FPC}
+  if not Clipboard.GetFormat(CF_MAPDATA, BufferStream) then Exit;
+  {$ENDIF}
   BufferStream.Position := 0;
   BufferStream.Read(Sx);
   BufferStream.Read(Sy);
@@ -376,9 +384,7 @@ begin
   for I:=0 to Sy-1 do
     for K:=0 to Sx-1 do
       BufferStream.Read(fBuffer[I,K], SizeOf(fBuffer[I,K]));
-  GlobalUnlock(hMem);
   BufferStream.Free;
-  {$ENDIF}
 
   //Mapmaker could have changed selection rect, sync it with Buffer size
   fRect.Right := fRect.Left + Length(fBuffer[0]);
