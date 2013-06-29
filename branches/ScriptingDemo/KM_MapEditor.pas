@@ -1,7 +1,8 @@
 unit KM_MapEditor;
 {$I KaM_Remake.inc}
 interface
-uses Classes, Math, SysUtils,
+uses Classes, Math, SysUtils, Clipbrd,
+  {$IFDEF MSWindows} Windows, {$ENDIF}
   KM_CommonClasses, KM_Defaults, KM_Points, KM_Terrain, KM_Units, KM_RenderPool, KM_TerrainPainter;
 
 
@@ -101,6 +102,8 @@ type
     procedure PaintUI;
     procedure Paint(aLayer: TPaintLayer);
   end;
+
+  var CF_MAPDATA: Word; //Our own custom clipboard format
 
 
 implementation
@@ -298,7 +301,7 @@ end;
 
 function TKMSelection.IsBufferHasData: Boolean;
 begin
-  Result := Length(fBuffer) > 0;
+  Result := Clipboard.HasFormat(CF_MAPDATA);
 end;
 
 
@@ -308,10 +311,17 @@ var
   I, K: Integer;
   Sx, Sy: Word;
   Bx, By: Word;
+  hMem: THandle;
+  BufPtr: Pointer;
+  BufferStream: TKMemoryStream;
 begin
   Sx := fRect.Right - fRect.Left;
   Sy := fRect.Bottom - fRect.Top;
   SetLength(fBuffer, Sy, Sx);
+
+  BufferStream := TKMemoryStream.Create;
+  BufferStream.Write(Sx);
+  BufferStream.Write(Sy);
 
   for I := fRect.Top to fRect.Bottom - 1 do
   for K := fRect.Left to fRect.Right - 1 do
@@ -326,12 +336,50 @@ begin
     fBuffer[By,Bx].OldTerrain  := gTerrain.Land[I+1, K+1].OldTerrain;
     fBuffer[By,Bx].OldRotation := gTerrain.Land[I+1, K+1].OldRotation;
     fBuffer[By,Bx].TerrainKind := fTerrainPainter.TerrainKind[I+1, K+1];
+
+    BufferStream.Write(fBuffer[By,Bx], SizeOf(fBuffer[By,Bx]));
   end;
+
+  if Sx*Sy <> 0 then
+  begin
+    {$IFDEF MSWindows}
+    hMem := GlobalAlloc(GMEM_DDESHARE or GMEM_MOVEABLE, BufferStream.Size);
+    BufPtr := GlobalLock(hMem);
+    Move(BufferStream.Memory^, BufPtr^, BufferStream.Size);
+    Clipboard.SetAsHandle(CF_MAPDATA, hMem);
+    GlobalUnlock(hMem);
+    {$ENDIF}
+  end;
+  BufferStream.Free;
 end;
 
 
 procedure TKMSelection.PasteBegin;
+var
+  I, K: Integer;
+  Sx, Sy: Word;
+  hMem: THandle;
+  BufPtr: Pointer;
+  BufferStream: TKMemoryStream;
 begin
+  {$IFDEF MSWindows}
+  hMem := Clipboard.GetAsHandle(CF_MAPDATA);
+  if hMem = 0 then Exit;
+  BufPtr := GlobalLock(hMem);
+  if BufPtr = nil then Exit;
+  BufferStream := TKMemoryStream.Create;
+  BufferStream.WriteBuffer(BufPtr^, GlobalSize(hMem));
+  BufferStream.Position := 0;
+  BufferStream.Read(Sx);
+  BufferStream.Read(Sy);
+  SetLength(fBuffer, Sy, Sx);
+  for I:=0 to Sy-1 do
+    for K:=0 to Sx-1 do
+      BufferStream.Read(fBuffer[I,K], SizeOf(fBuffer[I,K]));
+  GlobalUnlock(hMem);
+  BufferStream.Free;
+  {$ENDIF}
+
   //Mapmaker could have changed selection rect, sync it with Buffer size
   fRect.Right := fRect.Left + Length(fBuffer[0]);
   fRect.Bottom := fRect.Top + Length(fBuffer);
@@ -608,5 +656,7 @@ begin
   end;
 end;
 
+initialization
+  CF_MAPDATA := RegisterClipboardFormat('KaM Remake Map Data');
 
 end.

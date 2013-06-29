@@ -1849,6 +1849,8 @@ begin
 
   if fMaps <> nil then fMaps.UpdateState;
   if fMapsMP <> nil then fMapsMP.UpdateState;
+
+  Button_SelectPaste.Enabled := fGame.MapEditor.Selection.IsBufferHasData;
 end;
 
 
