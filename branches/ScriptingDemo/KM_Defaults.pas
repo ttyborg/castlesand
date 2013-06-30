@@ -21,9 +21,9 @@ const
   MENU_DESIGN_X         = 1024;         //Thats the size menu was designed for. All elements are placed in this size
   MENU_DESIGN_Y         = 768;          //Thats the size menu was designed for. All elements are placed in this size
 
-  GAME_REVISION         = 'r5503';       //Should be updated for every release (each time save format is changed)
+  GAME_REVISION         = 'r5547';       //Should be updated for every release (each time save format is changed)
   GAME_VERSION          = 'Scripting Demo ' + GAME_REVISION;       //Game version string displayed in menu corner
-  NET_PROTOCOL_REVISON  = GAME_REVISION;     //Clients of this version may connect to the dedicated server
+  NET_PROTOCOL_REVISON  = 'r5503';     //Clients of this version may connect to the dedicated server
 
   SETTINGS_FILE         = 'KaM_Remake_Settings.ini';
   FONTS_FOLDER          = 'data' + PathDelim + 'gfx' + PathDelim + 'fonts' + PathDelim;
