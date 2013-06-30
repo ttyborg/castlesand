@@ -1000,12 +1000,10 @@ begin
         Button_SelectFlipH := TKMButton.Create(Panel_Selection, 20, 150, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP], bsGame);
         Button_SelectFlipH.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_HFLIP_HINT];
         Button_SelectFlipH.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipH.Hide; //Not implemented yet
         Button_SelectFlipV := TKMButton.Create(Panel_Selection, 20, 180, TB_WIDTH - 40, 20, fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP], bsGame);
         Button_SelectFlipV.Hint := fTextLibrary[TX_MAPED_COPY_PASTE_VFLIP_HINT];
         Button_SelectFlipV.OnClick := Terrain_SelectionClick;
-        Button_SelectFlipV.Hide; //Not implemented yet
-        with TKMLabel.Create(Panel_Selection, 8, 190, TB_WIDTH-16, 80, fTextLibrary[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
+        with TKMLabel.Create(Panel_Selection, 8, 230, TB_WIDTH-16, 80, fTextLibrary[TX_MAPED_COPY_SELECT_HINT], fnt_Grey, taLeft) do
           AutoWrap := True;
 end;
 
@@ -2328,6 +2326,16 @@ begin
     Button_SelectFlipV.Disable;
     Button_SelectCopy.Enable;
     Button_SelectPaste.Enable;
+  end
+  else
+  if Sender = Button_SelectFlipH then
+  begin
+    fGame.MapEditor.Selection.Flip(fa_Horizontal);
+  end
+  else
+  if Sender = Button_SelectFlipV then
+  begin
+    fGame.MapEditor.Selection.Flip(fa_Vertical);
   end;
 
   //Flip selected
