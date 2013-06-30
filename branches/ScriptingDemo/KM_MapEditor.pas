@@ -76,7 +76,7 @@ type
     procedure PasteCancel;
     //procedure Transform; //Transforms the buffer data ?
     procedure Flip(aAxis: TKMFlipAxis);
-    procedure Paint(aLayer: TPaintLayer);
+    procedure Paint(aLayer: TPaintLayer; aScreenRect: TKMRect);
   end;
 
   //Designed to store MapEd specific data and methods
@@ -103,7 +103,7 @@ type
     function HitTest(X,Y: Integer): TKMMapEdMarker;
     procedure Update;
     procedure PaintUI;
-    procedure Paint(aLayer: TPaintLayer);
+    procedure Paint(aLayer: TPaintLayer; aRect: TKMRect);
   end;
 
   var CF_MAPDATA: Word; //Our own custom clipboard format
@@ -494,7 +494,7 @@ begin
 end;
 
 
-procedure TKMSelection.Paint(aLayer: TPaintLayer);
+procedure TKMSelection.Paint(aLayer: TPaintLayer; aScreenRect: TKMRect);
 var
   Sx, Sy: Word;
   I, K: Integer;
@@ -510,6 +510,7 @@ begin
     smPasting:    begin
                     for I := 0 to Sy - 1 do
                     for K := 0 to Sx - 1 do
+                    if KMInRect(KMPoint(Rect.Left+K+1, Rect.Top+I+1), aScreenRect) then
                       fRenderPool.RenderTerrain.RenderTile(fBuffer[I,K].Terrain, Rect.Left+K+1, Rect.Top+I+1, fBuffer[I,K].Rotation);
 
                     fRenderAux.SquareOnTerrain(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom, $FF0000FF);
@@ -659,7 +660,7 @@ begin
 end;
 
 
-procedure TKMMapEditor.Paint(aLayer: TPaintLayer);
+procedure TKMMapEditor.Paint(aLayer: TPaintLayer; aRect: TKMRect);
 var
   I, K: Integer;
   Loc: TKMPoint;
@@ -715,7 +716,7 @@ begin
   end;
 
   if mlSelection in fVisibleLayers then
-    fSelection.Paint(aLayer);
+    fSelection.Paint(aLayer, aRect);
 
   //Show selected group order target
   if MySpectator.Selected is TKMUnitGroup then

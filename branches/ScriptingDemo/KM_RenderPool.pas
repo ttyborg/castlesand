@@ -974,7 +974,7 @@ begin
     RenderHouseOutline(TKMHouse(MySpectator.Highlight));
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plTerrain);
+    fGame.MapEditor.Paint(plTerrain, Rect);
 
   if fAIFields <> nil then
     fAIFields.Paint(Rect);
@@ -1113,7 +1113,7 @@ begin
   if GameCursor.Cell.Y*GameCursor.Cell.X = 0 then Exit; //Caused a rare crash
 
   if fGame.IsMapEditor then
-    fGame.MapEditor.Paint(plCursors);
+    fGame.MapEditor.Paint(plCursors, KMRect(0,0,0,0));
 
   P := GameCursor.Cell;
   F := GameCursor.Float;
