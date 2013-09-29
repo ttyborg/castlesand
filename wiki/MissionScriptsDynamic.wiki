@@ -190,7 +190,6 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseDeliveryBlock` || Sets delivery blocking for the specified house || 1 - House ID <br> 2 - Blocked: Boolean ||
 || 5263 || `HouseDestroy` || Destroys the specified house. Silent means the house will not leave rubble or play destroy sound || 1 - House ID <br> 2 - Silent ||
 || 5345 || `HouseDisableUnoccupiedMessage` || Sets whether the specified house displays unoccupied messages to the player || 1 - House ID <br> 2 - Disabled: Boolean ||
-|| 5872 || `HousePlanRemove` || Remove the plan placed by the player || 1 - Player index <br> 2 - X coordinate <br> 2 - Y coordinate ||
 || - || `HouseOwnerSet` || Take house from one player and give it to another ||
 || 5057 || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
 || 5174 || `HouseSchoolQueueAdd` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
