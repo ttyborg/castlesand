@@ -78,6 +78,7 @@ Above line means that when `PlayerDefeated` event comes from the game, we check 
 || 5057 || `OnTick` || Occurs every game logic update ||  ||
 || 5407 || `OnUnitDied` || Occurs when a unit dies. If !KillerIndex is -1 the unit died from another cause such as hunger or Actions.!UnitKill. Called just before the unit is destroyed so UnitID is usable only during this event || aUnitID: Integer; //UnitID of the unit that was killed <br> aKillerIndex: Integer; //Index of player who killed it ||
 || 5057 || `OnUnitTrained` || Occurs when player trains a unit || aUnitID: Integer; //UnitID of the unit that was trained ||
+|| 5884 || `OnUnitWounded` || Happens when unit is wounded. Attacker can be a warrior, recruit in tower or unknown (-1) || aUnitID: Integer; //UnitID who was wounded <br> AttackerID who attacked the unit ||
 || 5057 || `OnWarriorEquipped` || Occurs when player equips a warrior || aUnitID: Integer; //UnitID of the warrior that was equipped <br> aGroupID: Integer; //GroupID of the warrior that was equipped ||
 
 Events are written in a form *procedure EVENT_NAME(EVENT_PARAMETERS);* like so:
