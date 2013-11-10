@@ -166,8 +166,13 @@ if States.PlayerCount > 5 then
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Version || Action || Description || Parameters (Integer) || Return value () ||
-|| 5345 || `AIRecruitLimit` || Sets the number of recruits the AI will keep in each barracks || 1 - player index <br> 2 - recruit limit ||
+|| 5924 || `AIAutoBuild` ||  || 1 - player index <br> 2 - boolean key ||
+|| 5924 || `AIAutoDefence` ||  || 1 - player index <br> 2 - boolean key ||
+|| 5924 || `AIBuildersLimit` ||  || 1 - player index <br> 2 - count ||
 || 5778 || `AIEquipRate` || Sets the warriors equipment rate for AI. (type: 0 - leather, 1 - iron) || 1 - player index <br> 2 - type <br> 2 - rate ||
+|| 5924 || `AIRecruitDelay` ||  || 1 - player index <br> 2 - delay in ticks ||
+|| 5345 || `AIRecruitLimit` || Sets the number of recruits the AI will keep in each barracks || 1 - player index <br> 2 - recruit limit ||
+|| 5924 || `AISerfsFactor` ||  || 1 - player index <br> 2 - value ||
 || 5057 || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
