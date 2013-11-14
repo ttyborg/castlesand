@@ -131,6 +131,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5165 || `PlayerGetAllUnits` || Returns an array with IDs for all the units of the specified player || 1 - player index || array of Integer ||
 || 5209 || `PlayerGetAllHouses` || Returns an array with IDs for all the houses of the specified player || 1 - player index || array of Integer ||
 || 5209 || `PlayerGetAllGroups` || Returns an array with IDs for all the groups of the specified player || 1 - player index || array of Integer ||
+|| 5927 || `PlayerIsAI` || Wherever player is controlled by AI || 1 - player index || !Boolean ||
 || 5057 || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
 || 4545 || `PlayerVictorious` || See if player is victorious || 1 - player index || Boolean ||
 || 5345 || `PlayerWareDistribution` || Returns the ware distribution for the specified resource, house and player || 1 - player index <br> 2 - Resource type <br> 3 - House type || Integer ||
@@ -173,6 +174,12 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5924 || `AIRecruitDelay` ||  || 1 - player index <br> 2 - delay in ticks ||
 || 5345 || `AIRecruitLimit` || Sets the number of recruits the AI will keep in each barracks || 1 - player index <br> 2 - recruit limit ||
 || 5924 || `AISerfsFactor` ||  || 1 - player index <br> 2 - value ||
+|| 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
+|| 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
+|| 5777 || `FogCoverRect` || Covers a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
+|| 5097 || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
+|| 5097 || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
+|| 5777 || `FogRevealRect` || Reveals a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
 || 5057 || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
@@ -222,12 +229,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5165 || `PlayerAddDefaultGoals` || Add default goals/lost goals for the specified player. If the parameter buildings is true the goals will be important buildings. Otherwise it will be troops. || 1 - player index <br> 2 - buildings: Boolean ||
 || 5309 || `PlayWAV` || Plays audio file. If the player index is -1 the sound will be played to all players. Mono or stereo WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) ||
 || 5309 || `PlayWAVAtLocation` || Plays audio file at a location on the map. If the player index is -1 the sound will be played to all players. Only mono WAV files are supported. WAV file goes in mission folder named: Mission Name.filename.wav. Filename must only contain the characters: a..z, 0..9 || 1 - player index <br> 2 - filename <br> 3 - Volume (0.0 to 1.0) <br> 4 - X <br> 5 - Y ||
-|| 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
-|| 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
-|| 5777 || `FogCoverRect` || Covers a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
-|| 5097 || `FogRevealAll` || Reveals the entire map in fog of war for player || 1 - player index ||
-|| 5097 || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
-|| 5777 || `FogRevealRect` || Reveals a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
+|| 5927 || `RemoveField` || Removes field || 1 - X <br> 2 - Y ||
+|| 5927 || `RemoveRoad` || Removes road || 1 - X <br> 2 - Y ||
 || 5057 || `SetTradeAllowed` || Sets whether the player is allowed to trade the specified resource. || 1 - player index <br> 2 - ware type <br> 3 - Allowed: Boolean ||
 || 5057 || `ShowMsg` || Displays a message to a player. If the player index is -1 the message will be shown to all players. || 1 - player index <br> 2 - text (!AnsiString) ||
 || 5345 || `ShowMsgGoto` || Displays a message to a player with a goto button that takes the player to the specified location. If the player index is -1 the message will be shown to all players. || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - text (!AnsiString) ||
