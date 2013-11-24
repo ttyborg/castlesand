@@ -50,6 +50,14 @@ Note: Animals indexes above (30-37) are for dynamic scripts only, static scripts
 || 9|| Corn || || 19|| Iron Armament ||
 
 
+= Group Types =
+|| *Index* || *Group type* ||
+|| 0|| Melee ||
+|| 1|| Anti-horse ||
+|| 2|| Ranged ||
+|| 3|| Mounted ||
+
+
 = Unit facing directions =
 x is the unit, the numbers are the index for each direction:
 {{{

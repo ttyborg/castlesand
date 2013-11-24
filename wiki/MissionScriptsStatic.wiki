@@ -5,6 +5,7 @@
 || Command || Original || Remake || Description ||
 || `ADD_WARE_TO_LAST` || - || V || Adds wares to the last house ||
 || `BLOCK_TRADE` || - || V || Blocks resources trade in Marketplace ||
+|| `BLOCK_UNIT` || - || V || Disables training of units ||
 || `DISTRIBUTE_MULTIPLAYER_POSITIONS` || V || - || ..? ||
 || `ENABLE_PLAYER` || V || - || ... ||
 || `SET_AI_AUTO_REPAIR` || - || V || AI will repair damaged buildings ||
@@ -46,6 +47,15 @@ Syntax:
 !BLOCK_TRADE <WARE_ID>
 Example: 
 !BLOCK_TRADE 8 //Blocks trading wine
+}}}
+
+====BLOCK_UNIT====
+Disables training of units for the current player.
+{{{
+Syntax:
+!BLOCK_UNIT <UNIT_ID>
+Example: 
+!BLOCK_UNIT 2 //Blocks training of Miners
 }}}
 
 ====SET_AI_AUTO_REPAIR====
