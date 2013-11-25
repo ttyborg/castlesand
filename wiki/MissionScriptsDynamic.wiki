@@ -178,6 +178,9 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5924 || `AIRecruitDelay` ||  || 1 - player index <br> 2 - delay in ticks ||
 || 5345 || `AIRecruitLimit` || Sets the number of recruits the AI will keep in each barracks || 1 - player index <br> 2 - recruit limit ||
 || 5924 || `AISerfsFactor` ||  || 1 - player index <br> 2 - value ||
+|| r5938|| `CinematicStart` || Puts the player in cinematic mode, blocking user input and allowing the screen to be panned || 1 - player index ||
+|| r5938|| `CinematicEnd` || Exits cinematic mode || 1 - player index ||
+|| r5938|| `CinematicPanTo` || Pans the center of the player's screen to the given location over a set number of ticks. If Duration = 0 then the screen moves instantly. || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Duration ||
 || 5097 || `FogCoverAll` || Covers (un-reveals) the entire map in fog of war for player || 1 - player index ||
 || 5097 || `FogCoverCircle` || Covers (un-reveals) a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5777 || `FogCoverRect` || Covers a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
