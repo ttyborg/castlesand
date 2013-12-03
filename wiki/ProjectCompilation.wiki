@@ -8,7 +8,7 @@ This instruction explains how to compile a working project.
 = Pre-requirements =
 
  * Microsoft Windows OS: XP or higher (we did not tested 95,98,Me,2000, but they would probably work as well)
- * Delphi (version 7 or higher) or Lazarus (0.9 or higher)
+ * Delphi (version 2009 or higher) or Lazarus (0.9 or higher)
  * SVN client (Tortoise SVN or any other of your choice)
  * OpenGL 1.5 compliant GPU
  * Original "Knights and Merchants: The Peasants Rebellion" data files
