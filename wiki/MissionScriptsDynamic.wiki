@@ -69,7 +69,7 @@ Above line means that when `PlayerDefeated` event comes from the game, we check 
 
 || Version || Event || Description || Parameters and types ||
 || 5057 || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
-|| 5882 || `OnHouseDamaged` || Occurs when a house is damaged by the enemy soldier. If !AttackerIndex is -1 the house was damaged some other way, such as from Actions.!HouseDamage. || aHouseID: Integer; //House that is damaged <br> aAttackerIndex: Integer; //UnitID of attacker ||
+|| 5882 || `OnHouseDamaged` || Occurs when a house is damaged by the enemy soldier. If !AttackerIndex is -1 the house was damaged some other way, such as from Actions.!HouseAddDamage. || aHouseID: Integer; //House that is damaged <br> aAttackerIndex: Integer; //UnitID of attacker ||
 || 5407 || `OnHouseDestroyed` || Occurs when a house is destroyed. If !DestroyerIndex is -1 the house was destroyed some other way, such as from Actions.!HouseDestroy. If !DestroyerIndex is the same as the house owner (States.!HouseOwner), the house was demolished by the player who owns it. Otherwise it was destroyed by an enemy. Called just before the house is destroyed so HouseID is usable only during this event || aHouseID: Integer; //HouseID of the house that was destroyed <br> aDestroyerIndex: Integer; //Index of player who destroyed it ||
 || 5871 || `OnHousePlanPlaced` || Occurs when player has placed a house plan || aPlayerIndex: Integer; //Player who placed it <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> aHouseType: Integer; //Type of house of the plan ||
 || 5057 || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
@@ -124,6 +124,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || 5165 || `HouseSchoolQueue` || Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot || Integer ||
 || 5057 || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
+|| 6001 || `HouseTypeName` || Returns the the translated name of the specified house type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like !LowerCase will not work. || 1 - House type || !AnsiString ||
 || 5099 || `HouseWareBlocked` || Returns true if the specified ware in the specified storehouse or barracks is blocked || 1 - House ID <br> 2 - ware type || Boolean ||
 || 5165 || `HouseWeaponsOrdered` || Returns the number of the specified weapon ordered to be produced in the specified house || 1 - House ID <br> 2 - ware type || Integer ||
 || 5099 || `HouseWoodcutterChopOnly` || Returns true if the specified woodcutter's hut is on chop-only mode || 1 - House ID || Boolean ||
@@ -164,8 +165,10 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `UnitOwner` || Returns the owner of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || 5057 || `UnitPositionX` || Returns the X coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
 || 5057 || `UnitPositionY` || Returns the Y coordinate of the specified unit or -1 if Unit ID invalid || 1 - Unit ID || Integer ||
-|| 5057 || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
 || 5057 || `UnitsGroup` || Returns the group that the specified unit (warrior) belongs to or -1 if it does not belong to a group || 1 - Unit ID || Integer ||
+|| 5057 || `UnitType` || Returns the type of the specified unit || 1 - Unit ID || Integer ||
+|| 6001 || `UnitTypeName` || Returns the the translated name of the specified unit type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like !LowerCase will not work. || 1 - Unit type || !AnsiString ||
+|| 6001 || `WareTypeName` || Returns the the translated name of the specified ware type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like !LowerCase will not work. || 1 - Ware type || !AnsiString ||
 
 States are queried in a form *States.STATE_NAME(STATE_PARAMETERS)* like so:
 {{{
