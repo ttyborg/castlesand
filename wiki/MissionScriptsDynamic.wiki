@@ -230,6 +230,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseRepairEnable` || Enables house repair for the specified house || 1 - House ID <br> 2 - !EnableRepair: Boolean ||
 || 5174 || `HouseSchoolQueueAdd` || Adds the specified unit to the specified school's queue. Returns the number of units successfully added to the queue. || 1 - House ID <br> 2 - Unit type <br> 3 - Count || Succeeded: Integer ||
 || 5174 || `HouseSchoolQueueRemove` || Removes the unit from the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot ||
+|| 6015 || `HouseTakeWaresFrom` || Remove wares from the specified house. If a serf was on the way to pick up the ware, the serf will abandon his task || 1 - House ID <br> 2 - ware type <br> 3 - count ||
 || 5057 || `HouseUnlock` || Allows player to build the specified house even if they don't have the house built that normally unlocks it (e.g. sawmill for farm). Note: Does not override blocked houses, use !HouseAllow for that. || 1 - player index <br> 2 - House type ||
 || 5099 || `HouseWareBlock` || Blocks a specific ware in a storehouse or barracks || 1 - House ID <br> 2 - ware type <br> 3 - Blocked: Boolean ||
 || 5099 || `HouseWoodcutterChopOnly` || Sets whether a woodcutter's hut is on chop-only mode || 1 - House ID <br> 2 - !ChopOnly: Boolean ||
