@@ -235,6 +235,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5099 || `HouseWareBlock` || Blocks a specific ware in a storehouse or barracks || 1 - House ID <br> 2 - ware type <br> 3 - Blocked: Boolean ||
 || 5099 || `HouseWoodcutterChopOnly` || Sets whether a woodcutter's hut is on chop-only mode || 1 - House ID <br> 2 - !ChopOnly: Boolean ||
 || 5165 || `HouseWeaponsOrderSet` || Sets the amount of the specified weapon ordered to be produced in the specified house || 1 - House ID <br> 2 - ware type <br> 3 - amount ||
+|| 6067 || `Log` || Writes a line of text to the game log file. Useful for debugging. Note that many calls to this procedure will have a noticeable performance impact, as well as creating a large log file, so it is recommended you don't use it outside of debugging || 1 - Text: !AnsiString ||
 || 5333 || `OverlayTextSet` || Sets text overlaid on top left of screen. If the player index is -1 it will be set for all players. || 1 - player index <br> 2 - text (!AnsiString) ||
 || 5333 || `OverlayTextSetFormatted` || Sets text overlaid on top left of screen with formatted arguments (same as [http://www.delphibasics.co.uk/RTL.asp?Name=Format Format] function). If the player index is -1 it will be set for all players. || 1 - player index <br> 2 - text (!AnsiString) <br> 3 - Array of arguments ||
 || 5333 || `OverlayTextAppend` || Appends to text overlaid on top left of screen. If the player index is -1 it will be appended for all players. || 1 - player index <br> 2 - text (!AnsiString) ||
