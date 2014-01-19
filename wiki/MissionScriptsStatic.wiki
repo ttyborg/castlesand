@@ -4,6 +4,7 @@
 
 || Command || Original || Remake || Description ||
 || `ADD_WARE_TO_LAST` || - || V || Adds wares to the last house ||
+|| `ADD_UNIT_TO_LAST` || - || V || Adds the specified unit type inside the last house. Only works for barracks and recruits so far ||
 || `BLOCK_TRADE` || - || V || Blocks resources trade in Marketplace ||
 || `BLOCK_UNIT` || - || V || Disables training of units ||
 || `DISTRIBUTE_MULTIPLAYER_POSITIONS` || V || - || ..? ||
