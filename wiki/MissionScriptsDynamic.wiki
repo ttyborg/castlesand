@@ -182,9 +182,9 @@ if States.PlayerCount > 5 then
 All action parameters are numeric and get mapped to unit/house types according to default tables used in DAT scripts.
 
 || Version || Action || Description || Parameters (Integer) || Return value () ||
-|| 5924 || `AIAutoBuild` || Sets whether the AI should build and manage his own village || 1 - player index <br> 2 - boolean key ||
-|| 5924 || `AIAutoDefence` || Sets whether the AI should position his soldiers automatically || 1 - player index <br> 2 - boolean key ||
-|| 5932 || `AIAutoRepair` || Sets whether the AI should automatically repair damaged buildings || 1 - player index <br> 2 - boolean key ||
+|| 5924 || `AIAutoBuild` || Sets whether the AI should build and manage his own village || 1 - player index <br> 2 - Enabled: Boolean ||
+|| 5924 || `AIAutoDefence` || Sets whether the AI should position his soldiers automatically || 1 - player index <br> 2 - Enabled: Boolean ||
+|| 5932 || `AIAutoRepair` || Sets whether the AI should automatically repair damaged buildings || 1 - player index <br> 2 - Enabled: Boolean ||
 || 5924 || `AIWorkerLimit` || Sets the maximum number of laborers the AI will train || 1 - player index <br> 2 - count ||
 || 5932 || `AIDefensePositionAdd` || Adds a defence position for the specified AI player || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Direction <br> 5 - Group type <br> 6 - Radius <br> 7 - Defense type ||
 || 5778 || `AIEquipRate` || Sets the warriors equip rate for AI. (type: 0 - leather, 1 - iron) || 1 - player index <br> 2 - type <br> 2 - rate ||
