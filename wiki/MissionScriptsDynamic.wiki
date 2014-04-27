@@ -99,9 +99,12 @@ All states parameters are numeric and get mapped to unit/house types according t
 
 || Version || State || Description || Query parameters || Type of return value ||
 || - || `FindUnitInZone` || 
-|| 5994 || `ClosestGroup` || Returns the group of the specified player that is closest to the specified coordinates ||1 - player index <br> 2 - X <br> 3 - Y || Integer ||
-|| 5994 || `ClosestHouse` || Returns the house of the specified player that is closest to the specified coordinates ||1 - player index <br> 2 - X <br> 3 - Y || Integer ||
-|| 5994 || `ClosestUnit` || Returns the unit of the specified player that is closest to the specified coordinates ||1 - player index <br> 2 - X <br> 3 - Y || Integer ||
+|| 6216 || `ClosestGroup` || Returns the group of the specified player and group type that is closest to the specified coordinates, or -1 if no such group was found. If the group type is -1 any group type will be accepted ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Group type || Integer ||
+|| 6216 || `ClosestHouse` || Returns the house of the specified player and house type that is closest to the specified coordinates, or -1 if no such house was found. If the house type is -1 any house type will be accepted ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - House type || Integer ||
+|| 6216 || `ClosestUnit` || Returns the unit of the specified player and unit type that is closest to the specified coordinates, or -1 if no such unit was found. If the unit type is -1 any unit type will be accepted ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Unit type || Integer ||
+|| 6216 || `ClosestGroupMultipleTypes` || Returns the group of the specified player and group types that is closest to the specified coordinates, or -1 if no such group was found. The group types is a "set of Byte", for example [1,3] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Group types || Integer ||
+|| 6216 || `ClosestHouseMultipleTypes` || Returns the house of the specified player and house types that is closest to the specified coordinates, or -1 if no such house was found. The house types is a "set of Byte", for example [11,13,21] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - House types || Integer ||
+|| 6216 || `ClosestUnitMultipleTypes` || Returns the unit of the specified player and unit types that is closest to the specified coordinates, or -1 if no such unit was found. The unit types is a "set of Byte", for example [0,9] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Unit types || Integer ||
 || 5097 || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || 5057 || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
@@ -135,6 +138,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5345 || `IsRoadAt` || Returns true if the specified player has a road at the specified location. If player index is -1 it will return true if any player has a road at the specified tile || 1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || 5057 || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
+|| 6217 || `MarketLossFactor` || Returns the factor of resources lost during market trading, used to calculate the !TradeRatio (see explanation in `MarketValue`). This value is constant within one KaM Remake release, but may change in future KaM Remake releases ||  || Single ||
+|| 6216 || `MarketValue` || Returns the relative market value of the specified resource type, which is a rough indication of the cost to produce that resource. These values are constant within one KaM Remake release, but may change in future KaM Remake releases. The !TradeRatio is calculated as: `MarketLossFactor * MarketValue(To) / (MarketValue(From)`. If the !TradeRatio is >= 1, then the number of _From_ resources required to receive 1 _To_ resource is: `Round(TradeRatio)`. If the trade ratio is < 1 then the number of _To_ resources received for trading 1 _From_ resource is: `Round(1 / TradeRatio)` || 1 - Resource type || Single ||
 || 5057 || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
 || 5057 || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
 || 4758 || `PlayerColorText` || Get players color as text in hex format || 1 - player index || AnsiString ||
