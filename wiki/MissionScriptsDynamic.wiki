@@ -195,8 +195,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5932 || `AIAutoRepair` || Sets whether the AI should automatically repair damaged buildings || 1 - player index <br> 2 - Enabled: Boolean ||
 || 5924 || `AIWorkerLimit` || Sets the maximum number of laborers the AI will train || 1 - player index <br> 2 - count ||
 || 5932 || `AIDefensePositionAdd` || Adds a defence position for the specified AI player || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Direction <br> 5 - Group type <br> 6 - Radius <br> 7 - Defense type ||
-|| 5778 || `AIEquipRate` || Sets the warriors equip rate for AI. (type: 0 - leather, 1 - iron) || 1 - player index <br> 2 - type <br> 2 - rate ||
-|| 5778 || `AIGroupsFormationSet` || Sets the formation the AI uses for defence positions || 1 - player index <br> 2 - Group type <br> 2 - Units <br> 3 - Columns ||
+|| 5778 || `AIEquipRate` || Sets the warriors equip rate for AI. (type: 0 - leather, 1 - iron) || 1 - player index <br> 2 - type <br> 3 - rate ||
+|| 5778 || `AIGroupsFormationSet` || Sets the formation the AI uses for defence positions || 1 - player index <br> 2 - Group type <br> 3 - Units <br> 4 - Columns ||
 || 5932 || `AISoldiersLimit` || Sets the maximum number of soldiers the AI will train, or -1 for unlimited || 1 - player index <br> 2 - count ||
 || 5924 || `AIRecruitDelay` || Sets the number of ticks before the specified AI will start training recruits || 1 - player index <br> 2 - delay in ticks ||
 || 5345 || `AIRecruitLimit` || Sets the number of recruits the AI will keep in each barracks || 1 - player index <br> 2 - recruit limit ||
