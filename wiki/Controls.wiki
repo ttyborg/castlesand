@@ -31,6 +31,7 @@ The following shortcuts are available in the game:
 <b>Cursor keys</b> cursor keys will move you around the map<br>
 
 <b>Mouse wheel</b> scrolling will zoom in and out<br>
+<b>Mouse wheel</b> while pressed will allow to move viewport around terrain<br>
 <b>Page Up</b> and <b>Page Down</b> will zoom in and out<br>
 <b>Backspace</b> will reset zoom back to 100%<br>
 <b>Left click</b> selects items, places build orders, orders production x1<br>
