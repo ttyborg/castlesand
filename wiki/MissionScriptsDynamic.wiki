@@ -222,7 +222,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || 5097 || `GiveHouse` || Give player a built house and returns the house ID or -1 if the house was not able to be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y || HouseID: Integer ||
-|| 5097 || `GiveHouseSite` || Give player a digged house area. If AddMaterials = True, wood and stone will be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y<br> 5- AddMaterials: Boolean ||  ||
+|| 6288 || `GiveHouseSite` || Give player a digged house area. If AddMaterials = True, wood and stone will be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y<br> 5- AddMaterials: Boolean ||  ||
 || 5057 || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || 5165 || `GiveWeapons` || Adds amount of weapons to players 1st Barracks || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || 6277 || `GroupBlockOrders` || Disables (Disable = True) or enables (Disable = False) control over specifed warriors group || 1 - Group ID <br> 2 - Disable: Boolean ||
