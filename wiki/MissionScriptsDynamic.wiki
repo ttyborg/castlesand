@@ -143,7 +143,10 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5345 || `IsRoadAt` || Returns true if the specified player has a road at the specified location. If player index is -1 it will return true if any player has a road at the specified tile || 1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || 5057 || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
+|| 6287 || `MarketFromWare` || Returns type of FromWare in specified market || 1 - Market ID || Integer ||
 || 6217 || `MarketLossFactor` || Returns the factor of resources lost during market trading, used to calculate the !TradeRatio (see explanation in `MarketValue`). This value is constant within one KaM Remake release, but may change in future KaM Remake releases ||  || Single ||
+|| 6287 || `MarketOrderAmount` || Returns trade order amount in specified market || 1 - Market ID || Integer ||
+|| 6287 || `MarketToWare` || Returns type of ToWare in specified market || 1 - Market ID || Integer ||
 || 6216 || `MarketValue` || Returns the relative market value of the specified resource type, which is a rough indication of the cost to produce that resource. These values are constant within one KaM Remake release, but may change in future KaM Remake releases. The !TradeRatio is calculated as: `MarketLossFactor * MarketValue(To) / (MarketValue(From)`. If the !TradeRatio is >= 1, then the number of _From_ resources required to receive 1 _To_ resource is: `Round(TradeRatio)`. If the trade ratio is < 1 then the number of _To_ resources received for trading 1 _From_ resource is: `Round(1 / TradeRatio)` || 1 - Resource type || Single ||
 || 5057 || `PeaceTime` || Length of peacetime in ticks (multiplayer) || - || Integer ||
 || 5057 || `PlayerAllianceCheck` || Check how player 1 feels towards player 2 (order matters). Returns true for ally, false for enemy ||1 - player index <br> 2 - player index || Boolean ||
@@ -219,6 +222,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
 || 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || 5097 || `GiveHouse` || Give player a built house and returns the house ID or -1 if the house was not able to be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y || HouseID: Integer ||
+|| 5097 || `GiveHouseSite` || Give player a digged house area. If AddMaterials = True, wood and stone will be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y<br> 5- AddMaterials: Boolean ||  ||
 || 5057 || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || 5165 || `GiveWeapons` || Adds amount of weapons to players 1st Barracks || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || 6277 || `GroupBlockOrders` || Disables (Disable = True) or enables (Disable = False) control over specifed warriors group || 1 - Group ID <br> 2 - Disable: Boolean ||
