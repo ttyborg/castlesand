@@ -167,6 +167,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || 5057 || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
 || 5057 || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
+|| 6313 || `StatHouseTypePlansCount` || Specified house type plans count || 1 - player index  <br> 2 - house type || Integer ||
 || 5057 || `StatPlayerCount` || How many active players there are || - || Integer ||
 || 5057 || `StatResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player index <br> 2 - Resource type || Integer ||
 || 4289 || `StatUnitCount` || Returns the number of units of the specified player || 1 - Player index || Integer ||
