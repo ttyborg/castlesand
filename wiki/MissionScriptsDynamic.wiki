@@ -77,9 +77,12 @@ Above line means that when `PlayerDefeated` event comes from the game, we check 
 || 6220 || `OnGroupHungry` || Occurs when the player would be shown a message about a group being hungry (when they first get hungry, then every 4 minutes after that if there are still hungry group members). Occurs regardless of whether the group has hunger messages enabled or not || aGroupID: Integer ||
 || 6216 || `OnMarketTrade` || Occurs when a trade happens in a market (at the moment when resources are exchanged by serfs). || aHouseID: Integer; //HouseID of market <br> aFromWare: Integer; //From resource in the trade <br> aToWare: Integer; //To resource in the trade ||
 || 5057 || `OnMissionStart` || Occurs immediately after the mission is loaded ||  ||
-|| 5964 || `OnPlanRoad` || Occurs when a player places a road plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
-|| 5964 || `OnPlanField` || Occurs when a player places a field plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
-|| 5964 || `OnPlanWinefield` || Occurs when a player places a winefield plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 5964 || `OnPlanRoadPlaced` || Occurs when a player places a road plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 6301 || `OnPlanRoadRemoved` || Occurs when a player removes a road plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 5964 || `OnPlanFieldPlaced` || Occurs when a player places a field plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 6301 || `OnPlanFieldRemoved` || Occurs when a player removes a field plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 5964 || `OnPlanWinefieldPlaced` || Occurs when a player places a winefield plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
+|| 6301 || `OnPlanWinefieldRemoved` || Occurs when a player removes a winefield plan || aIndex: Integer; //Index of the player <br> X: Integer; //X coordinate of the plan <br> Y: Integer; //Y coordinate of the plan <br> ||
 || 5057 || `OnPlayerDefeated` || Occurs when certain player has been defeated. Defeat conditions are checked separately by Player AI || aIndex: Integer; //Index of defeated player ||
 || 5057 || `OnPlayerVictory` || Occurs when certain player is declared victorious. Victory conditions are checked separately by Player AI || aIndex: Integer; //Index of victorious player ||
 || 5057 || `OnTick` || Occurs every game logic update ||  ||
