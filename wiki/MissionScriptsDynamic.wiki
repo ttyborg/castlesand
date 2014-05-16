@@ -203,7 +203,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5924 || `AIAutoBuild` || Sets whether the AI should build and manage his own village || 1 - player index <br> 2 - Enabled: Boolean ||
 || 5924 || `AIAutoDefence` || Sets whether the AI should position his soldiers automatically || 1 - player index <br> 2 - Enabled: Boolean ||
 || 5932 || `AIAutoRepair` || Sets whether the AI should automatically repair damaged buildings || 1 - player index <br> 2 - Enabled: Boolean ||
-|| 5932 || `AIDefencePositionAdd` || Adds a defence position for the specified AI player and returns positio ID or -1 if position was not added || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Direction <br> 5 - Group type <br> 6 - Radius <br> 7 - Defence type || PositionID: Integer ||
+|| 5932 || `AIDefencePositionAdd` || Adds a defence position for the specified AI player and returns position ID or -1 if position was not added || 1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Direction <br> 5 - Group type <br> 6 - Radius <br> 7 - Defence type || PositionID: Integer ||
 || 6309 || `AIDefencePositionRemove` || Removes specified defence position || 1 - player index <br> 2 - Position ID <br> ||
 || 6251 || `AIDefendAllies` || Sets whether AI should defend units and houses of allies as if they were its own || 1 - player index <br> 2 - Defend: Boolean ||
 || 5778 || `AIEquipRate` || Sets the warriors equip rate for AI. (type: 0 - leather, 1 - iron) || 1 - player index <br> 2 - type <br> 3 - rate ||
@@ -224,12 +224,15 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5097 || `FogRevealCircle` || Reveals a circle in fog of war for player || 1 - player index <br> 2 - location X <br> 3 - location Y <br> 4 - radius ||
 || 5777 || `FogRevealRect` || Reveals a rectangular area in fog of war for player || 1 - player index <br> 2 - from X <br> 3 - from Y <br> 4 - to X <br> 5 - to Y ||
 || 5057 || `GiveAnimal` || Adds an animal to the game and returns the unit ID or -1 if the animal was not able to be added || 1 - Animal type <br> 2 - location X <br> 3 - location Y || UnitID: Integer ||
+|| 6311 || `GiveField` || Adds finished field and returns true if field was successfully added || 1 - Player ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 5057 || `GiveGroup` || Give player group of warriors and return the group ID or -1 if the group was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction <br> 6 - unit count <br> 7 - units per row || GroupID: Integer ||
-|| 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || 5097 || `GiveHouse` || Give player a built house and returns the house ID or -1 if the house was not able to be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y || HouseID: Integer ||
 || 6288 || `GiveHouseSite` || Give player a digged house area and returns House ID or -1 if house site was not able to be added. If !AddMaterials = True, wood and stone will be added || 1 - player index <br> 2 - House type <br> 3 - location X <br> 4 - location Y<br> 5 - !AddMaterials: Boolean || HouseID: Integer ||
+|| 6311 || `GiveRoad` || Adds finished road and returns true if road was successfully added || 1 - Player ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
+|| 5057 || `GiveUnit` || Give player a single citizen and returns the unit ID or -1 if the unit was not able to be added || 1 - player index <br> 2 - Unit type <br> 3 - location X <br> 4 - location Y <br> 5 - face direction || UnitID: Integer ||
 || 5057 || `GiveWares` || Adds amount of wares to players 1st Store || 1 - player index <br> 2 - ware type <br> 3 - count ||
 || 5165 || `GiveWeapons` || Adds amount of weapons to players 1st Barracks || 1 - player index <br> 2 - ware type <br> 3 - count ||
+|| 6311 || `GiveWineField` || Adds finished winefield and returns true if winefield was successfully added || 1 - Player ID <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 6277 || `GroupBlockOrders` || Disables (Disable = True) or enables (Disable = False) control over specifed warriors group || 1 - Group ID <br> 2 - Disable: Boolean ||
 || 5993 || `GroupDisableHungryMessage` || Sets whether the specified group will alert the player when they become hungry (true to disable hunger messages, false to enable them) || 1 - Group ID <br> 2 - Disabled: Boolean ||
 || 5993 || `GroupHungerSet` || Set hunger level for all group members || 1 - Group ID <br> 2 - Hunger level (ticks until death) ||
