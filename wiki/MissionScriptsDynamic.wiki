@@ -167,15 +167,18 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 6323 || `StatAIDefencePositionsCount` || How many defence positions AI player has. Useful for scripts like "if not enough positions and too much groups then add a new position" || 1 - player index || Integer ||
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || 5057 || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
-|| 6328 || `StatHouseMultipleTypesCount` || Returns number of specified house types for specified player. Types is a byte set, f.e. [11, 13, 21] || 1 - player index  <br> 2 - Types - Byte set || Integer ||
+|| 6328 || `StatHouseMultipleTypesCount` || Returns number of specified house types for specified player. Types is a set of byte, f.e. [11, 13, 21] || 1 - player index  <br> 2 - Types - Set of byte || Integer ||
 || 5057 || `StatHouseTypeCount` || Specified house type count || 1 - player index  <br> 2 - house type || Integer ||
 || 6313 || `StatHouseTypePlansCount` || Specified house type plans count || 1 - player index  <br> 2 - house type || Integer ||
 || 5057 || `StatPlayerCount` || How many active players there are || - || Integer ||
 || 5057 || `StatResourceProducedCount` || Returns the number of the specified resource produced by the specified player || 1 - Player index <br> 2 - Resource type || Integer ||
+|| 6331 || `StatResourceProducedMultipletypesCount` || Returns the number of the specified resource types produced by the specified player. Types is a set of byte, f.e. [8, 10, 13, 27] for food || 1 - Player index <br> 2 - Resource types - set of byte || Integer ||
 || 4289 || `StatUnitCount` || Returns the number of units of the specified player || 1 - Player index || Integer ||
 || 5057 || `StatUnitKilledCount` || Returns the number of the specified unit killed by the specified player || 1 - Player index <br> 2 - Unit type || Integer ||
+|| 6331 || `StatUnitKilledMultipleTypesCount` || Returns the number of the specified unit types killed by the specified player. Types is a set of byte, f.e. [0, 5, 13] || 1 - Player index <br> 2 - Unit types - set of byte || Integer ||
 || 5057 || `StatUnitLostCount` || Returns the number of the specified unit lost by the specified player || 1 - Player index <br> 2 - Unit type || Integer ||
-|| 6328 || `StatUnitMultipleTypesCount` || Returns number of specified unit types for specified player. Types is a byte set, f.e. [0, 5, 13] || 1 - player index  <br> 2 - Types - Byte set || Integer ||
+|| 6331 || `StatUnitLostMultipleTypesCount` || Returns the number of the specified unit types lost by the specified player. Types is a set of byte, f.e. [0, 5, 13] || 1 - Player index <br> 2 - Unit types - set of byte || Integer ||
+|| 6328 || `StatUnitMultipleTypesCount` || Returns number of specified unit types for specified player. Types is a set of byte, f.e. [0, 5, 13] || 1 - player index  <br> 2 - Types - Set of byte || Integer ||
 || 5057 || `StatUnitTypeCount` || Specified unit type count || 1 - player index  <br> 2 - unit type || Integer ||
 || 5057 || `UnitAt` || Returns the ID of the unit on the specified tile or -1 if no unit exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
 || 5057 || `UnitCarrying` || Returns the ware a serf is carrying, or -1 if the unit is not a serf or is not carrying anything || 1 - Unit ID || Integer ||
