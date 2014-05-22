@@ -250,7 +250,8 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GroupOrderFood` || Order the specified group to request food || 1 - Group ID ||
 || 5057 || `GroupOrderHalt` || Order the specified group to halt || 1 - Group ID ||
 || 5057 || `GroupOrderLink` || Order the first specified group to link to the second specified group || 1 - Group ID <br> 2 - Group ID ||
-|| 5057 || `GroupOrderSplit` || Order the specified group to split in half and return the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID || GroupID: Integer ||
+|| 5057 || `GroupOrderSplit` || Order the specified group to split in half and return the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID || NewGroupID: Integer ||
+|| 6338 || `GroupOrderSplitUnit` || Splits specified unit from the group  and returns the newly create group ID or -1 if splitting failed (e.g. only 1 member) || 1 - Group ID<br> 2 - Unit ID|| NewGroupID: Integer ||
 || 5057 || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || 5057 || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
 || 5057 || `GroupSetFormation` || Sets the number of columns (units per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
