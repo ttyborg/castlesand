@@ -1,0 +1,24 @@
+#summary Explanation of certain AI functionality
+
+= Attacks =
+
+AI attacks are defined by the following parameters:
+ * Type (Repeating or Once)
+ * Initial delay
+ * Target
+ * Number of soldiers to attack
+ * Number of each group type, OR "choose randomly"
+
+==Groups that can attack==
+The only groups that can participate in AI attacks are:
+ * Idle groups in a backline defence positions
+ * Idle groups not in any defence position
+
+==Trigger==
+
+The AI attack is launched when all these conditions are satisfied:
+ * If multiplayer, it must be after peacetime
+ * Game time is at least *initial delay*
+ * If the attack type is *Once*, the attack must not have occurred previously
+ * The AI must have at least the *number of each group type* requested (unless *choose randomly* is set)
+ * The total number of soldiers in the group types chosen (all groups if *choose randomly*) must be at least as large as *number of soldiers to attack*
