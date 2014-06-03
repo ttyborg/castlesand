@@ -25,6 +25,8 @@ The AI attack is launched when all these conditions are satisfied:
  * The AI must have at least the *number of each group type* requested (unless *choose randomly* is set)
  * The total number of soldiers in the group types chosen (all groups if *choose randomly*) must be at least as large as *number of soldiers to attack*
 
+Currently attacks are checked once every 1.2 seconds, so if an attack can be launched multiple times (trigger is still satisfied after launching it once) it will launch again after 1.2 seconds.
+
 ==Launch==
 When the attack launches it will cause the chosen groups to attack the target.
 
