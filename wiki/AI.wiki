@@ -11,8 +11,10 @@ AI attacks are defined by the following parameters:
 
 ==Groups that can attack==
 The only groups that can participate in AI attacks are:
- * Idle groups in a backline defence positions
  * Idle groups not in any defence position
+ * Idle groups in a backline defence positions
+
+The first groups to be used are the ones not in any defence position. Next it takes the backline defence positions using the lowest priority (highest index) first (so defence position 5 will be taken before defence position 4).
 
 ==Trigger==
 
@@ -22,3 +24,12 @@ The AI attack is launched when all these conditions are satisfied:
  * If the attack type is *Once*, the attack must not have occurred previously
  * The AI must have at least the *number of each group type* requested (unless *choose randomly* is set)
  * The total number of soldiers in the group types chosen (all groups if *choose randomly*) must be at least as large as *number of soldiers to attack*
+
+==Launch==
+When the attack launches it will cause the chosen groups to attack the target.
+
+If *choose randomly* the AI will repeatedly take one of each group type until it has at least *number of soldiers to attack* (so it isn't technically random, it's evenly mixed)
+
+Otherwise the AI will take the *number of each group type* you specified. If that still isn't as large as *number of soldiers to attack* then the AI takes more groups out of the types you specified until it has at least *number of soldiers to attack*. This guarantees the attack will have at least *number of soldiers to attack*, even if some groups it selects are small.
+
+The AI will never split groups, so sometimes it may take more than *number of soldiers to attack* in order to take a full group rather than splitting it.
