@@ -35,3 +35,22 @@ If *choose randomly* the AI will repeatedly take one of each group type until it
 Otherwise the AI will take the *number of each group type* you specified. If that still isn't as large as *number of soldiers to attack* then the AI takes more groups out of the types you specified until it has at least *number of soldiers to attack*. This guarantees the attack will have at least *number of soldiers to attack*, even if some groups it selects are small.
 
 The AI will never split groups, so sometimes it may take more than *number of soldiers to attack* in order to take a full group rather than splitting it.
+----
+=Army types=
+==Iron then leather (default, used in original campaigns)==
+If in autobuild mode the AI will build a town that can satisfy "iron equip rate". If there is no iron available or the iron is depleted they will build a leather production that satisfies "leather equip rate".
+
+AI tries to equip iron soldiers. If iron weapons are not available it will equip leather soldiers instead. However the time between each soldier are not counted separately for iron/leather.
+
+==Iron only==
+AI only makes iron soldiers, and builds their town as such. Leather equip rate is ignored.
+
+==Leather only==
+AI only makes leather soldiers, and builds their town as such. Iron equip rate is ignored.
+
+==Mixed (used for MP AI builder)==
+If in autobuild mode the AI will build a town that can satisfy both "iron equip rate" and "leather equip rate" at once.
+
+AI equips both iron and leather soldiers, counting time between each soldier separately for iron and leather. So if you have both equip rates set to 60 (1 minute) you will get 2 soldiers per minute, 1 iron and 1 leather.
+
+If iron is not available or becomes depleted, the AI will expand their leather production and make leather soldiers instead of iron (so they are still equipping "leather equip rate" + "iron equip rate" soldiers per minute, but the soldiers are now all leather).
