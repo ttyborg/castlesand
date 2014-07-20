@@ -136,6 +136,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
 || 5057 || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || 5165 || `HouseSchoolQueue` || Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot || Integer ||
+|| 6510 || `HouseSiteIsDigged` || Returns true if specified WIP house area is digged (digging finished, no building progress yet) || 1 - House ID || Boolean ||
 || 5057 || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
 || 6001 || `HouseTypeName` || Returns the the translated name of the specified house type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like !LowerCase will not work. || 1 - House type || !AnsiString ||
 || 6220 || `HouseUnlocked` || Returns true if the specified player can build the specified house type (unlocked and allowed). || 1 - Player index <br> 2 - House type || Boolean ||
@@ -164,6 +165,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
 || 4545 || `PlayerVictorious` || See if player is victorious || 1 - player index || Boolean ||
 || 5345 || `PlayerWareDistribution` || Returns the ware distribution for the specified resource, house and player || 1 - player index <br> 2 - Resource type <br> 3 - House type || Integer ||
+|| 6510 || `RallyPointX` || Returns X coordinate of Rally Pnt of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
+|| 6510 || `RallyPointY` || Returns Y coordinate of Rally Pnt of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
 || 6323 || `StatAIDefencePositionsCount` || How many defence positions AI player has. Useful for scripts like "if not enough positions and too much groups then add a new position" || 1 - player index || Integer ||
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || 5057 || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
@@ -255,6 +258,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GroupOrderStorm` || Order the specified group to storm attack || 1 - Group ID ||
 || 5057 || `GroupOrderWalk` || Order the specified group to walk somewhere || 1 - Group ID <br> 2 - X <br> 3 - Y <br> 4 - Direction ||
 || 5057 || `GroupSetFormation` || Sets the number of columns (units per row) for the specified group || 1 - Group ID <br> 2 - Columns ||
+|| 6510 || `HouseAddBuildingMaterials` || Add building materials to the specified WIP house area || 1 - House ID ||
 || 6297 || `HouseAddBuildingProgress` || Add 5 points of building progress to the specified WIP house area || 1 - House ID ||
 || 5057 || `HouseAddDamage` || Add damage to the specified house || 1 - House ID <br> 2 - Damage amount ||
 || 5441 || `HouseAddRepair` || Reduces damage to the specified house || 1 - House ID <br> 2 - Repair amount ||
@@ -283,7 +287,7 @@ All action parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlanAddHouse` || Adds a house plan. Returns true if the plan was successfully added or false if it failed (e.g. location blocked) || 1 - Player index <br> 2 - House type <br> 3 - X <br> 4 - Y || Success: Boolean ||
 || 5057 || `PlanAddRoad` || Adds a road plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 5057 || `PlanAddWinefield` || Adds a wine field plan. Returns true if the plan was successfully added or false if it failed (e.g. tile blocked) || 1 - Player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
-|| 6303 || `PlanConnectRoad` || Connects road plans between two points like AI builder and returns True if road plan was successfully added || 1 - Player index <br> 2 - X1 <br> 3 - Y1<br> 4 - X2<br> 5 - Y2 || Success: Boolean ||
+|| 6303 || `PlanConnectRoad` || Connects road plans between two points like AI builder and returns True if road plan was successfully added. If CompletedRoad = True, road will be added instead of plans || 1 - Player index <br> 2 - X1 <br> 3 - Y1<br> 4 - X2<br> 5 - Y2<br> 6 - Completed road - Boolean || Success: Boolean ||
 || 5345 || `PlanRemove` || Removes house, road or field plans from the specified tile for the specified player || 1 - player index <br> 2 - X <br> 3 - Y || Success: Boolean ||
 || 5165 || `PlayerAddDefaultGoals` || Add default goals/lost goals for the specified player. If the parameter buildings is true the goals will be important buildings. Otherwise it will be troops. || 1 - player index <br> 2 - buildings: Boolean ||
 || 5097 || `PlayerAllianceChange` || Change whether player1 is allied to player2. If Compliment is true, then it is set both ways (so also whether player2 is allied to player1) || 1 - player1 index <br> 2 - player2 index <br> 3 - Compliment: Boolean <br> 4 - Allied: Boolean ||
