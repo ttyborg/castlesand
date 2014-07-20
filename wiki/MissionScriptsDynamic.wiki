@@ -165,8 +165,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `PlayerName` || Get name of player as a string (for multiplayer) || 1 - player index || !AnsiString ||
 || 4545 || `PlayerVictorious` || See if player is victorious || 1 - player index || Boolean ||
 || 5345 || `PlayerWareDistribution` || Returns the ware distribution for the specified resource, house and player || 1 - player index <br> 2 - Resource type <br> 3 - House type || Integer ||
-|| 6510 || `RallyPointX` || Returns X coordinate of Rally Pnt of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
-|| 6510 || `RallyPointY` || Returns Y coordinate of Rally Pnt of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
+|| 6510 || `RallyPointX` || Returns X coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
+|| 6510 || `RallyPointY` || Returns Y coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
 || 6323 || `StatAIDefencePositionsCount` || How many defence positions AI player has. Useful for scripts like "if not enough positions and too much groups then add a new position" || 1 - player index || Integer ||
 || 5057 || `StatArmyCount` || How many military units player has || 1 - player index || Integer ||
 || 5057 || `StatCitizenCount` || How many citizen player has || 1 - player index || Integer ||
