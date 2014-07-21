@@ -121,8 +121,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `GroupOwner` || Returns the owner of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || 5932 || `GroupType` || Returns the type of the specified group or -1 if Group ID invalid || 1 - Group ID || Integer ||
 || 5057 || `HouseAt` || Returns the ID of the house at the specified location or -1 if no house exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
-|| 6510 || `HouseBarracksRallyPointX` || Returns X coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
-|| 6510 || `HouseBarracksRallyPointY` || Returns Y coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
+|| 6516 || `HouseBarracksRallyPointX` || Returns X coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
+|| 6516 || `HouseBarracksRallyPointY` || Returns Y coordinate of Rally Point of specified barracks or 0 if BarracksID is invalid || 1 - Barracks ID || Integer ||
 || 6285 || `HouseBuildingProgress` || Returns building progress of the specified house || 1 - House ID || Integer ||
 || 5993 || `HouseCanReachResources` || Returns true if the specified house can reach the resources that it mines (coal, stone, fish, etc.) || 1 - House ID || Boolean ||
 || 5057 || `HouseDamage` || Returns the damage of the specified house or -1 if House ID invalid || 1 - House ID || Integer ||
@@ -138,7 +138,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5057 || `HouseRepair` || Returns true if the specified house has repair enabled || 1 - House ID || Boolean ||
 || 5057 || `HouseResourceAmount` || Returns the amount of the specified resource in the specified house || 1 - House ID <br> 2 - Resource type || Integer ||
 || 5165 || `HouseSchoolQueue` || Returns the unit type in the specified slot of the school queue. Slot 0 is the unit currently training, slots 1..5 are the queue. || 1 - House ID <br> 2 - slot || Integer ||
-|| 6510 || `HouseSiteIsDigged` || Returns true if specified WIP house area is digged (digging finished, no building progress yet) || 1 - House ID || Boolean ||
+|| 6510 || `HouseSiteIsDigged` || Returns true if specified WIP house area is digged || 1 - House ID || Boolean ||
 || 5057 || `HouseType` || Returns the type of the specified house || 1 - House ID || Integer ||
 || 6001 || `HouseTypeName` || Returns the the translated name of the specified house type. Note: To ensure multiplayer consistency the name is returned as a number encoded within a markup which is decoded on output, not the actual translated text. Therefore string operations like !LowerCase will not work. || 1 - House type || !AnsiString ||
 || 6220 || `HouseUnlocked` || Returns true if the specified player can build the specified house type (unlocked and allowed). || 1 - Player index <br> 2 - House type || Boolean ||
