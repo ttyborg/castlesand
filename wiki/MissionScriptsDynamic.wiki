@@ -68,6 +68,7 @@ Above line means that when `PlayerDefeated` event comes from the game, we check 
 ===Events===
 
 || Version || Event || Description || Parameters and types ||
+|| 6570 || `OnBeacon` || Occurs when a player places a beacon on the map. || aPlayerIndex: Integer; //Player who placed it <br> aX: Integer; //X coordinate of the beacon <br> aY: Integer; //Y coordinate of the beacon ||
 || 6114 || `OnHouseAfterDestroyed` || Occurs after a house is destroyed and has been completely removed from the game, meaning the area it previously occupied can be used. If you need more information about the house use the !OnHouseDestroyed event. || aHouseType: Integer; //Type of the house <br> aOwner: Integer; //Index of player who owned it <br> aX: Integer; //X coordinate of the house <br> aY: Integer; //Y coordinate of the house ||
 || 5057 || `OnHouseBuilt` || Occurs when player has built a house || aHouseID: Integer; //HouseID of the house that was built ||
 || 5882 || `OnHouseDamaged` || Occurs when a house is damaged by the enemy soldier. If !AttackerIndex is -1 the house was damaged some other way, such as from Actions.!HouseAddDamage. || aHouseID: Integer; //House that is damaged <br> aAttackerIndex: Integer; //UnitID of attacker ||
