@@ -135,6 +135,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 6216 || `ClosestGroupMultipleTypes` || Returns the group of the specified player and group types that is closest to the specified coordinates, or -1 if no such group was found. The group types is a "set of Byte", for example [1,3] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Group types || Integer ||
 || 6216 || `ClosestHouseMultipleTypes` || Returns the house of the specified player and house types that is closest to the specified coordinates, or -1 if no such house was found. The house types is a "set of Byte", for example [11,13,21] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - House types || Integer ||
 || 6216 || `ClosestUnitMultipleTypes` || Returns the unit of the specified player and unit types that is closest to the specified coordinates, or -1 if no such unit was found. The unit types is a "set of Byte", for example [0,9] ||1 - player index <br> 2 - X <br> 3 - Y <br> 4 - Unit types || Integer ||
+|| 6602 || `ConnectedByRoad` || Check if two tiles are connected by walkable road ||1 - X1 <br> 2 - Y1 <br> 3 - X2 <br> 4 - Y2 || Boolean ||
+|| 6602 || `ConnectedByWalking` || Check if two tiles are connected by a walkable route ||1 - X1 <br> 2 - Y1 <br> 3 - X2 <br> 4 - Y2 || Boolean ||
 || 5097 || `FogRevealed` || Check if a tile is revealed in fog of war for a player ||1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `GameTime` || Get the number of game ticks since mission start || - || Integer ||
 || 5057 || `GroupAt` || Returns the ID of the group of the unit on the specified tile or -1 if no group exists there || 1 - X coordinate <br> 2 - Y coordinate || Integer ||
