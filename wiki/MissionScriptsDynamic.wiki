@@ -59,9 +59,31 @@ end;
 Above line means that when `PlayerDefeated` event comes from the game, we check the index of the player that was defeated (aIndex) and issue a command to show certain message to specified player (0, who is human). Also, each tick we check the games time and on tick 20 (2 seconds from mission starting) we show another message. Message text is retrieved from the mission's .LIBX file using the markup <$123> (fetches text ID 123 from LIBX), meaning it will be in the player's own language if a translation has been made.
 
 
+==Global campaign data==
+This feature allows you to store data between missions in a campaign. First, create a file in your campaign folder `campaigndata.script`. In that file you must put the definition of the data you want to store. We recommend using a record so you can easily add more data in the future. Here is an example `campaigndata.script`:
+{{{
+record
+  Mission1: record
+    SoldiersRemaining: Integer;
+    TimeOfVictory: Integer;
+  end;
+  Mission2: record
+    Army: array of record
+                     UnitType, X, Y: Integer;
+                   end;
+    TimeOfVictory: Integer;
+  end;
+end;
+}}}
+The data can then be accessed and modified with the global variable `CampaignData` (the type is TCampaignData), for example: `CampaignData.Mission1.TimeOfVictory`. The data is stored in the user's campaign progress file (Saves\Campaigns.dat).
+ * The data will be loaded when a campaign mission is started, and saved whenever the user exits, regardless of whether they won the mission. This allows you to record information about failed attempts. If you only want to record data when the user wins the mission, you should only save data into the global variable `CampaignData` within the event `OnPlayerVictory`.
+ * The user may go back and play an earlier mission, so it is advised to separate the data which each mission will modify, as shown in the above example. In other words, don't reuse the same structures in every mission since missions might be played out of order.
+
+
 ==Other resources==
  * *Lookup tables* (unit/house/ware types): MissionScriptsLookups
  * *Scripting tutorial*: MissionScriptsDynamicTutorial
+ * *Scripting hints*: MissionScriptsHints
  * *Language reference*: http://www.delphibasics.co.uk/ (note: our scripts don't have all the features of Delphi, but this is still a useful reference)
 
 
