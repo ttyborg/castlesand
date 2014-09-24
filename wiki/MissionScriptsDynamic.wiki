@@ -181,6 +181,8 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 6587 || `MapTileObject` || Returns the terrain object ID on the tile at the specified XY coordinates. Object IDs can be seen in the map editor on the objects tab. Object 61 is "block walking". Return value range is 0..255. If there is no object on the tile, the result will be 255. || 1 - X <br> 2 - Y || Integer ||
 || 6587 || `MapTileRotation` || Returns the rotation of the tile at the specified XY coordinates. Return value range is 0..3 || 1 - X <br> 2 - Y || Integer ||
 || 6587 || `MapTileType` || Returns the tile type ID of the tile at the specified XY coordinates. Tile IDs can be seen by hovering over the tiles on the terrain tiles tab in the map editor. Return value range is 0..255 || 1 - X <br> 2 - Y || Integer ||
+|| 6613 || `MapWidth` || Returns the width of the map ||  || Integer ||
+|| 6613 || `MapHeight` || Returns the height of the map ||  || Integer ||
 || 6287 || `MarketFromWare` || Returns type of !FromWare in specified market, or -1 if no ware is selected || 1 - Market ID || Integer ||
 || 6217 || `MarketLossFactor` || Returns the factor of resources lost during market trading, used to calculate the !TradeRatio (see explanation in `MarketValue`). This value is constant within one KaM Remake release, but may change in future KaM Remake releases ||  || Single ||
 || 6287 || `MarketOrderAmount` || Returns trade order amount in specified market || 1 - Market ID || Integer ||
