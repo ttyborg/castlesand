@@ -177,6 +177,7 @@ All states parameters are numeric and get mapped to unit/house types according t
 || 5345 || `IsRoadAt` || Returns true if the specified player has a road at the specified location. If player index is -1 it will return true if any player has a road at the specified tile || 1 - player index <br> 2 - X <br> 3 - Y || Boolean ||
 || 5057 || `KaMRandom` || Returns a random single (float) such that: 0 <= Number < 1.0 ||  || Single ||
 || 5057 || `KaMRandomI` || Returns a random integer such that: 0 <= Number < !LimitPlusOne || 1 - !LimitPlusOne || Integer ||
+|| 6611 || `LocationCount` || Returns the number of player locations available on the map (including AIs), regardless of whether the location was taken in multiplayer (use !PlayerEnabled to check if a location is being used) ||  || Integer ||
 || 6587 || `MapTileHeight` || Returns the height of the terrain at the top left corner (vertex) of the tile at the specified XY coordinates. Return value range is 0..100 || 1 - X <br> 2 - Y || Integer ||
 || 6587 || `MapTileObject` || Returns the terrain object ID on the tile at the specified XY coordinates. Object IDs can be seen in the map editor on the objects tab. Object 61 is "block walking". Return value range is 0..255. If there is no object on the tile, the result will be 255. || 1 - X <br> 2 - Y || Integer ||
 || 6587 || `MapTileRotation` || Returns the rotation of the tile at the specified XY coordinates. Return value range is 0..3 || 1 - X <br> 2 - Y || Integer ||
