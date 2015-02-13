@@ -1,4 +1,4 @@
-#Mission settings in mission_name.txt.
+#summary Mission settings in mission_name.txt
 
 = Flags =
 
