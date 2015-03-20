@@ -1,0 +1,1 @@
+![http://castlesand.googlecode.com/svn/wiki/img/houses_order.png](http://castlesand.googlecode.com/svn/wiki/img/houses_order.png)
